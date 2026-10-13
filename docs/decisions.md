@@ -59,3 +59,13 @@ Livrable : [etape1-classifieur.md](etape1-classifieur.md).
 - Les comparaisons avec et sans TESSERA devront réutiliser les mêmes points
   d'entraînement et de validation (`--keep-polygons`), le partage étant aléatoire.
 - `geotessera` est exclu dans l'image (Python 3.8) : lecture directe des `.npy`.
+- Vérifié sur le job 43193 de `eostat-12m` (site 91 `wallonia_24`, saison 2024) :
+  la socket Docker est montée dans le lanceur ;
+  `general.orchestrator.docker_add_mounts` vaut déjà
+  `/eodata:/eodata,/mnt/scratch:/mnt/scratch`, donc `/eodata` est visible du
+  lanceur et des conteneurs de calcul ; `--features` reçoit des jetons séparés ;
+  `config_job` est une copie complète de la configuration.
+- Écarts de cette instance ancienne avec la v4.0 : pas de `--job-id` ni de
+  paramètres `--pix-*` transmis, pas de clés `classifier` / `catboost.*`,
+  `processor.insitu.path` en `{year}` au lieu de `{season}`. Ils renforcent le
+  besoin d'une instance v4.0 avant l'étape 5.

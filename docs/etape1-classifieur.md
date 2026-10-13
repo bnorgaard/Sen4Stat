@@ -28,9 +28,9 @@ sauf mention contraire.
 
 Le conteneur `crop-map-s4s` ne calcule presque rien lui-même. Il interroge la
 base, écrit des VRT, puis lance d'autres conteneurs avec le SDK Docker
-(`ContainerInfo.run`, l. 335-383). Il a donc besoin d'accéder au démon Docker
-de l'hôte (hypothèse : socket `/var/run/docker.sock` montée par
-l'orchestrateur ; non visible dans ce code).
+(`ContainerInfo.run`, l. 335-383). Il accède au démon Docker de l'hôte par la
+socket `/var/run/docker.sock`, montée par l'orchestrateur (vérifié sur un job
+réel, §10).
 
 | Image | Utilisation |
 |---|---|
@@ -209,19 +209,18 @@ Un modèle est entraîné **par strate** (`model_STRATE.yaml` ou `.cbm`), sur le
    comparer avec et sans TESSERA (étapes 4 et 7), il faudra garder les mêmes
    points. L'option `--keep-polygons` saute la sélection et réutilise les
    fichiers existants du répertoire de travail.
-2. **`features-filter`** est décrit en base comme une liste séparée par des
-   virgules, mais `--features` attend des jetons séparés par des espaces
-   (`nargs="*"`). Hypothèse : l'orchestrateur découpe la valeur. À vérifier dans
-   les journaux d'un job.
+2. **`features-filter`** est stocké en base avec des virgules
+   (`sr10,sr20,vi,vis,re`), et l'orchestrateur le découpe en jetons séparés
+   pour `--features` (vérifié, §10).
 3. **Clé de montage.** Le script ne lit que la clé globale
    `general.orchestrator.docker_add_mounts`. La clé
    `general.orchestrator.s4s-crop-type-mapping.docker_add_mounts` du cadrage
-   n'existe pas en v4.0. La façon dont l'orchestrateur monte les volumes du
-   conteneur lanceur lui-même reste à établir (code compilé).
+   n'existe pas en v4.0. L'orchestrateur applique aussi la clé globale au
+   conteneur lanceur : `/eodata` et `/mnt/scratch` y sont montés (vérifié, §10).
 4. **Clés en mode job.** Avec `--job-id`, seules les clés copiées dans
-   `config_job` à la création du job sont visibles. Hypothèse : toutes les clés
-   `processor.s4s_crop_mapping.*` le sont, donc de futures clés `tessera-*`
-   aussi. À vérifier sur un job existant.
+   `config_job` à la création du job sont visibles. Sur `eostat-12m`, cette
+   table contient une copie complète de la configuration (497 clés) : de
+   futures clés `tessera-*` y figureraient. À revérifier sur une instance v4.0.
 5. **CatBoost avec strates.** Les noms des échantillons sont écrits en `.sqlite`
    pour les strates (l. 1247-1252) mais recherchés avec l'extension `.parquet`
    (l. 1315-1316). Hypothèse : CatBoost avec plusieurs strates ne trouve pas
@@ -235,3 +234,48 @@ Un modèle est entraîné **par strate** (`model_STRATE.yaml` ou `.cbm`), sur le
 8. **Volume.** Pour une saison de 6 mois, le jeu par défaut compte de l'ordre de
    250 features (estimation : 19 dates × 11 séries + 15 statistiques + S1).
    128 dimensions TESSERA ajoutent environ 50 %.
+9. **Chemin in situ.** Le script ne remplace que `{site}` et `{season}` dans
+   `processor.insitu.path` (`sample-selection.py`, l. 406-407). La v4.0 utilise
+   `/mnt/archive/insitu/{site}/{season}` (`09.config.sql`, l. 755), mais une
+   instance plus ancienne peut avoir `{year}` (cas de `eostat-12m`).
+
+## 10. Vérification sur un job réel
+
+Job 43193 de `eostat-12m` (installation antérieure à la v4.0, image `0.3.0`) :
+site 91 (`wallonia_24`), saison du 01/01/2024 au 31/12/2024. Paramètres lus
+dans les tables `config_job` et `step` le 13/10/2026.
+
+Commande du conteneur lanceur (table `step`), chemins de travail abrégés :
+
+```
+docker run --rm -u 1002:1007 --group-add 994
+  -v /var/run/docker.sock:/var/run/docker.sock
+  -v /eodata:/eodata -v /mnt/scratch:/mnt/scratch
+  -v /mnt/scratch/orchestrator_temp/s4s_crop_mapping:/mnt/scratch/orchestrator_temp/s4s_crop_mapping
+  -v /mnt/archive:/mnt/archive -v /etc/sen2agri:/etc/sen2agri
+  -v /etc/sen2agri/sen2agri.conf:/etc/sen2agri/sen2agri.conf
+  -v /mnt/data/archive:/mnt/data/archive
+  sen4x/crop-map-s4s:0.3.0 crop-map-s4s.py -s 91
+  --season-start 2024-01-01 --season-end 2024-12-31
+  --working-path …/43193/205938-s4s-crop-type-mapping/
+  --output-path …/43193/205939-product-formatter/
+  --remapping-set-id 1 --features sr10 sr20 vi vis re
+```
+
+Constats :
+
+- la socket Docker est montée et le groupe `994` ajouté : c'est ainsi que le
+  lanceur démarre les conteneurs de calcul, sous le même utilisateur `1002:1007` ;
+- `general.orchestrator.docker_add_mounts` vaut
+  `/eodata:/eodata,/mnt/scratch:/mnt/scratch` : `/eodata` est déjà monté dans le
+  lanceur, et le script le transmet aux conteneurs de calcul ;
+- `--features` reçoit des jetons séparés ;
+- cet orchestrateur ancien ne transmet **ni `--job-id`, ni les paramètres
+  `--pix-*`, `--smote-ratio`, `--sample-ratio-*`**. Avec le script 0.5.0, la
+  configuration serait alors lue dans `v_site_config` et les autres paramètres
+  prendraient leurs valeurs par défaut (hypothèse) ;
+- `config_job` ne contient ni `classifier` ni `catboost.*` : version antérieure
+  à CatBoost.
+
+Le comportement de l'orchestrateur v4.0 reste à vérifier de la même façon sur
+une instance v4.0.
