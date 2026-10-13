@@ -1,0 +1,665 @@
+<style>
+	#prevSites {width:50%}
+	#prevSites:disabled {color:lightgrey;}
+	#defineNew {margin-bottom:10px}
+	
+	#time_range_grp.has-error .form-control{border-color:#ccc;}
+	#time_range_grp .select2-container--default .select2-selection--multiple{border-color:#cccccc;line-height:2rem;overflow:auto !important;height:auto !important;max-height:9rem}
+	#time_range_grp .select2-selection--multiple:not([aria-disabled='true']) .select2-selection__choice{background-color:#79bde4;color:#286080;}
+	#time_range_grp .select2-selection--multiple:not([aria-disabled='true']) .select2-selection__choice,
+	#time_range_grp .select2-container--default .select2-selection--multiple .select2-selection__choice__remove{border-color:#79bde4;}
+	#time_range_grp .select2-selection__clear{display:none !important;}
+	#time_range_grp .select2-search.select2-search--inline{display:contents}
+	#time_range_grp .select2-container--default .select2-selection--multiple:not([aria-disabled='true']) .select2-selection__choice__display,
+	#time_range_grp .select2-container--default .select2-selection--multiple:not([aria-disabled='true']) .select2-selection__choice__remove>*{color:#3a6ba0}
+	
+	.roiRegionSelection select{padding:0px}
+	
+	.general_params{display:inline-flex}
+	.general_params>i{margin-left:-1.5rem;margin-top:0.6rem;}
+	.general_params>i:hover{color:#3a6ba0}
+	@media (max-width:400px) {#prevSites{width:100%;}}
+</style>
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+
+<!-- include select2 -->
+<link rel="stylesheet" type="text/css" href="assets/libs/select2/4.1.0/select2.min.css" />
+<script type="text/javascript" src="assets/libs/select2/4.1.0/select2.min.js"></script>
+
+<h3 class="panel-title">Define your region of interest, region of interest and service availability</h3>
+
+<div class="panel-body">
+	<h4 class="panel-title">Area of interest and sensing period</h4>
+	
+	<div class="form-group row">
+		<label class="col-md-12" for="defineNew">
+			<input type="radio" class="form-control" name="serviceInfo" id="defineNew" value="defineNew" checked /><label>Define a new area of interest</label>
+		</label>
+		<label class="col-md-12" for="usePrevSite">
+			<input type="radio" class="form-control" name="serviceInfo" id="usePrevSite" value="usePrevSite"/><label>Reuse the area of interest and data from a previous service request</label>
+			<span>If you reuse the data from an existing request, you cannot increase the area of interest or sensing period, but you can reuse existing EO and Dynamic Crop Mask products, decreasing the processing time and costs.</span>
+		</label>
+		<label class="col-md-12" for="prevSites" style="padding-left:3.8rem">
+			<select id="prevSites"  class="form-control" disabled>
+				<option value="" selected disabled> -- Select service -- </option>			
+			</select>
+		</label>
+	</div>
+</div>
+
+<div class="panel-body">
+	<h4 class="panel-title">Earth Observation Data</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Select Earth observation data to be used.</span>
+		</label>
+	</div>
+	<div id="earthObsData">
+	</div>
+</div>
+
+<div class="panel-body roi">
+	<h4 class="panel-title">Region of interest</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Please define your Region(s) of Interest using a GIS layer in ESRI Shapefile (in a zip file including all the components of the layer), GeoJSON or KML format.</span>
+			<input type="file" class="form-control" id="shapeFile" name="shapeFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');"/>
+			<span class="extra-info">Maximum file size: 5 MB</span>
+		</label>
+	</div>
+	<div class="form-group row">
+		<div class="col-md-12">
+			<div id="mapExtent"></div>
+		</div>
+	</div>
+	<div class="form-group row horizontal">
+		<div class="latlon">
+			<label class="col-md-3"><strong>Min Latitude </strong><input type="number" class="form-control" id="latmin" name="latmin" placeholder="Lat min" value="" /></label>
+			<label class="col-md-3"><strong>Max Latitude </strong><input type="number" class="form-control" id="latmax" name="latmax" placeholder="Lat max" value="" /></label>
+			<label class="col-md-3"><strong>Min Longitude</strong><input type="number" class="form-control" id="lonmin" name="lonmin" placeholder="Lon min" value="" /></label>
+			<label class="col-md-3"><strong>Max Longitude</strong><input type="number" class="form-control" id="lonmax" name="lonmax" placeholder="Lon max" value="" /></label>
+		</div>
+	</div>
+	<div class="form-group row horizontal">
+		<div class="roiRegionSelection">
+			<label class="col-md-3">
+				<strong>Continent </strong>
+				<select id="roiContinent" class="form-control">
+					<option value="" selected disabled> -- Select continent -- </option>			
+				</select>
+			</label>
+			<label class="col-md-3">
+				<strong>Country </strong>
+				<select id="roiCountry" class="form-control">
+					<option value="" selected disabled> -- Select country -- </option>			
+				</select>
+			</label>
+			<label class="col-md-3 hidden">
+				<strong>Region </strong>
+				<select id="roiRegion" class="form-control">
+					<option value="" selected disabled> -- Select region -- </option>			
+				</select>
+			</label>
+		</div>
+	</div>
+</div>
+
+<div class="panel-body sensing_period">
+	<h4 class="panel-title">Sensing period</h4>
+	<div class="form-group row">
+		<label class="col-md-12"><span>Select the sensing period of the data that will be used. The period can be maximum one year!</span></label>
+	</div>
+	<div class="form-group row horizontal" id="time_range_grp">
+		<label class="col-md-3" style="display:inline-block">
+			<strong>From:</strong>
+			<input type="text" class="form-control date-field" name="startDate" id="startDate" autocomplete="off" value="" />
+		</label>
+		<label class="col-md-3" style="display:inline-block">
+			<strong>To:</strong>
+			<input type="text" class="form-control date-field" name="endDate" id="endDate" autocomplete="off" value="" />
+		</label>
+		<label class="col-md-3" style="display:inline-block">
+			<strong>Except Month:</strong>
+			<label class="col-md-12" style="padding:0px">
+				<select id="exceptMonth" name="exceptMonth" class="form-control" multiple disabled></select>
+			</label>
+		</label>
+	</div>
+	<div class="form-group row">
+		<label class="col-md-12" for="additionalDataSpecifications"><strong>Additional data specifications</strong><span>Detail here any other complementary information about the selection of your datasets.</span>
+			<textarea class="form-control" rows="3" maxlength="300" name="additionalDataSpecifications" id="additionalDataSpecifications" placeholder="Free text (300 words max.)"></textarea>
+			<span class="extra-info">Free text (300 words max.)</span>
+		</label>
+	</div>
+</div>
+<div class="submit-buttons">
+	<button class="go-to-page request-btn blue-btn left-btn">Previous</button>
+	<button class="go-to-page request-btn blue-btn">Next</button>
+</div>
+
+<script type="text/javascript">
+	var clearSelections = true;
+	var clearShapefile = true;
+	var roiIgnoreLevels = [2]
+	var  months = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	/* Functions */
+	function populateContinentCountry (data, level, parentIndex, value){
+		var $container = regionTypeEnum(level);
+		$.each(data, function (index,obj) {
+			if ($.inArray(level, roiIgnoreLevels) < 0) {
+				$container.append("<option data-level='" + level + "' data-parent-index='" + parentIndex + "' value='" + value + index +"'>" + obj.name + "</option>");
+				if (typeof obj.regions !== "undefined" && obj.regions !== null) {
+					populateContinentCountry (obj.regions, level + 1, value + index.toString(), value + index.toString());
+				}
+			}
+			if (typeof obj.regions !== "undefined" && obj.regions !== null && $.inArray(level, roiIgnoreLevels) >= 0) {
+				populateContinentCountry (obj.regions, level + 1, parentIndex, value + index.toString());
+			}
+		});
+	}
+	
+	function filterRoi (selection) {
+		var parentIndex = selection.attr("data-parent-index");
+		var selectionId = selection.parent().attr("id");
+		
+		var nextLevelElement = $("#" + selectionId).closest("label").next();
+		if (nextLevelElement.length > 0) {
+			$("option",nextLevelElement).removeClass("keep hidden");
+			$("option[value!='']",nextLevelElement).prop("selected",false);
+			$("option[value='']",nextLevelElement).prop("selected",true);
+			var elementId = nextLevelElement.find("select").attr("id");
+			//variable used to keep the removed options, in order to add them later
+			var hiddenOptions = "";
+			$("#" + elementId).find("option[data-parent-index='" + selection.val() +"']").addClass("keep");//mark those elements that needs to be kept
+			//remove unmarked elements and add the to hiddenOptions variable
+			$("#" + elementId).find("option:not(.keep)[value!='']").remove().map(function(){hiddenOptions+=$(this).addClass("hidden").prop('outerHTML')});
+			//add the removed elements on the end of the select element
+			$("#" + elementId).append(jQuery.parseHTML(hiddenOptions));
+			$("#" + elementId).find("option[value='']").prop('selected', true);
+			//if next level element has data (except the option with no value) and is hidden, remove hidden class;
+			if (nextLevelElement.hasClass("hidden") && $("#" + elementId).find("option:not(.hidden)").length > 1) {
+				nextLevelElement.removeClass("hidden");
+			} else if ($("#" + elementId).find("option:not(.hidden)").length < 2) {//if next level element does not have data (except the option with no value) add hidden class
+				nextLevelElement.addClass("hidden");
+			}
+			filterRoi(nextLevelElement);
+		}
+		
+		var prevElement = $("#" + selectionId).closest("label").prev();
+		if (prevElement.length > 0) {
+			selectRoi(prevElement.find("select").attr("id"), parentIndex);
+		} else {
+			selection.nextAll("label").addClass("hidden");
+		}
+	}
+	
+	function selectRoi(elemId, value) {
+		$("#" + elemId).find("option[value='" + value +"']").prop("selected",true);
+	}
+	
+	function resetCountryFilters() {
+		$("#roiCountry").find("option").removeClass("hidden");
+		$("#roiCountry").find("option").removeClass("keep");
+	}
+	
+	function resetSelections() {
+		$("#roiContinent").find("option[value='']").prop("selected", true);
+		$("#roiCountry").find("option[value='']").prop("selected", true);
+		resetCountryFilters();
+	}
+	
+	function iterateToFindWKT (data, regionName, level, currentLevel) {
+		var found;
+			$.each(data, function (index, object) {
+				if (currentLevel < level) {
+					found = iterateToFindWKT (object.regions, regionName, level, currentLevel + 1);
+					if (typeof found !== "undefined") {
+						return false;
+					}
+				} else {
+					if (typeof object.regions !== "undefined" && object.regions !== null) {
+						found = object.regions.find(element => element.name === regionName);
+						if (typeof found !== "undefined") {
+							return false;
+						}
+					}
+				}
+			});
+		return found;
+	}
+	function findWKT (data, regionName, level) {
+		var found;
+		if (level === 1) {
+				found = data.find(element => element.name === regionName);
+			}
+			if (level >= 2) {
+				found = iterateToFindWKT (data, regionName, level, 2);
+			}
+		return found.extentPolygon;
+	}
+	
+	function createGeneralPramSection (data) {
+		var html = "";
+		$.each(data, function (idx, param) {
+			if (param.serviceUiVisible) {
+				var $generalParamDiv;
+				if ($("div#"+param.categoryId, "#request_usr_page_2").length === 0) {
+					var $categoryTemplate = $("div","#processor_category_template").clone().removeClass("col-md-12").attr("id",param.categoryId);
+					$("h4",$categoryTemplate).html(param.category);
+					var $sibling = $(".sensing_period","#request_usr_page_2");
+					$sibling.before($categoryTemplate);
+					$generalParamDiv = $("div#"+param.categoryId,"#request_usr_page_2");
+				}
+				$generalParamDiv = $("div#"+param.categoryId,"#request_usr_page_2");
+				html = createGeneraParamHtml(param);
+				$generalParamDiv.append(html);
+			}
+		});
+	}
+	// TODO merge this with createProcessorHtml
+	function createGeneraParamHtml(param){
+		html = "<div class='form-group row'>";
+		switch (param.dataType) {
+				case "string":
+					html += "<label class='col-md-5'><span>"+param.label+"</span></label><div class='col-md-7'>";
+					if (typeof param.allowedValues !== "undefined" && param.allowedValues !== null) {
+						var allowedValues = param.allowedValues;
+						if (typeof allowedValues.allowed_values !== "undefined" && allowedValues.allowed_values !== null) {
+							html += "<label class='col-md-5' for='" + param.key + "'><select id='"+param.key +"' name='"+param.key +"'>";
+							$.each(allowedValues.allowed_values, function (key,obj) {
+								html += "<option value='"+obj.value+"'>"+obj.display+"</option>";
+							});
+							html += "</select></label>";
+						} else {
+							console.log("WARN: For case string this case is not treated");
+						}
+					} else {
+						html += "<label class='col-md-12' for='"+param.key+"'><input type='text' autocomplete='off' id='"+param.key+"' name='"+param.key+"' value='" +param.value+"' /></label>";
+					}
+					html += "</div>";
+					break;
+				case "string[]":
+					var allowedValues = param.allowedValues;
+					if (typeof param.allowedValues !== "undefined" && allowedValues !== null) {
+						if (typeof allowedValues.allowed_values !== "undefined" && allowedValues.allowed_values !== null) {
+							$.each(allowedValues.allowed_values, function (key,obj) {
+								var paramId = param.id+"_"+key;
+								html += "<label class='col-md-12' for='"+paramId+"'><input type='checkbox' name='"+param.key+"' id='"+paramId+"' /><label>"+param.label+"</label></label>";
+							});
+						}
+					} else {
+						console.log("WARN: For case string[] this case is not treated");
+					}
+					break;
+				case "directory":
+					console.log("WARN: For case directory is not treated");
+					break;
+				case "file":
+					html += "<label class='col-md-5'><span>"+param.label+"</span></label><div class='col-md-7'>";
+					html += "<label class='col-md-12' for='"+param.key+"'><input type='file' name='"+param.key+"' id='"+param.key+"' /></label>";
+					html+="</div>";
+					break;
+				case "int":
+					html += "<label class='col-md-5'><span>"+param.label+"</span></label><div class='col-md-7'>";
+					var allowedValues = typeof param.allowedValues !== "undefined" && param.allowedValues !== null ? param.allowedValues.bounds : null;
+					if (typeof param.allowedValues !== "undefined" && allowedValues !== null) {
+						html += "<label class='col-md-12 general_params' for='"+param.key+"'><input type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='1' min='"+allowedValues.min+"' max='"+allowedValues.max+"' disabled />";
+					} else {
+						html += "<label class='col-md-12 general_params' for='"+param.key+"'><input type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='1' disabled />";
+					}
+					html += "<i class='fa fa-pencil' aria-hidden='true'></i></label>";
+					html+="</div>";
+					break;
+				case "float":
+					html += "<label class='col-md-5'><span>"+param.label+"</span></label><div class='col-md-7'>";
+					var allowedValues = typeof param.allowedValues !== "undefined" && param.allowedValues !== null ? param.allowedValues.bounds : null;
+					if (allowedValues !== null) {
+						html += "<label class='col-md-12 general_params' for='"+param.key+"'><input type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='0.1' min='"+allowedValues.min+"' max='"+allowedValues.max+"' disabled />";
+					} else {
+						html += "<label class='col-md-12 general_params' for='"+param.key+"'><input type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='0.1' disabled />";
+					}
+					html += "<i class='fa fa-pencil' aria-hidden='true'></i></label>";
+					html+="</div>";
+					break;
+				case "bool":
+					var checkedProp = stringToBoolean(param.value)?"checked":"";
+					html += "<label class='col-md-12' for='"+param.key+"'><input type='checkbox' name='"+param.key+"' id='"+param.key+"' "+checkedProp+" /><label>"+param.label+"</label></label>";
+					break;
+				default:
+					console.log("WARN: "+param.dataType+"is not treated");
+					break;
+			}
+			html += "</div>";
+			return html;
+	}
+		
+	$(document).ready(function() {
+		$("#exceptMonth").select2({width: "100%", height:"30%", allowClear: true, dropdownPosition: 'below'});
+		/* START Check if exist previous service request and populate fields */
+		refreshAreaOfInterest();
+		/* END Check if exist previous service request and populate fields */
+		
+		/* START populating the continent, country and region fileds*/
+		
+		if (typeof $("#content").data("retrivedRegions") !== "undefined") {
+			populateContinentCountry($("#content").data("retrivedRegions").regions, 1, "", "");
+			//sort displayed options
+			$.each($("select[id]","div.roiRegionSelection"), function (idx,elem) {
+				var sortedOptsList = $(elem).find("option:not(:disabled)");
+				sortedOptsList.sort(function(a, b) { return $(a).text() > $(b).text() ? 1 : -1; });
+				$(elem).find("option:not(:disabled)").remove();
+				$(elem).append(sortedOptsList);
+			});
+		}
+		/* END populating the continent, country and region fileds */
+		
+		/* START populating general parameters */
+		if (typeof $("#content").data("generalParams") !== "undefined") {
+			var generalParamHtml = "";
+			createGeneralPramSection($("#content").data("generalParams"));
+		}
+		/* END populating general parameters */
+		
+		
+		
+		var getPoligon = function (form) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				mimeType   : "multipart/form-data",
+				url  : baseApiUrl + "request/decode-shape",
+				type : "POST",
+				data : form
+			});
+		};
+		
+		$("#shapeFile").on("change", function (e) {
+			clearShapefile = false;
+			resetSelections();
+			var formData = new FormData($('#request_usr_form').get(0));
+			$.when(getPoligon(formData)).done(function(JSONresponse){
+				var _map = window.myPolygonMap;
+				_map.removeAllFeatures();
+				_map.startDrawing();
+				var response = JSON.parse(JSONresponse);
+				if (response.status === responseStatus.success) {
+					var polygon = response.data;
+					populateRegionOfInterest(polygon);
+				} else {
+					var error = "<label id='roiSelect-error' class='error col-md-12' for='roiSelect'> Wrong selected file format or content.</label>";
+					$("#shapeFile").closest("div").append(error);
+					console.log(response.status + ": " + response.message);
+				}
+				clearShapefile = true;
+			});
+		});
+		
+		$("#request_usr_page_2").on("change", "#latmin, #latmax, #lonmin, #lonmax", function () {
+			resetSelections();
+			$("#shapeFile").val(null);
+			var latmin = $("#latmin").val();
+			var latmax = $("#latmax").val();
+			var lonmin = $("#lonmin").val();
+			var lonmax = $("#lonmax").val();
+			var _map = window.myPolygonMap;
+			if (latmin != "" && latmax != "" && lonmin != "" && lonmax != "") {
+				drawRectangle(latmin, latmax, lonmin, lonmax, _map.source);
+				_map.fitAllFeatures();
+				_map.restartActiveInteraction();
+				
+			}else if (latmin != "" || latmax != "" || lonmin != "" || lonmax != "") {
+				_map.removeAllFeatures();
+				_map.startDrawing();
+			}
+		});
+		
+		$("#request_usr_page_2").on("change", "#roiContinent, #roiCountry, #roiRegion", function () {
+			filterRoi($(this).children("option:selected"));
+			var selection = $($(this).children("option:selected")[0]).text();
+			var level = parseInt($($(this).children("option:selected")[0]).attr("data-level"));
+			var wkt = findWKT($("#content").data("retrivedRegions").regions, selection, level);
+			clearSelections = false;
+			populateRegionOfInterest(wkt);
+			clearSelections = true;
+		});
+		
+		$("input[name='serviceInfo']").change(function () {
+			var _map = window.myPolygonMap;
+			
+			$(this).closest(".form-page").find("label.error").remove();
+			if ($(this).is(":checked") && $(this).attr("id") === "usePrevSite") {
+				$(this).closest("div.form-group").removeClass("has-error");
+				$("#content").data("prevSelectedService", $("#prevSites").val());
+				$("#prevSites").prop("disabled", false);
+				
+				//disable region of interest and sensing period
+				$(".panel-body.roi").find('input, select').each(function() {
+					$(this).prop("disabled", true);
+				});
+				$("div#time_range_grp").find('input').each(function() {
+					$(this).prop("disabled", true);
+				});
+				
+				populateWithPrevServiceInfo(_map);
+			} else {
+				$("#prevSites").prop("disabled", true);
+				// enable and reset observation data
+				createObsDataList();
+				
+				//enable region of interest and sensing period
+				$(".panel-body.roi").find('input, select').each(function() {
+					$(this).prop("disabled", false);
+				});
+				$("div#time_range_grp").find('input').each(function() {
+					$(this).prop("disabled", false);
+				});
+				
+				clearRegionOfInterest();
+				clearSensingPeriod();
+				_map.initializeInteractions();
+				_map.setReadOnly(false);
+				_map.removeAllFeatures();
+			}
+			if (!_map.readOnly) {
+				_map.startDrawing();
+			}
+		});
+		
+		$("#prevSites").change(function () {
+			populateWithPrevServiceInfo(window.myPolygonMap);
+		});
+		
+		$("#exceptMonth").on("change", function (e) { $("#content").removeData("defaultScheduledType"); });
+		
+		function populateWithPrevServiceInfo (_map) {
+			var existingSiteId = $("#prevSites").val();
+			if (existingSiteId !== null) {
+				var existingSite;
+				$.each($("#content").data("existingServices"), function(index, item) {
+					if(item.id === parseInt(existingSiteId)) {
+						existingSite = item;
+						return false;
+					}
+				});
+				$.each($("input[type='checkbox']"), function () {
+					if (this.id.startsWith("use")) {
+						if ($.inArray(this.value, existingSite.datasets) >= 0) {
+							$(this).prop({"checked": true/*,"disabled": true*/});
+						} else {
+							$(this).prop({"checked": false/*, "disabled": true*/});
+						}
+					}
+				});
+				// check the mandatory satellites if are not
+				var selectedProcessorList = $("#processor").val();
+				var mandatoryObservationData = $("#content").data("serviceList").filter(i => $.inArray(i.id.toString(),selectedProcessorList)>=0).map(item=>item.mandatorySatellites);
+				var uniqueMandatory = Array.from(new Set(Array.prototype.concat(...mandatoryObservationData)));
+				$.each(uniqueMandatory, function (idx, value) {
+					$("#use"+value).prop("checked",true);
+				});
+				populateRegionOfInterest(existingSite.footprint);
+				if ($("#usePrevSite").is(":checked")) {
+					_map.setReadOnly(true);
+					_map.resetInteractions();
+				}
+				$("#startDate").val(existingSite.startDate);
+				$("#endDate").val(existingSite.endDate);
+				populateExceptMonthSelect(0,13);
+				$("#exceptMonth").val(existingSite.exceptMonths);
+				$("#exceptMonth").trigger('change');
+			}
+		};
+		
+		function populateRegionOfInterest(polygon) {
+			var _map = window.myPolygonMap;
+			_map.createShapeFromGeometry(polygon, { extraFeatureDescription: "preview" }, true);
+			$("textarea[name='userText']").val(polygon);//WORKAROUND to avoid GEOMETRYCOLLECTION to be send insted of MULTIPOLYGON
+			_map.fitAllFeatures();
+			_map.restartActiveInteraction();
+		};
+		
+		function populateExceptMonthSelect(startMonthPos, endMonthPos) {
+			for (var i = startMonthPos + 1; i < endMonthPos; i++) {
+			  $("#exceptMonth").append("<option value='" + i + "'>" + months[i] + "</option>");
+			}
+		}
+			
+		function clearSensingPeriod() {
+			$("#startDate").val(null);
+			$("#endDate").val(null);
+			$("#exceptMonth").html("");
+			$(".date-field").closest("div").find("label.error").remove();
+		};
+		
+		var datepickerYearRange = new Date().getFullYear()-30+":+30";
+		// Date pickers with active validation
+		$(".date-field").datepicker({ changeYear: true, changeMonth: true, yearRange: datepickerYearRange, dateFormat: "yy-mm-dd" })
+		.on('change', function() {
+			$("#content").removeData("defaultScheduledType");
+			/* START used to keep the sensing period to one year */
+			if (this.id === "startDate") {
+				var newMaxDate = new Date($("#startDate").val());
+				newMaxDate.setFullYear(newMaxDate.getFullYear() + 1);
+				if ($("#endDate").val() !== "") {
+					$(this).valid();
+				}
+				if ($("#endDate").val() !== "" && $("#startDate").val() <= $("#endDate").val()) {
+					if (!validPeriod($("#startDate").val(),$("#endDate").val())) {
+						$("#endDate").val("");
+					}
+					$("#endDate").datepicker("option",{maxDate:newMaxDate,minDate:new Date($("#startDate").val())});
+				}
+			}
+			if (this.id === "endDate") {
+				var newMinDate = new Date($("#endDate").val());
+				newMinDate.setFullYear(newMinDate.getFullYear() - 1);
+				if ($("#startDate").val() !== "") {
+					$(this).valid();
+				}
+				if ($("#startDate").val() !== "" && $("#startDate").val() <= $("#endDate").val()) {
+					if (!validPeriod($("#startDate").val(),$("#endDate").val())) {
+						$("#startDate").val("");
+					}
+					$("#startDate").datepicker("option",{maxDate:new Date($("#endDate").val()),minDate:newMinDate,setDate:null});
+				}
+			}
+			/* END used to keep the sensing period to one year */
+			if ($("#startDate").val() != "" && $("#endDate").val() != "" && validPeriod($("#startDate").val(),$("#endDate").val())) {
+				$("input.changedByUser","#request_usr_page_3").removeClass("changedByUser");
+				$("#startDate, #endDate").datepicker("option",{minDate: null, maxDate: null});
+				if ($(this).valid()) {
+					$("#exceptMonth").find("option[value!='']").remove();
+					var startYear = parseInt($("#startDate").val().substring(0,$("#startDate").val().indexOf("-")));
+					var endYear = parseInt($("#endDate").val().substring(0,$("#endDate").val().indexOf("-")));
+					var startMonthIndex = $("#startDate").val().indexOf("-") + 1;
+					var endMonthIndex = $("#startDate").val().lastIndexOf("-");
+					var startMonth = parseInt($("#startDate").val().substring(startMonthIndex,endMonthIndex));
+					var endMonth = parseInt($("#endDate").val().substring(startMonthIndex,endMonthIndex));
+					if (startYear === endYear) {
+						populateExceptMonthSelect(startMonth,endMonth);
+					} else {
+						populateExceptMonthSelect(0,endMonth);
+						populateExceptMonthSelect(startMonth,13);
+					}
+				}
+			} else {
+				$("#exceptMonth").prop("disabled", true);
+			}
+		});
+		
+		$(".fa-pencil",".general_params").on("click",function(){
+			$(this).addClass("hidden");
+			$(this).siblings("input").prop("disabled",false);
+		});
+		
+		$("input","label.general_params").on("focusout keypress", function (e) {
+			e.stopPropagation();
+			$(this).siblings("i.fa-pencil").removeClass("hidden");
+			$(this).prop("disabled",true);
+			e.preventDefault();
+		});
+	});
+/* Map functionalities */
+	function clearRegionOfInterest() {
+		$("#latmin").val(null);
+		$("#latmax").val(null);
+		$("#lonmin").val(null);
+		$("#lonmax").val(null);
+		if (clearShapefile){
+			$("#shapeFile").val(null);
+		}
+		if (clearSelections) {
+			resetSelections();
+		}
+		$("#shapeFile").closest("div.roi").find("label.error").each(function() {
+			$(this).remove();
+		});
+	};
+
+	window.myPolygonMap = { mapActive: false };
+	var olPoly = $("#mapExtent").poly2D({ startLat: 47, startLon: 14, zoom: 3.5, maxFeaturesNo: 1, extraFeatureDescription: "preview", panPrc: 0 });
+	$.when(olPoly).done(function (result) {
+		if (typeof result.readOnly === "boolean") {
+			$("#mapExtent").removeClass("hidden");
+			$(".sliderscontainer ","#mapExtent").addClass("hidden");
+			myPolygonMap = result;
+			var _map = myPolygonMap;
+			if (_map.mapActive) {
+				_map.setReadOnly(false);
+			}
+		}
+		_map.el.on("newfootprint", function (evt, footprint) {
+			evt.stopPropagation();
+			var drawnFeatures = _map.getAllFeatures().getArray();
+			if (drawnFeatures.length > 0) {
+				var extent = drawnFeatures[0].getGeometry().getExtent();
+				var transedExtent = ol.proj.transformExtent(extent, "EPSG:3857", "EPSG:4326");
+				if (clearSelections) {
+					resetSelections();
+				}
+				$("#latmin").val(transedExtent[1]);
+				$("#latmax").val(transedExtent[3]);
+				$("#lonmin").val(transedExtent[0]);
+				$("#lonmax").val(transedExtent[2]);
+				$(".roi", "#request_usr_page_2").find("label.error").remove();
+			}else {
+				clearRegionOfInterest();
+			}
+		});
+	});
+	// Bring all features on map into view
+	$("#show_on_map").on("click", function (e) {
+		if (myPolygonMap.mapActive) {
+			var _map = myPolygonMap;
+			_map.fitAllFeatures();
+		}
+	});
+/* END Map functionalities */
+
+//# sourceURL=request_region_of_interest.js
+</script>

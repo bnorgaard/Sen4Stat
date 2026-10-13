@@ -1,0 +1,1857 @@
+<section class="dialogs">
+	<div id="sites_browser">
+		<div class="treeview-holder panel flexible-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Product browser</h3>
+				<span class="glyphicon glyphicon-filter panel-control filter rspace" title="Filters"></span>
+				<span class="glyphicon glyphicon-refresh panel-control filter-reset" title="Reset filters"></span>
+			</div>
+			<div class="treeview sub panel-body"></div>
+		</div>
+	</div>
+	<div id="search_filters" class="file">
+		<div id="sites_names" class="panel fixed-panel">
+			<div class="panel-heading"><h3 class="panel-title">Site Name</h3></div>
+			<div class="panel-body">
+				<select id="siteName" name="sites[]" multiple="multiple">
+					<option value="">Select sites</option>
+				</select>
+			</div>
+		</div>
+		<div id="sensor_type" class="panel flexible-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Sensor & Product Type</h3>
+			</div>
+			<div class="panel-body">
+				<div class="searchSensor">
+					<div class="checkboxGroup filter-group">
+						<label><input type="checkbox" id="S1" name="sensor" value="3" checked="checked" />S1<div class="checkbox-container"><span class="checkbox"></span></div></label>
+						<label><input type="checkbox" id="S2" name="sensor" value="1" checked="checked" />S2<div class="checkbox-container"><span class="checkbox"></span></div></label>
+						<label><input type="checkbox" id="L8" name="sensor" value="2" checked="checked" />L8<div class="checkbox-container"><span class="checkbox"></span></div></label>
+					</div>
+				</div>
+				<div class="searchProductType">
+					<div class="checkboxGroup"></div>
+				</div>
+			</div>
+		</div>
+		<div id="range_filters" class="panel flexible-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Filters</h3>
+			</div>
+			<div class="panel-body">
+				<div class="searchTiles filter-group">
+					<label class="group-left">Tiles</label>
+					<div class="group-right"><input name="tiles" type="text" class="form-control" disabled="disabled" /></div>
+				</div>
+				<div class="searchInterval">
+					<div class="checkboxGroup filter-group">
+						<label class="group-left"><input type="checkbox" id="optseason" name="optseason" value="season" disabled="disabled" />Season<div class="checkbox-container"><span class="checkbox"></span></div></label>
+						<div class="group-right">
+							<select id="choose_season" name="choose_season" class="form-control" disabled="disabled"><option value="">Select season</option></select>
+						</div>
+					</div>
+					<div class="checkboxGroup filter-group">
+						<label class="group-left"><input type="checkbox" id="optinterval" name="optinterval" value="interval" />Interval<div class="checkbox-container"><span class="checkbox"></span></div></label>
+						<div class="group-right">
+							<input type="text" name="interval_from" class="form-control inlineDatepicker" value="" />
+							&nbsp;&#9654;&nbsp;
+							<input type="text" name="interval_to" class="form-control inlineDatepicker" value="" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="search_button" class="fixed-panel">
+			<button name="search" class="btn add-edit-btn btn-cancel">Search</button>
+		</div>					
+	</div>
+	<div id="properties">
+		<div class="attributes-holder panel flexible-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Attributes</h3>
+				<span class="glyphicon glyphicon-chevron-up panel-control min"></span>
+				<span class="glyphicon glyphicon-chevron-down panel-control max"></span>
+			</div>
+			<div class="panel-body">
+				<table class="table table-striped table-hover"><thead></thead><tbody></tbody></table>
+				<div class="imagepreview-holder hidden"><div><span class="fa fa-expand fa-fw full-preview"></span><img src=""></div></div>
+			</div>
+		</div>
+		<div class="actions-holder panel fixed-panel">
+			<div class="panel-heading">
+				<h3 class="panel-title">Actions</h3>
+			</div>
+			<div class="panel-body">
+				<table class="actions-set for-files">
+					<tr class="action download-holder">
+						<td><span class="action-name">Download</span></td>
+						<td><span class="action-info"></span></td>
+						<td><a class="download" href="#"><button class="btn btn-md add-edit-btn btn-download" disabled="disabled"><i class="fa fa-download fa-fw"></i> Download</button></a></td>
+					</tr>
+					<tr class="action markers-holder">
+						<td><span class="action-name">Markers</span></td>
+						<td><span class="action-info"></span></td>
+						<td><button class="btn btn-md add-edit-btn btn-markers" disabled="disabled"><i class="fa fa-line-chart fa-fw"></i> Show Markers</button></td>
+					</tr>
+				</table>
+				<div class="error hidden"></div>
+			</div>
+		</div>
+	</div>
+	<div id="graph_full_screen">
+		<div class="markers-holder panel fixed-panel">
+			<div class="panel-heading"><h3 class="panel-title">Markers</h3></div>
+			<div class="panel-body">
+				<div class="search-markers form-group">
+					<input type="text" name="search_markers" class="form-control" placeholder="Search" />
+					<span class="glyphicon glyphicon-remove icon hidden"></span>
+					<span class="glyphicon glyphicon-refresh selection-reset" title="Reset selection"></span>
+				</div>
+				<div class="markersGroup"></div>
+			</div>
+		</div>
+		<div id="graph_to_export" class="graph-holder panel flexible-panel">
+			<div class="panel-heading"><h3 class="panel-title">Selection</h3><span class="graph-info">A selected and not displayed marker has no values for the selected parcel</span></div>
+			<div class="panel-body">
+				<div id="graph_container_full_screen" class="chart"></div>
+				<div id="graph_legend"></div>
+				<div id="export_button"><button class="export-chart btn btn-success btn-xs">Export chart</button></div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="mapExtent" class="hidden"></section>
+<section class="treeview-loading"><img src="assets/dist/img/loader.gif" /></section>
+<!-- Template -->
+<div style="display:none" id="markersGroup_content_template">
+	<p></p>
+	<div class="checkboxGroup markers"></div>
+</div>
+<style>
+	/* Hide header elements */
+	#wp-custom-header{display:none}
+</style>
+
+<style>
+	.layout-sm{overflow:hidden}
+	.layout-sm #header{display:none}
+
+	.treeview-loading{position:fixed;width:auto;top:160px;left:48%;left:calc(50% - 40px);background:#ffffffc7;border:1px solid #aad3df;border-radius:20px;margin:0;padding:20px}
+	.treeview-loading img{width:60px;height:60px;border:0;margin:0}
+	
+	/* Specific styles */
+	#mapExtent{height:100vh}
+	
+	/* Full screen elements */
+	#main2 .full-screen{position:fixed;top:0;z-index:9999;left:0;width:100%;margin:0;padding:0;background-color:rgba(0,0,0,0.5);height:100%;cursor:pointer;overflow:auto}
+	#main2 .full-screen>div{position:unset}
+	#main2 .full-screen img{position:absolute;top:0;bottom:0;left:0;right:0;margin:auto;width:auto;border:5px solid rgba(255, 255, 255, 0.3);border-radius:5px;max-width:100%;max-height:100%}
+	
+	.clean-slate{opacity:0.95;height:auto!important}
+	.clean-slate .dash-row{max-height:calc(100vh - 70px)!important}
+	.clean-slate .dash-row>hr{margin:15px 0}
+	.clean-slate .dash-row .dash-row-title{margin-top:0}
+</style>
+<style>
+	/* Sites Browser */
+	#sites_browser{font-family:"Roboto Condensed",Arial,Helvetica,sans-serif}
+	#sites_browser .treeview{padding-left:25px;padding-bottom:25px;min-height:50vh}
+	#sites_browser input[type="checkbox"]{display:none}
+	#sites_browser a{display:block;cursor:pointer;padding:0 7px 0 0;line-height:1.8em;max-height:1.8em;white-space:nowrap;margin-right:10px;width:auto;width:max-content}
+	#sites_browser a:hover,
+	#sites_browser a.selected{color:var(--color-default);background-color:var(--table-hover-bg-color)}
+	#sites_browser a span{float:right;padding:0 10px 0 7px;width:110px;text-align:right;color:#5c5d5e}
+	#sites_browser label>a{font-weight:400;font-size:1.6rem;line-height:2.8rem}
+	#sites_browser .fa{float:none;width:30px;color:var(--color-default)}
+	#sites_browser .fa-folder{color:#ffb85d}
+	#sites_browser label{position:relative;color:#5c5d5e;display:block;margin-bottom:0}
+	#sites_browser label::before{content:'\f105';margin-left:0;display:block;position:absolute;top:2px;left:-17px;font-family:'FontAwesome';font-size:2rem;padding:0 7px;color:#5c5d5e;opacity:0.3}
+	#sites_browser input:checked+label::before{content:'\f107';margin-left:-3px}
+	#sites_browser input:checked+label .fa-folder::before{content:'\f07c'}
+	#sites_browser .treeview:hover div>label::before{opacity:0.3}
+	#sites_browser .treeview:hover input:checked+label::before{opacity:1}
+	#sites_browser input~.sub{display:none;margin-left:22px}
+	#sites_browser input:checked~.sub{display:inline-block}
+	#sites_browser input:checked~.sub.loading,
+	#sites_browser input:checked~.sub.empty{height:auto}
+	#sites_browser input:checked~.sub.empty::after{content:"Empty...";color:#b1d3e6;width:100%;display:block;padding:0 10px;text-align:left;font-size:0.8em;line-height:16px}
+	#sites_browser input:checked~.sub.loading::after{content:"Loading...";color:red;width:100%;display:block;padding:0 10px;text-align:left;font-size:1em;line-height:16px}
+	#sites_browser input:checked~.sub.loading.failed::after{content:"Loading failed...";color:#da0000;font-weight:700}
+	#sites_browser label.select-for{position:absolute;margin:0;top:0;left:0;width:23px;height:25px;cursor:pointer}
+	#sites_browser label.select-for::before{position:absolute;left:7px;top:9px;content:"\002713";line-height:0;padding:0;opacity:0}
+	#sites_browser label.select-for::after{content:'';position:absolute;width:13px;height:13px;border:1px solid rgba(89,161,185,0.25);left:6px;top:5px}
+	#sites_browser label.select-for~a{margin-left:23px}
+	#sites_browser label.select-for.checked::after{border:1px solid #59a1b9}
+	#sites_browser label.select-for.checked::before{color:#ff7000;opacity:1}
+	#sites_browser label.select-for:hover::after{border:1px solid #59a1b9}
+	#sites_browser label.select-for.checked:hover::after{border:1px solid #ff7000}
+	#sites_browser .has-selectable-for>div>label>a>span.fa-folder{margin-left:-2px}
+	#sites_browser .has-selectable-for>div>.sub{margin-left:43px}
+	#sites_browser .fa-fw{margin-right:5px}
+	#sites_browser .treeview.compact{width:75%}
+	#sites_browser a.unavailable,
+	#sites_browser a.unavailable span,
+	#sites_browser a.unavailable .fa{opacity:0.5}
+	
+	#sites_browser .treeview .sub.mCustomScrollbar{max-height:22.5em;overflow-y:auto;overflow-x:hidden;margin-left:0}
+	#sites_browser .treeview .sub.mCustomScrollbar .mCSB_inside>.mCSB_container{margin-right:0;margin-left:28px}
+	#sites_browser .treeview .sub.mCustomScrollbar .mCSB_inside>.mCSB_scrollTools{left:6px;right:auto}
+	#sites_browser .treeview .sub.mCustomScrollbar .mCSB_inside>.mCSB_scrollTools .mCSB_buttonUp{margin:0;width:100%}
+	#sites_browser .treeview .sub.mCustomScrollbar .mCSB_inside>.mCSB_scrollTools .mCSB_buttonDown{margin:0;width:100%}
+</style>
+<style>
+	/* Search Filters */
+	#search_filters{font-size:14px;font-family:"Roboto Condensed",Arial,Helvetica,sans-serif}
+	#search_filters .panel-body{padding:10px}
+	#search_filters .select2-container--default .select2-selection--multiple{border-color:var(--table-border-color);line-height:22px}
+	#search_filters .select2-selection__choice{background-color:var(--color-default);color:white;line-height:20px}
+	#search_filters .select2-container--default .select2-selection--multiple .select2-selection__choice__remove{font-size:18px;color:white;line-height:18px}
+	#search_filters .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover{color:red}
+	#search_filters .checkboxGroup>label{position:relative;cursor:pointer;font-weight:400;padding-left:20px;line-height:20px;margin:0}
+	#search_filters .checkboxGroup>label input[type="checkbox"]{display:none}
+	#search_filters .checkboxGroup>label .checkbox-container{width:13px;height:13px;position:absolute;top:3px;left:0;background:#fff;border:1px solid #bcbcbc}
+	#search_filters .checkboxGroup>label:hover input[type="checkbox"]:not(:disabled)+.checkbox-container{border-color:var(--color-default)}
+	#search_filters .checkboxGroup>label input[type="checkbox"]:disabled +.checkbox-container{opacity:0.3}
+	#search_filters .checkboxGroup>label .checkbox{display:block;width:9px;height:9px;margin:1px;background:#fff;-webkit-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease}
+	#search_filters .checkboxGroup>label input[type="checkbox"]:checked+.checkbox-container .checkbox{background-color:var(--color-default)}
+	#search_filters .searchSensor{border-bottom:1px dashed var(--table-border-color);margin-bottom:10px;background-color:rgba(128,128,128,0.08);margin:-10px -10px 10px -10px;padding:7px 10px}
+	#search_filters .searchSensor      .checkboxGroup>label{font-size:16px;padding-right:10px}
+	#search_filters .searchProductType .checkboxGroup{column-count:2}
+	#search_filters .searchProductType .checkboxGroup>label{display:block;margin-bottom:5px;font-size:12px;line-height:15px;padding-top:3px}
+	#search_filters .filter-group .form-control{font-size:14px;padding:4px 7px;height:auto;font-family:"Roboto Condensed",Arial,Helvetica,sans-serif}
+	#search_filters .filter-group>.group-left{width:30%;float:left;font-weight:700}
+	#search_filters .filter-group>.group-right{width:70%;float:right}
+	#search_filters .filter-group::after{display:table;content:" ";clear:both;margin-bottom:10px}
+	#search_filters .filter-group:last-child::after{content:none}
+	#search_filters .inlineDatepicker{width:12ch;display:inline}
+	#search_filters button[name='search']{width:100%;text-transform:uppercase;height:2.6em}
+
+	#myFlatMap .search-markers input, #myFlatMap .search-markers h4{display: inline;padding-right: 10px;}
+</style>
+<style>
+	/* Properties */
+	#properties.folder .for-files{display:none}
+	#properties.file .for-folders{display:none}
+	#properties .btn{float:right;width:130px;outline:none;overflow:hidden}
+	#properties .btn.btn-md{margin:0;padding:7px 10px;font-size:16px !important}
+	#properties .btn.btn-xs{margin:0;padding:2px 5px;font-size:14px !important}
+	#properties table{width:100%}
+	#properties table td{padding:5px 10px;line-height:1.2em;word-break:break-word;-ms-word-break:break-all}
+	#properties table td:first-child{width:25%;text-transform:capitalize;font-weight:700}
+	#properties table{border-color:var(--table-border-color)}
+	#properties table.table td{border-top:1px solid var(--table-border-color)}
+	#properties .imagepreview-holder{text-align:center;position:relative}
+	#properties .imagepreview-holder>div{text-align:center;display:inline-block;position:relative}
+	#properties .imagepreview-holder img{width:100%}
+	#properties .imagepreview-holder .full-preview{position:absolute;top:10px;right:10px;font:normal normal normal 14px/1 'FontAwesome';font-size:18px;color:white;background-color:#00a65a;border:2px solid white;border-radius:5px;width:28px;height:28px;margin:0;padding:3px;cursor:pointer}
+	#properties .imagepreview-holder .full-preview:hover{background-color:#00894b}
+	#properties .attributes-holder table,
+	#properties .attributes-holder table tr:first-child td{border:0}
+	#properties .actions-holder .panel-body{margin:5px 0}
+	#properties .action-name{font-size:16px;font-weight:600}
+	#properties .actions-holder .error pre{margin:5px 10px}
+	#properties #markers_list{padding:10px}
+	#properties #markers_list>div{width:50%}
+	#properties #markers_list label{font:15px/20px "Open Sans",Helvetica,Arial;color:#909090;padding-left:10px}
+	.properties.minimized>.panel-heading{border-bottom:6px solid var(--panel-thick-border);padding:5px 15px}
+	.properties.minimized>.panel-heading .panel-title{font-size:16px}
+</style>
+<style>
+	/* Markers and Graph */
+	.checkboxGroup.markers>label input[type="checkbox"],.checkboxGroup.markers .mCSB_container>label input[type="checkbox"]{display:none}
+	.checkboxGroup.markers,.checkboxGroup.markers .mCSB_container{min-width:275px}
+	.checkboxGroup.markers>label,.checkboxGroup.markers .mCSB_container>label{font-weight:400;line-height:1.4em;position:relative;padding-left:20px}
+	.checkboxGroup.markers>label{display:block;}
+	.checkboxGroup.markers>label .checkbox-marker-container,.checkboxGroup.markers .mCSB_container>label .checkbox-marker-container{width:13px;height:13px;position:absolute;top:3px;left:0;background:#fff;border:1px solid #bcbcbc}
+	.checkboxGroup.markers>label:hover .checkbox-marker-container,.checkboxGroup.markers .mCSB_container>label:hover .checkbox-marker-container{border-color:#555}
+	.checkboxGroup.markers>label input[type="checkbox"]:checked+.checkbox-marker-container .checkbox,.checkboxGroup.markers .mCSB_container>label input[type="checkbox"]:checked+.checkbox-marker-container .checkbox{width:9px;height:9px;margin:1px}
+
+	#graph_full_screen{font-family:"Roboto Condensed",Arial,Helvetica,sans-serif}
+	
+	#graph_full_screen>.markers-holder{flex-basis:auto;height:calc(100vh - 135px)}
+	#graph_full_screen>.graph-holder  {flex-basis:0   ;height:calc(100vh - 135px)}
+	#graph_full_screen>hr             {flex-basis:100%}
+	
+	#graph_full_screen .markers-holder .panel-body,
+	#graph_full_screen .graph-holder .panel-body{padding:15px}
+	
+	#graph_full_screen #graph_container_full_screen{float:left}
+	#graph_full_screen #graph_legend{float:left;padding-top:10px;max-height:calc(100vh - 235px);max-width:100px;overflow:hidden}
+	#graph_full_screen #export_button{position:absolute;right:10px;bottom:10px}
+	#graph_full_screen .search-markers .icon, #myFlatMap .search-markers .icon{color:red;float:right;cursor:pointer;left:-2rem;top:1rem;}
+	#graph_full_screen .legendColorBox{padding-right:5px}
+	#graph_full_screen .search-markers{display:inline-flex}
+	#tooltip{font-size:10px;font-family:"Open Sans","Helvetica",Arial;font-weight:700;font-style:oblique}
+	
+	#myFlatMap{font-size:12px;font-family:"Roboto Condensed",Arial,Helvetica,sans-serif}
+	.graphcontainer .markers{max-height:22em}
+	.graphcontainer .markers label{width:50%;word-break:break-all;}
+	.graphcontainer .chart{cursor:pointer}
+	.graphcontainer .mCSB_container{margin:0}
+	
+	.markersGroup p{font-style:italic;color:grey;}
+	.markersGroup .markers{padding-left:1rem;}
+	
+	#myFlatMap .drawer-panel .drawer-content{overflow:auto;max-height:50vh;}
+	.drawer-content .glyphicon.glyphicon-refresh.selection-reset, #graph_full_screen .glyphicon.glyphicon-refresh.selection-reset{font-size:2rem;padding-left:2rem;color:#2e6da4;padding-top:0.5rem;}
+	.drawer-content .glyphicon.glyphicon-refresh.selection-reset:hover, #graph_full_screen .glyphicon.glyphicon-refresh.selection-reset:hover{color:#17466f;}
+	
+	.graph-info{font-size:1rem;font-style:italic;color:#2e6da4;}
+	#graph_to_export .graph-info{font-size:1.5rem;text-align:right;}
+</style>
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/proj4-src.js"></script>
+<!-- includes graph controls -->
+<script type="text/javascript" src="assets/libs/flot/0.8.3/jquery.flot.min.js"></script>
+<script type="text/javascript" src="assets/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+ <!-- includes for datepicker and other controls -->
+<link rel="stylesheet" type="text/css" href="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.css" />
+<script type="text/javascript" src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+<script type="text/javascript" src="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.js"></script>
+<!-- include select2 -->
+<link rel="stylesheet" type="text/css" href="assets/libs/select2/4.0.5/select2.min.css" />
+<script type="text/javascript" src="assets/libs/select2/4.0.5/select2.min.js"></script>
+<!-- include html2canvas -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<!-- include custom scrollbar -->
+<link rel="stylesheet" type="text/css" href="assets/libs/customScrollbar/jquery.mCustomScrollbar.min.css" />
+<script type="text/javascript" src="assets/libs/customScrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+
+<script type="text/javascript">
+// ======================== PUBLIC Graph Colors ======================== //
+var graphColors =["#009945","#003366","#660000","#006666","#660066","#e17831","#25bb32","#a81541","#83c998","#e49a6d","#696969","#bada55","#7fe5f0","#ff0000","#ff80ed","#407294","#cbcba9","#f6f73d","#133337","#065535","#c0c0c0","#5ac18e","#f7347a","#576675","#ffc0cb","#008080","#ffd700","#ffa500","#ff7373","#00ffff","#40e0d0","#d3ffce","#0000ff","#b0e0e6","#c6e2ff","#003366","#fa8072","#ffff00","#7fffd4","#ffb6c1","#800000","#800080","#f08080","#c39797","#00ff00","#fff68f","#cccccc","#ffc3a0","#333333","#20b2aa"]
+var markersPattern = new RegExp("_mdb[0-9_]+");
+var markerNameString = ["sen4cap ", "marker database "];												 
+// ======================== PUBLIC PRODUCTS FUNCTIONS ======================== //
+function purgeAllProductsDialogs() {
+	purgeUiDialog("sites_browser");
+	purgeUiDialog("search_filters");
+	purgeUiDialog("properties");
+	purgeUiDialog("graph_full_screen");
+}
+
+// ======================== DOCUMENT READY ======================== //
+$(document).ready(function() {
+	var markers = {};
+	var markersList = {};
+	// Get site seasons
+	var getSiteSeasons = function (siteId) {
+		return $.ajax({
+			cache: false,
+			url: baseApiUrl + "sites/seasons?site=" + siteId,
+			type: 'GET'
+		});
+	};
+	// Get Vector Product attributes
+	var getVectorProductAttributes = function (name) {
+		return $.ajax({
+			url: baseApiUrl + "vector/" + name + ".json",
+			type: "GET",
+			async: false
+		});
+	};
+	
+	// Get markers for a site and productType / year
+	var getMarkers = function (siteName, year) {
+		var interMarkersList = jQuery.extend(true, {}, markers);
+		$.each(markers, function (key, val) {
+			$.ajax({
+				async: false,
+				cache: false,
+				url: baseApiUrl + "markers/names?site="  + siteName + "&productType=" + key + "&year=" + year,
+				type: "GET",
+				success: function (response) {
+					if (response.status === responseStatus.success) {
+						interMarkersList[key] = response.data;		 
+					} else {
+						interMarkersList[key] = [];	
+					}
+				}
+			});
+		});
+		return interMarkersList;
+	};
+	// Get parcel marker indices for a site and year
+	var getMarkerIndices = function (siteName, year, parcelId, markerIds){
+		var data = [];
+		$.each(markersList, function (key, valArray) {
+			if (valArray.length > 0) {
+				var commonListForKey = [];
+				$.each(valArray,function(i,v){
+					if ($.inArray(v,markerIds) > -1) {
+						commonListForKey.push(v);
+					}
+				});
+				$.each(commonListForKey, function(idx,markerName){
+					$.ajax({
+						cache: false,
+						async: false,
+						url: baseApiUrl + "markers?site="  + siteName + "&productType=" + key + "&year=" + year + "&parcels=" + parcelId + "&markers=" + markerName,
+						type: "GET",
+						success: function (response) {
+							if (response.status === responseStatus.success) {
+								data.push(response.data);
+							}
+						}
+					});
+				});
+			}
+		});
+		return data;
+	}
+ 
+	// === Dialog Ui Functions ========================================================================== //
+	function defineFormDialogs() {
+		// Clear all previously defined dialogs
+		purgeAllProductsDialogs();	
+				
+		// sites_browser dialog
+		$("#sites_browser")
+		.dialog({
+			title: (typeof siteTitle !== "undefined"?siteTitle.replaceAll(" ",""):"") + " Browser",
+			width: "460px",
+			autoOpen: true,
+			modal: false,
+			draggable: false,
+			resizable: false,
+			closeOnEscape: false,
+			position: { my: "left top", at: "left+10px top+10px", of: "body" },
+			dialogClass: "clean-slate sites_browser",
+			dashConvert: {
+				title: "Site &raquo; Product type &raquo; Product",
+				buttons: { reduce: "left", home: "right" }
+			},
+		})
+		.on("reduce", function () {
+			myPolygonMap.setPanPercentage(getMapPanPercentage());
+		});
+		// Filters dialog
+		$("#search_filters")
+		.dialog({
+			title: "FILTERS",
+			width: "460px",
+			autoOpen: false,
+			modal: false,
+			resizable: false,
+			closeOnEscape: false,
+			position: { my: "left top", at: "left bottom", of: $("#sites_browser .filter") },
+			dialogClass: "clean-slate filters",
+			dashConvert: {
+				title: "Configurations",
+				buttons: { close: "right" }
+			}
+		});
+		// Properties dialog
+		$("#properties")
+		.dialog({
+			title: "PROPERTIES",
+			width: "460px",
+			autoOpen: false,
+			modal: false,
+			resizable: false,
+			closeOnEscape: false,
+			position: { my: "left top", at: "right+10px top", of: $("#sites_browser").parent() },
+			dialogClass: "clean-slate properties",
+			dashConvert: {
+				title: "File name",
+				buttons: { minimize: "left", close: "right" }
+			}
+		}).on("minimize", function (e) {
+			var $dialog = $(this).closest(".ui-dialog");
+			// Check left window position
+			var windowWidth  = $(window).width();
+			var dialogLeft      = $dialog.offset().left;
+			var dialogWidth     = $dialog.outerWidth();
+			if (dialogLeft + dialogWidth > windowWidth) {
+				alignDialogRight($dialog);
+			}
+			// Check top window position
+			var windowHeight = $(window).height();
+			var dialogTop    = $dialog.offset().top;
+			var dialogHeight  = $dialog.outerHeight() + 15;
+			if (dialogTop + dialogHeight > windowHeight) {
+				var newTop = windowHeight - dialogHeight;
+				newTop = newTop < 10 ? 10 : newTop;
+				$dialog.css({ "top": newTop + "px", "max-width": "100%"});
+			}
+		});
+		// Graph full screen dialog and add the export dialog
+		$("#graph_full_screen")
+		.dialog({
+			title: "CHARTS",
+			width: "calc(100% - 20px)",
+			autoOpen: false,
+			modal: true,
+			draggable: false,
+			resizable: false,
+			closeOnEscape: false,
+			beforeClose: function (event, ui) {
+				// Synchronize markers selection in map drawer with full screen selection
+				// and make sure preview chart drawer is visible for $.plot to work
+				var $parent = $(".graphcontainer", "#mapExtent");
+				if (!$(".chart", $parent).is(":visible")) {
+					myPolygonMap.togglePinDrawer($parent);
+					// Wait .5s opening animation to finish
+					setTimeout(function () { createParcelGraph(); }, 510);
+				}
+				filterMarkers("","graph_full_screen");
+			},
+			position: { my: "left top", at: "left+10px top+10px", of: "body" },
+			dialogClass: "clean-slate dash-horizontal graph",
+			dashConvert: {
+				buttons: { close: "right" }
+			}
+		});
+	}
+	function alignDialogRight($dialog, top) {
+		var mapControlsLeft = $(".ol-zoom", myPolygonMap.container).offset().left;
+		var dialogWidth     = $dialog.outerWidth();
+		if($dialog.hasClass("minimized")){
+			dialogWidth = $dialog.removeClass("minimized").outerWidth();
+			$dialog.addClass("minimized");
+		}
+		var dialogLeft      = mapControlsLeft - 10 - dialogWidth;
+		dialogLeft = dialogLeft < 10 ? 10 : dialogLeft;
+		$dialog.css({ "left": dialogLeft + "px" });
+		if (typeof top !== "undefined") {
+			$dialog.css({ "top": top + "px" });
+		}
+	}
+	
+	// === FILE TREE SECTION ========================================================================== //
+	var filterResponseData = null;
+	function refreshTree(attributes, filter) {
+		var root = (typeof attributes === "undefined");
+		var deferred = $.Deferred();
+		
+		if (root) $(".treeview-loading").removeClass("hidden");
+		var url = baseApiUrl + "products/?userId=" + window.userID + "&siteId=0&productTypeId=0";
+		if (attributes && attributes.site && attributes.fileInfo) {
+			url = baseApiUrl + "products/?userId=" + window.userID + "&siteId=" + attributes.site.id + "&productTypeId=" + attributes.fileInfo.fileID;
+		}
+		
+		if(filterResponseData === null && typeof filter !== "undefined"){
+			$.when(filterProducts(filter)).done(function (response) {
+				if (response.status == responseStatus.success) {
+					filterResponseData = JSON.parse(response.data);
+				}
+			});
+		}
+		if (filterResponseData !== null && filterResponseData.length === 0) {
+			$("#sites_browser .treeview").html("");
+			$(".treeview-loading").addClass("hidden");
+		} else {
+			$.ajax({
+				url: url,
+				type: "GET",
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Content-Type", "application/json");
+				},
+				success: function(response) {
+					if (root) $(".treeview-loading").addClass("hidden");
+					if (response.status === responseStatus.success) {
+						var data = response.data;
+						if (root) {
+							if (filterResponseData === null){
+								populateFiltersForm(data);
+							} else {
+								data = responseFilter(response.data, filter, filterResponseData);
+							}
+							populateTreeBranch(data);
+						} else {
+							// Filter products list for selected Product Type
+							if (filterResponseData !== null) {
+								data = filterTreeBranch(data, filterResponseData);
+							}
+							// Reach products list for selected Product Type
+							$.each(data, function () {
+								$.each(this.products, function () {
+									populateTreeBranch(this, attributes.relativePath);
+								});
+							});
+						}
+						deferred.resolve(response);
+					} else {
+						alert(response.message);
+						deferred.reject(null, response.status, response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					if (jqXHR.status == 500) {
+						deferred.reject(jqXHR, textStatus, errorThrown);
+					}
+					if (root) $(".treeview-loading").addClass("hidden");
+					deferred.reject(jqXHR, textStatus, "Error while loading files.");
+				}
+			});
+			return deferred.promise();
+		}
+	}
+	
+	function getParentFolder(node) {
+		var $parent = $("#sites_browser .treeview");
+		if (typeof node.parent !== "undefined" && typeof node.parent.relativePath !== "undefined") {
+			$parent = $("input[id='" + node.parent.relativePath + "']~.sub", $parent);
+		}
+		if ($parent.length === 0) { $parent = $("#sites_browser .treeview"); }
+		return $parent;
+	}
+	function renderFolder(node) {
+		if (typeof node === "undefined") { return; }
+		
+		//var parent = (typeof parentPath === "undefined" ? {} : $('~label>a', 'input[id="' + parentPath + '"]').data("attributes"));
+		var attributes = $.extend({},
+			node,
+			{
+				fileInfo: {
+					fileID  : node.id,
+					fileName: node.name,
+					fileSize: 0,
+					fileType: "folder",
+					uri     : ""
+				}
+			}
+		);
+		delete attributes.products;
+		
+		var $compsTree = $("#sites_browser .treeview");
+		var $parent = getParentFolder(node);
+		var $chk = $parent.find("input[id='" + node.relativePath + "']");
+		if ($chk.length === 0) {
+			var selectable = false;
+			var element = $('<div' + ($parent.hasClass("treeview") ? ' class="site"' : '') + '>' +
+								'<input type="checkbox" id="' + node.relativePath + '">' +
+								'<label for="' + node.relativePath + '">' +
+									(selectable ? '<label class="select-for"><input type="checkbox" class="select-for"></label>' : '') +
+									'<a href="#" title="' + attributes.fileInfo.fileName + '">' +
+										'<span class="fa fa-folder"></span>' +
+										attributes.fileInfo.fileName +
+									'</a>' +
+								'</label>' +
+								'<div class="sub loading empty"></div>' +
+							'</div>');
+			$parent.append(element);
+			$parent.removeClass("empty loading");
+			$chk = $parent.find("input[id='" + node.relativePath + "']");
+		}
+		// Save attributes
+		$("~label>a", $chk).data("attributes", attributes);
+	}
+	function populateTreeBranch(nodes, relativePath) {
+		var $compsTree = $("#sites_browser .treeview");
+		
+		if ((typeof nodes === "undefined") ||
+			($.isArray(nodes) && nodes.length === 0) ||
+			(typeof nodes === "object" && Object.keys(nodes).length === 0)) {
+			
+			$("input[id='" + relativePath + "']~div.sub", $compsTree).removeClass("loading");
+			return;
+		}
+		
+		var parentFolder = (typeof relativePath === "undefined" ? "" : relativePath);
+		if (parentFolder === "") {
+			// Sites => render as folders
+			$compsTree.html("");
+			$.each(nodes, function () {
+				var site = this;
+				site.relativePath = site.name + ":" + site.id;
+				site.type = "site";
+				renderFolder(site);
+				
+				// Continue with produt types
+				populateTreeBranch(site.products, site.relativePath);
+			});
+		} else if (parentFolder.indexOf(":") >= 0 && parentFolder.indexOf(":") == parentFolder.lastIndexOf(":")) {
+			// Product Types => render as folders
+			$.each(nodes, function (typeIdx, productTypes) {
+				var info = typeIdx.split(":");
+				var productType = {
+					id          : parseInt(info[1]),
+					name        : info[0],
+					type        : JSON.parse(info[3]) ? "raster" : "vector",
+					shortName	: info[2],
+					relativePath: parentFolder + "/" + typeIdx,
+					parent      : $('~label>a', 'input[id="' + parentFolder + '"]').data("attributes"),
+					site        : $('input[id="' + parentFolder + '"]').closest("div.site").find(">label>a").data("attributes")
+				};
+				renderFolder(productType);
+				if (markersPattern.test(info[2])) {
+					var description = info[0];
+					$.each(markerNameString, function(idx,str) {
+						description = description.toLowerCase().replace(str,"");
+					});
+					var startIndex = info[0].toLowerCase().indexOf(description);
+					var endIndex = info[0].indexOf(" (");
+					markers[info[2]] = info[0].substring(startIndex, endIndex);
+				}
+				// Continue with produts
+				populateTreeBranch(productTypes, parentFolder);
+			});
+		} else {
+			// Products => render as files
+			$.each(nodes, function (index, file) {
+				var size = parseInt(file.size);
+				if (size < 1024) {
+					size = size + " B";
+				} else if (size < 1024*1024) {
+					size = parseFloat(size / 1024, 2).toFixed(2) + " KB";
+				} else if (size < 1024*1024*1024) {
+					size = parseFloat(size / 1024 / 1024, 2).toFixed(2) + " MB";
+				} else if (size < 1024*1024*1024*1024) {
+					size = parseFloat(size / 1024 / 1024 / 1024, 2).toFixed(2) + " GB";
+				} else {
+					size = parseFloat(size / 1024 / 1024 / 1024 / 1024, 2).toFixed(2) + " TB";
+				}
+				
+				var parent = $('~label>a', 'input[id="' + parentFolder + '"]').data("attributes");
+				var attributes = $.extend({},
+					file,
+					{
+						fileInfo: {
+							fileID  : file.name, 
+							fileName: file.name,
+							fileSize: size,
+							fileType: parent.type,
+							uri	    : file.path
+						},
+						geometry    : file.footprint,
+						size        : size,
+						parent      : parent,
+						site        : $('input[id="' + parentFolder + '"]').closest("div.site").find(">label>a").data("attributes")
+					}
+				);
+				delete attributes.footprint;
+				
+				var fafile = attributes.fileInfo.fileType == "vector" ? "fa-cubes" : "fa-cube";
+				var $element = $('<a href="#" title="' + attributes.name + '"' + ((attributes.path || attributes.type === ".tile") ? '' : ' class="unavailable"') + '><span class="fa ' + fafile + '"></span>' + attributes.name + '</a>');
+				$element.data("attributes", attributes);
+				
+				var $folder = getParentFolder(attributes);
+				if (!$element.hasClass("unavailable") && $(".unavailable", $folder).length > 0) {
+					$element.insertBefore($(".unavailable", $folder).get(0));
+				} else {
+					$folder.append($element);
+				}
+				$folder.removeClass("empty loading");
+			});
+		}
+		
+		// Adjust folder indentation
+		$(".select-for", $compsTree).closest(".sub").addClass("has-selectable-for");
+	}
+	function expandFolder(relativePath) {
+		var $chk = $("input[id='" + relativePath + "']");
+		if ($chk.is(":checked") && $chk.siblings("div.sub.loading").length > 0) {
+			var $sub = $chk.siblings("div.sub");
+			$sub.removeClass("failed");
+			var attributes = $chk.siblings("label").find("a").data("attributes");
+			$.when(refreshTree(attributes))
+			.done(function () {
+				$sub.mCustomScrollbar({
+					axis: "y",
+					theme: "rounded-dots-dark"
+				});
+			})
+			.fail(function () {
+				$chk.siblings("div.sub.loading").addClass("failed");
+			});
+		}
+	}
+	$("#sites_browser .treeview").on("dblclick", "label", function (e) {
+		if (!$(e.target).hasClass("select-for")) {
+			var $chk = $(this).siblings("input[type='checkbox']");
+			if ($chk.length > 0) {
+				// Expand/collapse folder
+				$chk.prop("checked", !$chk.prop("checked"));
+				// Show folder contents
+				expandFolder($chk.attr("id"));
+			}
+		}
+	});
+	$("#sites_browser .treeview").on("change", "input[type='checkbox']", function () {
+		expandFolder($(this).attr("id"));
+	});
+	$("#sites_browser .treeview").on("click", "a", function (e) {
+		if ($(this).parent().hasClass("mCSB_scrollTools")) { return; }
+		
+		e.preventDefault();
+		var attributes = $(this).data("attributes");
+		// clean attributes by removing extra (temporary) information added during visualisation process
+		delete attributes["extra"];
+		
+		if ($("a.selected[title!='"+this.title+"']","#sites_browser").length > 0) {
+			if (attributes.fileInfo.fileType === $("a.selected[title!='"+this.title+"']","#sites_browser").data("attributes").fileInfo.fileType) {
+				$("#sites_browser .treeview a.selected").removeClass("selected");
+			}
+		}
+
+		$(this).addClass("selected");
+		
+		showProperties(attributes);
+	});
+	$("#sites_browser .treeview").on("change", "input.select-for", function () {
+		if ($(this).prop("checked")) {
+			$(this).parent().addClass("checked");
+		} else {
+			$(this).parent().removeClass("checked");
+		}
+	});
+	
+	// === PRODUCT PROPERTIES SECTION ================================================================== //
+	function displayPreviewOnMap(attributes) {
+		if (!myPolygonMap.mapActive) {
+			return;
+		}
+		cleanMap("Raster");
+		
+		var _map = myPolygonMap;
+		if (typeof attributes === "undefined") {
+			attributes = {
+				previewImage: { width: 260, height: 280, base64: "assets/dist/img/missing.jpg" }
+			};
+		} else {
+			_map.createShapeFromGeometry(attributes.geometry, { description: "preview", extraFeatureDescription: "preview" });
+			_map.setFeaturesStyleByProperty({ "description": "preview" }, _map.styleDefaultRO);
+			_map.fitAllFeatures();
+		}
+		var features = _map.getAllFeatures("preview").getArray();
+		if (features.length > 0 && features[0].getGeometry().getArea() > 0) {
+			proj4.defs("EPSG:32632", "+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs");
+			proj4.defs("EPSG:32633", "+proj=utm +zone=34 +datum=WGS84 +units=m +no_defs");
+			proj4.defs("EPSG:3035" , "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+			proj4.defs("EPSG:28992", "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs");
+			ol.proj.proj4.register(proj4);
+			
+			var mapDefaultProjection = "EPSG:3857";
+			var imgProjection = mapDefaultProjection;
+			// TODO: remove hardcoded values
+			if (attributes.name.indexOf("_L2A_") > 0) {
+				imgProjection = "EPSG:3035";
+			} else if (attributes.name.indexOf("_L3B_") > 0) {
+				switch (attributes.site) {
+					case 'Lithuania': imgProjection = "EPSG:32633"; break;
+					default:          imgProjection = "EPSG:32632"; break;
+				}
+			} else if (attributes.name.indexOf("_L3B_") > 0) {
+				imgProjection = "EPSG:32632";
+			}
+			
+			var feature = features[0];
+			var extent = feature.clone().getGeometry().transform(mapDefaultProjection, imgProjection).getExtent();
+			var geoImg = new ol.layer.Image({
+				name       : "Raster",
+				opacity    : window.imageLayerOpacity,
+				source: new ol.source.ImageStatic({
+					url: attributes.previewImage.base64,
+					projection: imgProjection,
+					imageExtent: extent
+				})
+			});
+			_map.map.addLayer(geoImg);
+			_map.refreshLayerOpacity();
+		}
+	}
+	function populateTableWithAttributes($table, attributes, extra) {
+		var readAttributes = $.extend({}, attributes, extra);
+		$.each(readAttributes, function (name, value) {
+			if (typeof value === "string") {
+				$("tbody", $table).append('<tr><td>' + name + '</td><td>' + (value ? value.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, "<br/>") : "") + '</td></tr>');
+			} else if (typeof value === "number") {
+				$("tbody", $table).append('<tr><td>' + name + '</td><td>' + value + '</td></tr>');
+			} else if (typeof value === "boolean") {
+				$("tbody", $table).append('<tr><td>' + name + '</td><td>' + (value ? "&#10003;" : "&#10007;") + '</td></tr>');
+			}
+		});
+		if ($("tbody tr", $table).length === 0) {
+			$("tbody", $table).append('<tr class="empty"><td>-</td><td>-</td></tr>');
+		}
+	}
+	function showPreviewProperties(attributes) {
+		// Populate attributes table
+		var $table = $(".attributes-holder table", "#properties");
+		populateTableWithAttributes($table, attributes);
+		if ($("tr.empty", $table).length === 0) {
+			$("tbody", $table).append('<tr><td>format</td><td>IMAGE<button class="btn btn-flat add-edit-btn btn-xs image-preview"><i class="fa fa-eye fa-fw"></i>Toggle quick view</button></td></tr>');
+		}
+		
+		// Get product image preview
+		var $img = $("#properties .imagepreview-holder img");
+		$img.get(0).onload = function () {
+			attributes.previewImage = { base64: this.currentSrc, width: this.naturalWidth, height: this.naturalHeight };
+			displayPreviewOnMap(attributes);
+		};
+		$.ajax({
+			url: baseApiUrl + "products/preview?siteId=" + attributes.site.id + "&product=" + attributes.name,
+			type: "GET",
+			success: function (response) {
+				if (response.status == responseStatus.success) {
+					$img.attr("src", "data:image/jpeg;base64," + response.data);
+				} else {
+					$("#properties .imagepreview-holder img").attr("src", "assets/dist/img/missing.jpg");
+				}
+			},
+			error: function () {
+				$("#properties .imagepreview-holder img").attr("src", "assets/dist/img/missing.jpg");
+			}
+		});
+		
+		// Show Properties window with attributes section visible
+		$("#properties .attributes-holder").removeClass("hidden");
+	}
+	function showFolderProperties(attributes) {
+		// Populate attributes table
+		var $table = $(".attributes-holder table", "#properties");
+		populateTableWithAttributes($table, attributes);
+		// Show Properties window with attributes section visible
+		$("#properties .attributes-holder").removeClass("hidden");
+		
+		if (!myPolygonMap.mapActive || attributes.type !== "site") {
+			return;
+		}
+		cleanMap("Folder");
+		var _map = myPolygonMap;
+		_map.createShapeFromGeometry(attributes.extent, { description: "preview", extraFeatureDescription: "preview" });
+		_map.setFeaturesStyleByProperty({ "description": "preview" }, _map.styleTransform);
+		_map.fitAllFeatures();
+	}
+	$("#properties").on("click", "button.image-preview", function () {
+		$("#properties .imagepreview-holder").toggleClass("hidden");
+	});
+	$("#properties").on("click", ".full-preview", function () {
+		$("#properties .imagepreview-holder").clone().appendTo("#main2").addClass("full-screen").find("span").remove();
+	});
+	$("#main2").on("click", ".full-screen", function (event) {
+		event.stopPropagation();
+		$(this).remove();
+	});
+	
+	// === RASTER SECTION ================================================================== //
+	function displayRasterOnMap(attributes) {
+		if (!myPolygonMap.mapActive) {
+			return;
+		}
+		cleanMap("Raster");
+		
+		var _map = myPolygonMap;
+		if (typeof attributes !== "undefined") {
+			_map.createShapeFromGeometry(attributes.geometry, { description: "preview", extraFeatureDescription: "preview" });
+			_map.setFeaturesStyleByProperty({ "description": "preview" }, _map.styleDefaultRO);
+			_map.fitAllFeatures();
+		}
+		var features = _map.getAllFeatures("preview").getArray();
+		if (features.length > 0 && features[0].getGeometry().getArea() > 0) {
+			var rasterTile = new ol.layer.Tile({
+				name: "Raster",
+				source: new ol.source.XYZ({					
+					url: baseApiUrl + "view/tile/?file="+attributes.name+"&z={z}&x={x}&y={-y}",
+					tileLoadFunction:function(tile, src) {
+						var xhr = new XMLHttpRequest();
+						xhr.responseType = 'blob';
+						xhr.addEventListener('loadend', function (evt) {
+							var data = this.response;
+							if (data !== undefined) {
+								tile.getImage().src = URL.createObjectURL(data);
+							} else {
+								tile.setState(TileState.ERROR);
+							}
+						});
+						xhr.addEventListener('error', function () {
+							tile.setState(TileState.ERROR);
+						});
+						xhr.open('GET', src);
+						xhr.setRequestHeader("X-Auth-Token", window.tokenKey);						
+						xhr.send();
+					}
+				}),
+				extent: features[0].getGeometry().getExtent()
+			});
+			
+			_map.map.addLayer(rasterTile);
+			_map.refreshLayerOpacity();
+		}
+	}
+	function showRasterProperties(attributes) {
+		// Populate attributes table
+		var $table = $(".attributes-holder table", "#properties");
+		populateTableWithAttributes($table, attributes);
+		
+		// Draw raster
+		displayRasterOnMap(attributes);
+		
+		// Show Properties window with attributes section visible
+		$("#properties .attributes-holder").removeClass("hidden");
+	}
+	
+	// === VECTOR TILE SECTION ================================================================== //
+	var previousPoint = null;
+	$.fn.useTooltip = function () {
+		$(this).bind("plothover", function (event, pos, item) { 
+			if(item && event.target.id === "graph_container_full_screen"){
+				 if (previousPoint != item.dataIndex) {
+					previousPoint = item.dataIndex;		
+					$("#tooltip").remove();
+					var graphParent = $("#graph_full_screen").parent();
+					$("<div id='tooltip'><div>" + item.datapoint[1] +"</div><div>("+moment(new Date(item.datapoint[0])).format('YYYY-MM-DD')+")</div>").css({
+							position: "absolute",
+							display: "none",
+							top: item.pageY - graphParent.offset().top +5,
+							left: item.pageX - graphParent.offset().left + 10,
+							border: "2px solid "+item.series.color,
+							padding: "2px",
+							size: '10',   
+							"background-color": "#efefef",
+							opacity: 0.80,
+							"text-align": "center"
+						}).appendTo(graphParent).fadeIn(200);
+				 }
+			} else {
+				$("#tooltip").remove();
+				previousPoint = null;
+			}
+		});
+	};
+	function showGraphFullScreenWindow($dialog) {
+		$("#graph_full_screen").dialog("open");
+	}
+	function saveGraphFullScreen(uri, filename) {
+        var link = document.createElement('a');
+        if (typeof link.download === 'string') {
+          link.href = uri;
+          link.download = filename;
+
+          //Firefox requires the link to be in the body
+          document.body.appendChild(link);
+
+          //simulate click
+          link.click();
+
+          //remove the link when done
+          document.body.removeChild(link);
+        } else {
+          window.open(uri);
+        }
+      }
+	function filterMarkers(text, id) {
+		try{
+			var regex = new RegExp(text.toLowerCase());
+			$.each($(".checkboxGroup label", "#"+id), function () {
+				if(regex.test(this.innerText.toLowerCase())){
+					$(this).removeClass("hidden");
+				} else {
+					$(this).addClass("hidden");
+				}
+			});
+		}catch{
+			//Do nothing
+		}
+	}
+    function getSiteShortName(siteName) {
+        var shortName = siteName.toLowerCase();
+        shortName = shortName.replace(/\W+/, '_');
+        shortName = shortName.replace(/_+/, '_');
+        shortName = shortName.replace(/^_/, '');
+        shortName = shortName.replace(/_$/, '');    
+        return shortName;
+    }
+	function plotGraph($parent,attributes) {
+		if (typeof attributes === "undefined") {
+			attributes = $("#properties").data("attributes");
+		}
+		var fullScreen = $parent.attr("id") !== myPolygonMap.container.attr("id");
+		// Reset marker indices
+		var markerIds = [];
+		$.each(attributes.markers, function (name, marker) {
+			marker.indices = [];
+			if(marker.selected) {
+				markerIds.push(name);
+			}
+		});
+						
+		// Get marker indices for selected parcel
+		var foundIndices = false;
+		$.when(getMarkerIndices(getSiteShortName(attributes.site.name), attributes.productYear, attributes.extra.parcelId, markerIds))
+		.done(function (responseData) {
+			if (responseData.length > 0) {
+				foundIndices = true;
+				$.each(responseData, function (idx, data) {
+					$.each(data.parcels[0].markers, function (markerId, indices) {
+						var indices = $.map(data.dates, function (dt, index) { return [[ new Date(dt).getTime(), indices[index] ]]; });
+						attributes.markers[markerId].indices = indices;
+					});
+				});
+				
+				$(".btn-markers", "#properties").prop("disabled",false);
+			}
+			if (!foundIndices) {
+				$(".btn-markers", "#properties").prop("disabled",true);
+			}
+		});
+		var options = {
+			xaxis: {
+				show: fullScreen,
+				mode: "time",
+				timeformat: "%Y-%m-%d"
+			},
+			yaxis: {					
+				labelWidth: 30
+			},
+			grid:{
+				borderColor: "#b8b5b5",
+				hoverable: fullScreen
+			},
+			legend: {
+				show: true,
+				placement: "outsideGrid",
+				container: $("#graph_legend", "#graph_full_screen")
+			},
+			colors: ["#7eaf50"]
+		}		
+		var graphValues = $.map(attributes.markers, function (marker, index) {
+			if (marker.selected) {
+				return {
+					label: index,
+					color: marker.color,
+					data : marker.indices,
+					lines:{ show: true },
+					points:{ show: true }
+				}
+			}
+		});
+ 
+		if ($(".chart", $parent).is(":visible")) {
+			$.plot($(".chart", $parent), graphValues, options);
+		}
+		if (fullScreen) {
+			options.legend.container.addClass("hide");
+			var $serie = $(".legendColorBox>div>div", options.legend.container);
+			$serie.css({ "background-color": $serie.css("border-top-color") });
+		}
+	}
+	function createParcelFullScreenGraph() {
+		var attributes = $("#properties").data("attributes");
+		var $parent = $("#graph_full_screen");
+		
+		$(".markersGroup", $parent).html("");
+		$.each(attributes.markers, function (name, marker) {
+			if ($(".markersGroup", $parent).find("." + marker.type).length === 0) {
+				var $p = $("p", "#markersGroup_content_template").clone();
+				var $div = $("div", "#markersGroup_content_template").clone();
+				$(".markersGroup", $parent).append($p.html(markers[marker.type]));
+				$(".markersGroup", $parent).append($div.addClass(marker.type));
+			}
+			var label = '<label>' +
+							'<input type="checkbox" name="marker" colorGraph="' + marker.color + '" value="' + name + '"' + (marker.selected ? ' checked' : '') + ' />' +
+							name +
+							'<div class="checkbox-marker-container"><span class="checkbox" style="background-color:' + marker.color + '"></span></div>' +
+						'</label>';
+			$(".markers." + marker.type, $parent).append(label);
+		});
+		var width  = $("#graph_to_export>.panel-body").width() - 100;
+		var height = $("#graph_to_export>.panel-body").height();
+		$(".chart", $parent).css({ "width": width + "px", "height": height + "px" });
+		plotGraph($parent);
+		$(".chart", $parent).useTooltip();
+	}
+	function createParcelGraph(attributes) {
+		if (typeof attributes === "undefined") {
+			attributes = $("#properties").data("attributes")
+		}
+		var $parent = myPolygonMap.container;
+		var width  = 365;
+		var height = 150;
+		if ($(".graphcontainer", $parent).length === 0) {
+			myPolygonMap.createDrawer("graph", true);
+			$(".graphcontainer .drawer-content", $parent).css({ "width": width + "px" }).append('<div class="search-markers form-group"><h4 class="drawer-content-title">Markers</h4></div><div class="markersGroup"></div>');
+			var searchWidth = $(".graphcontainer .search-markers", $parent).width()-$(".graphcontainer .search-markers", $parent).find("h4").html().length*parseFloat($(".graphcontainer .search-markers", $parent).find("h4").css("font-size"))/2-10;
+			$(".graphcontainer .search-markers", $parent).append('<div><div style="display:inline-flex;"><input type="text" name="search_markers" class="form-control" placeholder="Search" style="width:'+searchWidth+'px"/><span class="glyphicon glyphicon-remove icon hidden"></span><div style="padding-left: 10px;"><span class="glyphicon glyphicon-refresh selection-reset" title="Reset selection"></span></div>');
+			$(".graphcontainer .drawer-content", $parent).after('<div class="drawer-content" style="width:' + width + 'px"><h4 class="drawer-content-title">Quick Preview</h4><span class="graph-info">A selected and not displayed marker has no values for the selected parcel</span><div class="chart" style="height:' + height + 'px"></div></div>');
+		}
+		$(".markersGroup", $parent).html("");
+		$.each(attributes.markers, function (name, marker) {
+			if ($(".markersGroup", $parent).find("." + marker.type).length === 0) {
+				var $p = $("p", "#markersGroup_content_template").clone();
+				var $div = $("div", "#markersGroup_content_template").clone();
+				$(".markersGroup", $parent).append($p.html(markers[marker.type]));
+				$(".markersGroup", $parent).append($div.addClass(marker.type));
+			}
+			
+			var label = '<label>' +
+							'<input type="checkbox" name="marker" colorGraph="' + marker.color + '" value="' + name + '"' + (marker.selected ? ' checked' : '') + ' />' +
+							name +
+							'<div class="checkbox-marker-container"><span class="checkbox" style="background-color:' + marker.color + '"></span></div>' +
+						'</label>';
+			$(".graphcontainer .markers." + marker.type, $parent).append(label);
+		});
+		$(".checkboxGroup.markers").mCustomScrollbar({
+			axis: "y",
+			theme: "rounded-dots-dark"
+		});
+		plotGraph($parent,attributes);
+	}
+	function displayVectorTileOnMap(attributes) {
+		var _map = myPolygonMap;
+		if (!_map.mapActive) { return; }
+		cleanMap("VectorTile");
+		
+		var vectorTileSource = new ol.source.VectorTile({
+			format: new ol.format.MVT({ idProperty: 'NewID' }),
+			url: baseApiUrl + attributes.vector.tiles[0],
+			declutter: true,
+			attributions: '<a id="VectorTile">Data from Sen4CAP</a>',
+			tileGrid: ol.tilegrid.createXYZ({ maxZoom: attributes.vector.maxzoom }),
+			tileLoadFunction: function(tile, url) {
+			  tile.setLoader(function(extent, resolution, projection) {
+				fetch(url, {headers: {'X-Auth-Token': window.tokenKey}}).then(function(response) {
+				  response.arrayBuffer().then(function(data) {
+					const format = tile.getFormat();
+					const features = format.readFeatures(data, {
+					  extent: extent,
+					  featureProjection: projection
+					});
+					tile.setFeatures(features);
+				  });
+				});
+			  });
+			}
+		});
+		var boundsExtent = ol.proj.transformExtent(attributes.vector.bounds, "EPSG:4326", "EPSG:3857");
+		var vectorTileLayer = new ol.layer.VectorTile({
+			name  : "VectorTile",
+			source: vectorTileSource,
+			style: function (feature) {
+				return (typeof attributes.extra === "undefined" || attributes.extra.parcelId != feature.getId()) ? _map.styleDefaultRO : _map.styleDefaultEN;
+			},
+			extent: boundsExtent
+		});
+		vectorTileLayer.setZIndex(2);
+		_map.map.addLayer(vectorTileLayer);
+		_map.refreshLayerOpacity();
+		
+		// Fit on map
+		_map.map.getView().fit(boundsExtent, _map.map.getSize());
+		if (_map.map.getView().getZoom() < 12.5) {
+			_map.map.getView().setZoom(12.5);
+		}
+		_map.panToFit();
+		
+		ol.Observable.unByKey(window.mapClickListener);
+		window.mapClickListener = _map.map.on("click", function (event) {
+			if (typeof event.pixel !== "undefined") {
+				vectorTileLayer.getFeatures(event.pixel)
+				.then(function (features) {
+					if (features.length > 0) {
+						var feature = features[0];
+						attributes.extra = feature.getProperties();
+						attributes.extra.parcelId = feature.getId();
+						
+						if (typeof attributes.markers !== "undefined" && attributes.markers !== null) {
+							createParcelGraph(attributes);
+						}
+						// Trigger map selection
+						vectorTileLayer.changed();
+						
+						showProperties(attributes);
+						
+						if (!$(".sites_browser").hasClass("reduced")) {
+							$(".panel-control.min", ".sites_browser").get(0).click();
+						}
+						if ($(".ui-dialog.properties").is(":visible")) {
+							alignDialogRight($(".ui-dialog.properties"), 10);
+						}
+					}
+				});
+			}
+		});
+	}
+	function showVectorTileProperties(attributes) {
+		var $table = $(".attributes-holder table", "#properties");
+		if (typeof attributes.vector === "undefined") {
+			// Get vector attributes
+			$.when(getVectorProductAttributes(attributes.fileInfo.fileName))
+			.done(function (response) {
+				if (typeof response.status === "undefined") {
+					attributes.vector = response;
+				}
+			});
+			// Get vector markers
+			attributes.markers = {};
+			$.when(getMarkers(getSiteShortName(attributes.site.name), attributes.productYear))
+			.done(function (interMarkersList) {
+				markersList = interMarkersList;
+				var oneSelected = false;
+				var markerindex = 0;
+				$.each(markersList, function (key, nameList) {
+					$.each(nameList, function(index, name){
+						attributes.markers[name] = {
+							selected: index === 0 && !oneSelected,
+							color   : graphColors[markerindex % graphColors.length],
+							indices : [],
+							type: key
+						};
+						if (index === 0) {
+							oneSelected = true;
+						}
+						markerindex++;
+					});
+				});
+			});
+		}
+		// Show vector tile on map
+		if (typeof attributes.extra === "undefined" && typeof attributes.vector !== "undefined") {
+			displayVectorTileOnMap(attributes);
+			populateTableWithAttributes($table, attributes, attributes.vector);
+		} else {
+			// Populate attributes table with parcel information
+			populateTableWithAttributes($table, attributes.extra);
+		}
+		// Show Properties window with attributes section visible
+		$("#properties .attributes-holder").removeClass("hidden");
+	}
+	$("#graph_full_screen").on("click",".export-chart",function(e){
+		var $exportButton = $(this);
+		$exportButton.addClass("hide");
+		$("#graph_legend","#graph_to_export").removeClass("hide");
+		var elementToExport = $("#graph_to_export>.panel-body").get(0);
+		html2canvas(elementToExport).then(function(canvas) {
+			$exportButton.removeClass("hide");
+			$("#graph_legend","#graph_to_export").addClass("hide");
+			// canvas is the final rendered <canvas> element
+			$.when(saveGraphFullScreen(canvas.toDataURL(), 'graph.png')).done(function(){
+				$(".export-chart","#graph_full_screen").blur();
+			});
+		});
+		
+	});
+	$("#graph_full_screen, #mapExtent").on("input", "input[name='search_markers']", function (e) {
+		if (this.value == "") {
+			$(this).siblings(".icon").addClass("hidden");
+		} else {
+			$(this).siblings(".icon").removeClass("hidden");
+		}
+		filterMarkers(this.value,this.closest("[id]").id);	
+	});
+	$("#graph_full_screen, .graphcontainer, #mapExtent, .graphcontainer").on("click", ".search-markers .icon", function (e) {
+		$(this).addClass("hidden").siblings("[type]").val("");
+		filterMarkers("",this.closest("[id]").id);
+
+	});
+	$("#mapExtent, #graph_full_screen").on("change", ".markers input[type='checkbox']", function (e) {
+		var attributes = $("#properties").data("attributes");
+		var ancestorId = $(this.closest("[id]")).attr("id");
+		if ($(this).closest(".markersGroup").find(":checked").length === 0) {
+			// Nothing changes
+			$(this).prop("checked", true);
+		} else {
+			attributes.markers[this.value].selected = this.checked;
+			if (ancestorId === "graph_full_screen") {
+				$(".graphcontainer .markers", myPolygonMap.container).find("input[value='" + this.value + "']").prop("checked", this.checked);
+			}
+			
+			plotGraph(myPolygonMap.container);
+			if (ancestorId === "graph_full_screen") {
+				plotGraph($("#graph_full_screen"));
+			}
+		}
+	});
+
+	$("#mapExtent").on("click", ".chart", function (e) {
+		showGraphFullScreenWindow($("#graph_full_screen"));
+		createParcelFullScreenGraph();
+	});
+	
+	// === PROPERTIES WINDOW SECTION ========================================================================== //
+	function showPropertiesWindow() {
+		$("#properties").dialog("open");
+	}
+	function hidePropertiesWindow() {
+		$("#properties").dialog("close");
+	}
+	function displayActions(attributes) {
+		if (typeof attributes === "undefined") {
+			// Set defaults and availabilities
+			$(".download-holder a", "#properties").attr("href", "");
+			$(".markers-holder", "#properties").addClass("hidden");
+			$(".actions-holder .action-info", "#properties").text("");
+			$(".actions-holder button", "#properties").attr('disabled', false);
+		} else if ($("#properties.folder").length > 0) {
+			// No actions to display for folders
+		} else {
+			// Download
+			$(".download-holder a", "#properties").removeClass("tested");
+			$(".actions-holder .error", "#properties").addClass("hidden");
+			if (attributes && attributes.fileInfo) {
+				$(".for-files .download-holder .action-info", "#properties").text("Download size: " + attributes.fileInfo.fileSize);
+				$(".for-files .download-holder a", "#properties").attr("href", baseApiUrl + "products/download?siteId=" + attributes.site.id + "&name=" + attributes.fileInfo.fileName + "&token=" + window.tokenKey);
+				$(".for-files .download-holder a .btn-download").prop("disabled", false);
+			}
+			// Markers
+			if (attributes && attributes.extra) {
+				$(".markers-holder", "#properties").removeClass("hidden");
+				$(".markers-holder .action-info", "#properties").text("Found " + Object.keys(attributes.markers).length + " markers");
+			}
+		}
+	}
+	function showProperties(attributes) {
+		// Skip
+		if (typeof attributes.fileInfo === "undefined") {
+			return;
+		}
+		
+		// Reset
+		resetProperties(typeof attributes.extra === "undefined");
+		
+		// Title
+		$("#properties").dialog("updateDashTitle", attributes.fileInfo.fileName);
+		
+		// Content for different type of products
+		if (attributes.fileInfo.fileType === "folder") {
+			// Site
+			$("#properties").addClass("folder");
+			showFolderProperties(attributes);
+		} else if (attributes.fileInfo.fileType === "vector") {
+			// Vector Tiles
+			$("#properties").addClass("file");
+			showVectorTileProperties(attributes);
+		} else if (attributes.fileInfo.fileType === "raster") {
+			/* // Preview
+			$("#properties").addClass("file");
+			showPreviewProperties(attributes);
+		} else if (attributes.path === null) { */
+			// Raster
+			$("#properties").addClass("file");
+			showRasterProperties(attributes);
+		} else {
+			// Content unavailable
+			$("#properties").addClass("unavailable");
+		}
+		
+		// Actions
+		displayActions(attributes);
+		
+		// Show Properties section
+		if (attributes.fileInfo.fileType !== "folder") {
+			showPropertiesWindow();
+		}
+		
+		// Data
+		$("#properties").data("attributes", attributes);
+	}
+	function resetProperties(clearAll) {
+		// Clear attributes table
+		$("#properties .properties-holder .title a").text("File name");
+		$("#properties .attributes-holder tbody").html("");
+		// Empty image preview
+		$("#properties .imagepreview-holder").addClass("hidden");
+		$("#properties .imagepreview-holder img").attr("src", "");
+		$("#properties .imagepreview-holder img").get(0).onload = (function () { return; });
+		
+		// Set default actions
+		displayActions();
+		
+		// Hide properties window and clear data
+		$("#properties .flexible-panel").addClass("hidden");
+		$("#properties").removeClass("folder file unavailable").removeData("attributes");
+		
+		if (clearAll) {
+			// Clear temporary elements (graphs)
+			$(".graphcontainer", "#mapExtent").remove();
+		}
+	}
+	$("#properties").on("click", "a.download", function (e) {
+		var $anchor = $(this);
+		var $info = $(this).closest(".action").find(".action-info");
+		
+		// Start actual download
+		if ($anchor.hasClass("tested")) {
+			$anchor.find("button").prop("disabled", true);
+			$info.text("Your download started.");
+		
+		// Test if download is available
+		} else {
+			e.preventDefault();
+			
+			$info.text("Processing your request...");
+			hidePanelError($info.closest(".panel"));
+			$.ajax({
+				url: $anchor.get(0).href.replace(baseApiUrl + "download?", baseApiUrl + "download/test?"),
+				type: "GET",
+				success: function (response) {
+					if (response.status == responseStatus.success) {
+						$anchor.addClass("tested");
+						// Use classic javascript click instead of jQuery or download will not work
+						setTimeout(function () { $anchor.get(0).click(); }, 200);
+					} else {
+						$info.text("Download failed!");
+						showPanelError($info.closest(".panel"), response.message);
+					}
+				},
+				error: function (jqXHR, textStatus) {
+					$info.text("Download failed!");
+					showPanelError($info.closest(".panel"), jqXHR.responseText);
+				}
+			});
+		}
+	});
+	$("#properties").on("click", ".btn-markers", function () {
+		showGraphFullScreenWindow($("#graph_full_screen"));
+		createParcelFullScreenGraph();
+	});
+	
+	// === FILTERS SECTION ========================================================================== //
+	function showFiltersWindow() {
+		$("#search_filters").dialog("open");
+	}
+	function hideFiltersWindow() {
+		$("#search_filters").dialog("close");
+	}
+	function populateFiltersForm(data) {
+		$("#siteName option", "#search_filters").remove();
+		$.each(data, function () {
+			var siteName = this.name;
+			var siteId = this.id;
+			// Sites
+			$("#siteName", "#search_filters").append("<option value='" + siteId + "'>" + siteName + "</option>");
+			// Product types
+			$.each(this.products, function (key) {
+				var typeIdTemp   = key.substr(key.indexOf(":") + 1);
+				var typeDesc = key.substr(0, key.indexOf(" ("));
+				var typeId = typeIdTemp.split(":")[0];
+				if ($(".searchProductType .checkboxGroup", "#search_filters").find("input[value='" + typeId + "']").length === 0) {
+					$(".searchProductType .checkboxGroup", "#search_filters").append("<label><input type='checkbox' value='" + typeId + "' name = 'types' />" + typeDesc + "<div class='checkbox-container'><span class='checkbox'></span></div></label>");
+				}
+			});
+			// Seasons
+			$("#choose_season", "#search_filters").html('<option value="">Select season</option>');
+			$.when(getSiteSeasons(siteId)).done(function (response) {
+				if (response.status == responseStatus.success) {
+					$.each(response.data, function (index, value) {
+						$("#choose_season", "#search_filters").append('<option class="hidden" data-siteid="' + siteId + '" value="' + value.id + '">' + value.name + '(' + value.startDate + ' / ' + value.endDate + ')' + '</option>');
+					});
+				}
+			});
+		});
+		$("#siteName").select2({ placeholder: "Select sites", width: "100%" });
+	}
+	function responseFilter(data, filter, filteredData) {
+		var fData = new Array();
+		if (filter.sites !== null && filter.sites.length > 0) {
+			filteredData = $.grep(filteredData, function(object) {
+			  return $.inArray(object.site_id, filter.sites) >= 0;
+			});
+		}
+		
+		$.each(data, function (idx, node) {
+			var currentSiteId = node.id;
+			var removeFromSite = [];
+			$.each(node.products, function (typeIdx, productTypes) {
+				var typeId = parseInt(typeIdx.split(":")[1]);
+				var filterResult =  $.grep(filteredData, function(object) {
+				  return object.site_id === currentSiteId && object.product_type_id === typeId;
+				});
+				if (filterResult.length === 0) {
+					removeFromSite.push(typeIdx);
+				}
+				console.log();
+			});
+			$.each(removeFromSite, function(idx, val) {
+				delete node.products[val];
+			});
+			if (removeFromSite.length > 0) {
+				fData.push(node);
+			}
+		});
+		
+		return fData;	
+	}
+	
+	function filterTreeBranch(data, filteredData) {
+		var fData = new Array();
+		$.each(data, function (idx, node) {
+			var siteId = node.id;
+			var prodToRemove = [];
+			$.each(node.products, function (index, prod) {
+				var typeId = parseInt(index.split(":")[1]);
+				$.each(prod, function (i, elem) {
+					var keep = false;
+					$.each (filteredData, function (fidx, fElem) {
+						var foundMatch = fElem.full_path.match("\/" + elem.name + "\.[a-zA-Z]+$");
+						if (foundMatch !== null && foundMatch.length > 0 && siteId === fElem.site_id && typeId === fElem.product_type_id) {
+							keep = true;
+							return false;
+						}
+					});
+					if (!keep) {
+						prodToRemove.push(i);
+					}
+				});
+				$.each(prodToRemove, function(i, val) {
+					delete prod[val];
+				});
+				console.log();
+			});
+			fData.push(node);
+		});
+		return fData;
+	}
+	
+	function resetFilters() {
+		// Sites
+		$("#siteName option", "#sites_names").prop("selected", false).parent().trigger("change");
+		
+		// Sensors, Product Types, Season and Interval checkboxes
+		$(".searchSensor [name]", "#sensor_type").prop({ "checked" : true });
+		$(".searchProductType [name]", "#sensor_type").prop({ "checked" : false });
+		$(".searchInterval [name]", "#range_filters").prop({ "checked" : false });
+		
+		// Tiles, Seasons and Interval values
+		$("input[name='tiles']", "#range_filters").val("");
+		if (!$(".inlineDatepicker").hasClass("hasDatepicker")) {
+			$(".inlineDatepicker").datepicker({ dateFormat: "yy-mm-dd", format: "YYYY-MM-DD" });
+		}
+		var lastMonth = new Date();
+		lastMonth.setMonth(lastMonth.getMonth() - 1);
+		var toDate   = $.datepicker.formatDate("yy-mm-dd", new Date());
+		var fromDate = $.datepicker.formatDate("yy-mm-dd", lastMonth);
+		$("input[name='interval_from'].inlineDatepicker").val(fromDate).attr("value", fromDate);
+		$("input[name='interval_to'].inlineDatepicker").val(toDate).attr("value", toDate);
+		filterResponseData = null;
+		$.when(refreshTree()).done(function(){
+			hideFiltersWindow();
+			hidePropertiesWindow();
+		});
+	}
+	
+	var filterProducts = function(filters){
+		var filterClone = jQuery.extend({}, filters);
+		delete filterClone["sites"]
+		return $.ajax({
+			url: baseApiUrl + "products/filter",
+			type: "POST",
+			async: false,
+			data:JSON.stringify(filterClone),
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+			}
+		});
+	}
+	
+	// Filters form events
+	$("#search_filters").on("click", "button[name='search']", function () {
+		filterResponseData = null;
+		var toNumbers = arr => arr.map(Number);
+		
+		var sites = $("select", "#search_filters").val();
+		var filter = {};
+		filter.sites = sites !== null ? toNumbers(sites) : [];
+		filter.siteId = filter.sites !== 1 ? null : filter.sites;
+		
+		filter.satelliteIds = $.map($(".checkboxGroup",".searchSensor").find("input[type='checkbox']:checked"),function(satellite){return parseInt(satellite.value);});
+		filter.productTypeIds = $.map($(".checkboxGroup",".searchProductType").find("input[type='checkbox']:checked"),function(types){return types.value;});
+		filter.tiles 		= $("[name='tiles']",".searchTiles").val() !== '' ? $("[name='tiles']",".searchTiles").val() !== '' : null;
+		if ($('#optseason').is(':checked')) {
+      		filter.season_id = $('#choose_season').find(':selected').val();      		
+    	}
+    	if ($('#optinterval').is(':checked')) {
+      		filter.since = $('input[name="interval_from"]').val();
+			filter.until = $('input[name="interval_to"]').val();
+    	}
+		$.when(refreshTree(void(0), filter)).done(function(){
+			
+		});
+	});
+	$("#search_filters").on("change", "#siteName", function () {
+		var selectedSites = $(this).val();
+		if (selectedSites === null) {
+			// Disable ALL range filters (tiles, season)
+			$("#optseason,#choose_season,input[name='tiles']", "#range_filters").prop({ "disabled": true });
+			// Clear season checkbox
+			$("#optseason", "#range_filters").prop({ "checked" : false });
+			// Reset season filter: hide all season options and set value to empty
+			$("#choose_season option:not([value=''])", "#range_filters").addClass("hidden");
+			$("#choose_season", "#range_filters").val("");
+		} else {
+			// Enable tiles filtes
+			$("#optseason,input[name='tiles']", "#range_filters").prop({ "disabled": false });
+			
+			// Activate/deactivate seasons according to selected sites
+			$("#choose_season option:not([value=''])", "#range_filters").addClass("hidden");
+			$.each(selectedSites, function (index, siteId) {
+				$("#choose_season option[data-siteid='" + siteId + "']", "#range_filters").removeClass("hidden");
+			});
+			 // Reset season when its parrent site is no longer selected
+			var season = $("#choose_season", "#range_filters").val();
+			if ($("#choose_season option[value='" + season + "']", "#range_filters").hasClass("hidden")) {
+				$("#choose_season", "#range_filters").val("");
+			}
+		}
+	});
+	$("#search_filters").on("change", ".searchInterval input[type='checkbox']", function () {
+		if ($(this).is(':checked')) {
+			// disable ALL form controls from FilterBy section
+			$(this).closest(".searchInterval").find(".form-control").prop("disabled", true);
+			// only enable form controls for the selected filter
+			$(this).closest(".checkboxGroup").find(".form-control").prop("disabled", false);
+			// disable all other filters from FilterBy section
+			$(this).closest(".checkboxGroup").siblings().find("input[type='checkbox']").prop("checked", false);
+		} else {
+			// only disable form controls for the selected filter
+			$(this).closest(".checkboxGroup").find(".form-control").prop("disabled", true);
+		}
+	});
+	
+	$("#mapExtent, #graph_full_screen").on("click", ".selection-reset", function(){
+		var attributes = $("#properties").data("attributes");
+		var $ancestor = $(this.closest("[id]"));
+		//uncheck all checkboxes
+		$.each($(".markers", $ancestor).find(":checked"), function (index, elem) {
+			elem.checked = false
+			attributes.markers[$(elem).val()].selected = false;
+		});
+		if ($ancestor.attr("id") === "graph_full_screen") {
+			$(".markers", "#mapExtent").find(":checked").prop("checked", false);
+		}
+		//clear search markers
+		$(".search-markers .icon").trigger("click");
+		//check first marker
+		var $firstMarker = $(".markers input[type=checkbox]",$ancestor).first();
+		$firstMarker.prop("checked", true);
+		attributes.markers[$firstMarker.val()].selected = true;
+		plotGraph(myPolygonMap.container);
+		if ($ancestor.attr("id") === "graph_full_screen") {
+			$(".markers", "#mapExtent").find(":checked").prop("checked", false);
+			$(".markers input[type=checkbox]","#mapExtent").first().prop("checked", true);
+			plotGraph($("#graph_full_screen"));
+		}
+	});
+	// === MAP SECTION ========================================================================== //
+	function cleanMap(layerName) {
+		var _map = myPolygonMap;
+		_map.removeAllFeatures("preview");
+		if (typeof layerName === "undefined") {
+			$(".drawer-content .slidercontainer:not(:has([data-name='Map'],[data-name='Features']))", "#mapExtent").remove();
+			
+			var layersToRemove = [];
+			_map.map.getLayers().forEach(function (layer) {
+				if (typeof layer !== "undefined" && layer.get("name") != "Map" && layer.get("name") != "Features") {
+					layersToRemove.push(layer);
+				}
+			});
+			for (var i = 0; i < layersToRemove.length; i++) {
+				_map.map.removeLayer(layersToRemove[i]);
+			}
+		} else {
+			$(".drawer-content .slidercontainer:has([data-name='" + layerName + "'])", "#mapExtent").remove();
+			
+			var layersToRemove = [];
+			_map.map.getLayers().forEach(function (layer) {
+				if (typeof layer !== "undefined" && layer.get("name") == layerName) {
+					layersToRemove.push(layer);
+				}
+			});
+			for (var i = 0; i < layersToRemove.length; i++) {
+				_map.map.removeLayer(layersToRemove[i]);
+			}
+		}
+	}
+	function handlePolygonMapEvents() {
+		var _map = myPolygonMap;
+		_map.el.on("layerOpacityChange", function (evt, layer) { //function (evt, layer, modifier) {
+			evt.stopPropagation();
+			if (layer) {
+				if (layer.get("name") == "Raster") {
+					window.imageLayerOpacity = layer.getOpacity();
+				}
+			}
+		});
+	}
+	function getMapPanPercentage() {
+		var $dialog = $("#sites_browser").closest(".ui-dialog");
+		if ($("#map").length > 0) {
+			if ($dialog.hasClass("minimized")) {
+				return 0;
+			} else {
+				return parseInt(($dialog.outerWidth() + $dialog.offset().left + 5)/$("#map").innerWidth()*10000)/100;
+			}
+		} else {
+			return parseInt(($dialog.outerWidth() + $dialog.offset().left + 5)/$(window).innerWidth()*10000)/100;
+		}
+	}
+	function setMapSize() {
+		var h = 400;
+		if ($("#header").length > 0 && $("#bar").length > 0 && $("#footer").length > 0) {
+			h = $(window).height() - $("#header")[0].offsetHeight - $("#bar")[0].offsetHeight - $("#footer")[0].offsetHeight;
+		}
+		$("#mapExtent").css({ "height": h + "px" });
+		if (typeof myPolygonMap !== "undefined" && myPolygonMap.mapActive) {
+			var _map = myPolygonMap;
+			var pan = getMapPanPercentage();
+			_map.setPanPercentage(pan);
+		}
+	}
+	$(window).on("ready resize", function() {
+		setMapSize();
+		// Resize graph
+		waitForFinalEvent(function(){
+			if ($("#graph_full_screen").is(":visible")) {
+				createParcelFullScreenGraph();
+			}
+		}, 250, "resizing charts");
+	});
+	
+	// === GLOBAL EVENTS SECTION ========================================================================== //
+	$(".dialogs .panel-heading .panel-control").on("click", function () {
+		var $panel = $(this).closest(".panel");
+		if ($(this).filter(".min,.max").length > 0) {
+			$panel.toggleClass("minimized");
+		} else if ($(this).filter(".close").length > 0) {
+			$panel.addClass("hidden");
+		} else if ($(this).filter(".filter").length > 0) {
+			if ($("#search_filters").dialog("isOpen")) {
+				hideFiltersWindow();
+			} else {
+				showFiltersWindow();
+			}
+			
+		} else if ($(this).filter(".filter-reset").length > 0) {
+			resetFilters();
+		}
+	});
+	// === START ====================================================================================== //
+	defineFormDialogs();
+	// Define click event action on dialog header button right after dialogs are created
+	
+	setMapSize();
+	
+	window.imageLayerOpacity = 0.8;
+	window.myPolygonMap = { mapActive: false };
+	// Initialize map and query
+	var pan = getMapPanPercentage();
+	var olPoly = $("#mapExtent").poly2D({ startLat: 47, startLon: 14, zoom: 5, maxFeaturesNo: 5, extraFeatureDescription: "preview", panPrc: pan });
+	$.when(olPoly)
+	.done(function (result) {
+		if (typeof result.readOnly === "boolean") {
+			$(".extent", "#myModalNodes").removeClass("no-map");
+			$("#mapExtent").removeClass("hidden");
+			myPolygonMap = result;
+			if (myPolygonMap.mapActive) {
+				window.defaultMapZoom = myPolygonMap.map.getView().getZoom();
+				handlePolygonMapEvents();
+				myPolygonMap.setReadOnly(true);
+			}
+		}
+		// Initialize query functionality after map is loaded
+	})
+	// Initialize query functionality without map
+	.fail(function () { });
+	
+	// Get tree
+	resetFilters();
+});
+	
+//# sourceURL=products.js
+</script>

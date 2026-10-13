@@ -1,0 +1,25 @@
+# Distribution d'origine (1,7 Go) : conservée hors git
+/Sen4StatDistribution_v4.0.zip
+
+# Données locales : échantillons, sorties, extraits rapatriés
+/data/
+
+# Embeddings TESSERA et rasters
+*.npy
+*.tif
+*.tiff
+*.jp2
+*.vrt
+*.nc
+
+# Modèles entraînés
+*.pkl
+*.joblib
+*.cbm
+*.rds
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/

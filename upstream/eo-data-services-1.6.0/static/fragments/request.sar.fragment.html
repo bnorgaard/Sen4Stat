@@ -1,0 +1,82 @@
+<style>
+	.sub-service.sar input[type="number"] {width:5rem;margin:0 1rem;padding-right:0;}
+	.sub-service.sar input[type="text"] {width:33.3%;}
+	.sub-service.sar input[type=number]::-webkit-inner-spin-button,.sub-service.sar input[type=number]::-webkit-outer-spin-button {height:30px;}
+	
+	#composite_period_sar>label{display:inline-flex;}
+	#select_polarization_value{width:35%}
+	.polarization{margin:0;}
+	
+	.has-error input.form-control{border-color:#a94442}
+	.has-error input.form-control:focus {border-color:#843534;-webkit-box-shadow:inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 6px #ce8483;box-shadow:inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 6px #ce8483;}
+</style>
+<div class="sub-service sar">
+	<h4 class="panel-title">SAR</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Synthetic aperture radar (SAR) bounces a microwave radar signal off the Earth’s surface to detect physical properties. Synthetic aperture radar (SAR) can “see” through darkness, clouds, and rain, detecting changes in habitat, levels of water and moisture, effects of natural or human disturbance, and changes in the Earth’s surface after events such as earthquakes or sinkhole openings.</span>
+		</label>
+		
+	</div>
+	<div class="panel-body">
+		<h4 class="panel-title">Polarization</h4>
+		<div class="form-group row">
+			<label class="col-md-12">
+				<span>Select the type of polarization to be used.</span>
+			</label>
+		</div>
+		<div class="form-group row polarization">
+			<select id="select_polarization_value" name="polarization" value="" class="form-control">
+				<option value="" selected disabled> -- Select polarization -- </option>
+				<option value="VV"> VV </option>
+				<option value="VH"> VH </option>
+				<option value="VV_VH"> VV + VH </option>
+			</select>
+		</div>
+	</div>
+	<div class="panel-body">
+		<h4 class="panel-title">Composite period</h4>
+		<div class="form-group row">
+			<label class="col-md-12">
+				<span>Composite period represents the interval when the SAR is generated (every X days, weeks or months).</span>
+			</label>
+		</div>
+		<div id="composite_period_sar" class="form-group">
+			<label class="composite-period">Every <input type="number" class="form-control" name="selected_number_sar" id="selected_number_sar" min="1" value="7"/> 
+				<select name="selected_period_sar" id="selected_period_sar" class="form-control">
+					<option value="days" selected>Days</option>
+					<option value="weeks">Weeks</option>
+					<option value="months">Months</option>
+				</select>
+			</label>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("input[name='crop_mask_type_mode']").change(function (){
+			$(this).closest(".form-group").find("label.error").remove();
+			
+		});
+	});
+	
+	$("#selected_number_sar, #selected_period_sar").on("change", function(e) {
+		$(this).valid();
+	});
+
+	// Date pickers with active validation
+	$("#onceFirstTimeRun").datepicker({ changeYear: true, changeMonth: true, yearRange: "1970:2037", dateFormat: "yy-mm-dd" })
+	.on('change', function() {
+		if ($("#l4aOnceFirstTimeRun").val() != "") { 
+			$(this).valid();
+		}
+	});
+	
+	$("#repeatFirstTimeRun").datepicker({ changeYear: true, changeMonth: true, yearRange: "1970:2037", dateFormat: "yy-mm-dd" })
+	.on('change', function() {
+		if ($("#l4aRepeatFirstTimeRun").val() != "") { 
+			$(this).valid();
+		}
+	});
+//# sourceURL=request_l4.js
+</script>

@@ -1,0 +1,12 @@
+[
+  {
+    "address": "machine1",
+    "user": "user",
+    "password": "userpass"
+  },
+  {
+    "address": "machine2",
+    "user": "user",
+    "certificate": "/home/user/.ssh/id_rsa"
+  }
+]

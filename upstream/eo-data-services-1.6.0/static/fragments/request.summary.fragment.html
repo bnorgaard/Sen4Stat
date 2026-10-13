@@ -1,0 +1,245 @@
+<style>
+.request-form .summary-chapter .form-group .chapter-subgroup label.category>span{font-weight:700}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label.sub-category>*{padding:0.3rem 3rem}
+.request-form .summary-chapter .form-group label.sub-category>p,
+.request-form .summary-chapter .form-group label.single-category>span{width:55%}
+.request-form .summary-chapter .form-group label.single-category>p{width:35%}
+.request-form .request-summary{margin-top:3rem}
+
+#sum_usr_use_resolution{padding:0.3rem 3rem;width:55%;}
+</style>
+<h3 class="panel-title">Summary information on your service request</h3>
+<p style="font-style:italic">This is a collection of information that you have selected.</p>
+<div class="request-summary">
+	<!-- FROM PAGE 1 -->
+	<div class="panel-body summary-chapter">
+		<h4 class="panel-title">About your service request</h4>
+		<div class="form-group row">
+			<label class="col-md-12"><span>Requested service</span><p id="sum_usr_processor"></p></label>
+			<label class="col-md-12"><span>Request name</span><p id="sum_usr_project_name"></p></label>
+			<label class="col-md-12"><span>Additional support</span><p id="sum_usr_additional_support"></p></label>
+		</div>
+	</div>
+	<!-- FROM PAGE 2 AND 3-->
+	<div class="panel-body summary-chapter">
+		<h4 class="panel-title">Parameters</h4>
+		
+		<div class="form-group row observationData">
+			<label class="col-md-12 highlight">Earth Observation Data</label>
+		</div>
+		
+		<div class="form-group row serviceData">
+			<label class="col-md-12 highlight">Service Data</label>
+		</div>	
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Region of interest</label>
+			<div class="chapter-subgroup polygon">
+				<label class="col-md-12"><span>Reference polygons</span><p id="sum_usr_refp"></p></label>
+				<label class="col-md-12"><span>Min Latitude</span><p id="sum_usr_latmin"></p></label>
+				<label class="col-md-12"><span>Max Latitude</span><p id="sum_usr_latmax"></p></label>
+				<label class="col-md-12"><span>Min Longitude</span><p id="sum_usr_lonmin"></p></label>
+				<label class="col-md-12"><span>Max Longitude</span><p id="sum_usr_lonmax"></p></label>
+			</div>
+			<div class="chapter-subgroup regions">
+				<label class="col-md-12"><span>Continent</span><p id="sum_usr_continent"></p></label>
+				<label class="col-md-12"><span>Country</span><p id="sum_usr_country"></p></label>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body summary-chapter">
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Sensing period</label>
+			<div class="chapter-subgroup">
+				<label class="col-md-12"><span>From</span><p id="sum_usr_time_range_from"></p></label>
+				<label class="col-md-12"><span>To</span><p id="sum_usr_time_range_to"></p></label>
+				<label class="col-md-12"><span>Except</span><p id="sum_usr_time_except"></p></label>
+				<label class="col-md-12"><span>Additional data specifications</span><p id="sum_usr_additional"></p></label>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel-body">
+	<!-- terms and conditions -->
+	<div class="form-group row terms-conditions">
+		<label class="col-md-12" for="conditions" style="color:#666666">
+			<input type="checkbox" name="conditions" id="conditions" class="first-tag" />
+			I have read and agree to the <label id="conditions_link" class="highlight">Terms and conditions</label>.
+		</label>
+	</div>
+</div>
+<div class="important_info" style="display:none">
+	<label>
+		<i class="fa fa-warning"></i><span>This request needs additional configuration files. The files can be uploaded on the next page or later by editing the request.</span>
+	</label>
+</div>
+<div class="submit-buttons">
+	<button class="go-to-page request-btn blue-btn left-btn">Back and edit</button>
+	<button class="go-to-page request-btn blue-btn" id="request_usr_submit" disabled>Submit the request</button>
+</div>
+</div>
+
+<!--Template-->
+<div id="procesor_summary_template" style="display:none">
+	<div class="chapter-subgroup s-content sub-service"></div>
+</div>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$("#conditions").change(function() {
+			$("#request_usr_submit").attr("disabled", !$(this).is(":checked"));
+		});
+		
+		$("#conditions_link").on("click", function(){
+			window.open("terms.condition.fragment.html","_blank");
+		});
+		
+		$("#request_usr_submit").click( function (event) {
+			if ($("#request_usr_form").valid()) {
+				event.preventDefault();
+				var selectedProcessors = $("#processor").val();
+				var subServicesClasses = [];
+				$(".sub-service","#request_usr_page_3").toArray().forEach(function (currentValue) {
+					subServicesClasses.push(currentValue.classList[1]);
+				});
+				$.each(subServicesClasses, function (index, value) {
+				if ($.inArray(value, selectedProcessors) < 0) {
+						$("." + value, "#request_usr_page_3").remove();
+					}
+				});
+				saveRequest();
+			}
+		});
+		
+		/* Functions */
+	
+		// Save the user service request into a JSON file
+		function saveRequest() {
+			//enable the disabled elements form page 2 (when reuse is checked)
+			$("#startDate").prop("disabled",false);
+			$("#endDate").prop("disabled",false);
+			$("#exceptMonth").prop("disabled",false);
+			$("#shapeFile").prop("disabled",false);
+			$("input[type='checkbox']", "#earthObsData").prop("disabled",false);
+			
+			var formData = new FormData($('#request_usr_form').get(0));
+			var requestFormData = new FormData();
+			// add to request form data user id
+			requestFormData.append("userId",window.userID);
+			// add to request form data request name, additionalSupport, additionalDataSpecifications
+			requestFormData.append("name",formData.get("name"));
+			requestFormData.append("additionalSupport",formData.get("additionalSupport"));
+			requestFormData.append("additionalDataSpecifications",formData.get("additionalDataSpecifications"));
+			requestFormData.append("observationData",JSON.stringify(formData.getAll("observationData")));
+			
+			//add to request form data start date, end date and except month
+			requestFormData.append("startDate",formData.get("startDate"));
+			requestFormData.append("endDate",formData.get("endDate"));
+			requestFormData.append("exceptMonth",JSON.stringify(formData.getAll("exceptMonth")));
+			//add to request form data general parameters
+			$.each($("#content").data("generalParams"), function(idx,param) {
+				if (param.key.indexOf("availability") >= 0) {
+					//needed in order to find the element with key (the key contains dot and this is translate as class in JS)
+					var key = param.key;
+					if (key.indexOf(".") >= 0) {
+						key = key.replaceAll(".","\\.");
+					}
+					requestFormData.append("availabilityDays",parseInt($("#"+key).val()));
+				}
+			});
+			
+			
+			// add to request form data footprint and footprintFile
+			if (formData.get("shapeFile") !== null && formData.get("shapeFile").size > 0) {
+				requestFormData.append("footprintFile", formData.get("shapeFile"));
+			} else  {
+				requestFormData.append("footprint", formData.get("userText"));
+			}
+			
+			//create service object for request form data
+			var processorObjList = [];
+			var scheduleArray = [];
+			$.each(formData.getAll("processor"), function (idx, processorId) {
+				var processorObj = {};
+				processorObj["processorId"] = parseInt(processorId);
+				var valuesObjList = [];
+				var data = $("#content").data("serviceList").find(obj=> obj.id === parseInt(processorId));
+				var valuesObj = {};
+				var uiVisibleParams = data.parameters.filter(obj=> obj.serviceUiVisible);
+				$.each(uiVisibleParams, function (index, param) {
+					if (param.dataType.indexOf("[]") > 0) {
+						valuesObj[param.key] = formData.getAll(param.key);
+					} else {
+						if (param.dataType !== "file" && param.dataType !== "directory") {
+							if (param.dataType === "int") {
+								valuesObj[param.key] = parseInt(formData.getAll(param.key));
+							} else if (param.dataType === "float") {
+								valuesObj[param.key] = parseFloat(formData.getAll(param.key));
+							} else if (param.dataType === "bool") {
+								valuesObj[param.key] = formData.get(param.key) !== null ? stringToBoolean(formData.get(param.key)).toString() : false.toString();
+							} else {
+								valuesObj[param.key] = formData.get(param.key);
+							}
+						}else if (formData.get(param.key) !== null && formData.get(param.key).name !== "") {//create file parameters and files arrays for a file input
+							requestFormData.append("fileParameters",param.key)
+							requestFormData.append("files",formData.get(param.key));
+						}
+					}
+				});
+				processorObj["values"] = valuesObj;
+				processorObjList.push(processorObj);
+				//add scheduled type array
+				$.each($("tr.schedule-row","#scheduled_task_"+processorId), function (index, object) {
+					var currentTask =  $("#content").data("defaultScheduledType").filter(obj => obj.processorId === parseInt(processorId) && obj.name.replaceAll(" ","_") === object.id)[0];
+					var scheduleObj = {	"name":currentTask.name,
+										"processorId": parseInt(processorId),
+										"parameters": currentTask.parameters,
+										"repeatType": parseInt($("select[name='schedule']",object).val()),
+										"repeatAfterDays": parseInt($("input[name='repeatafter']",object).val()),
+										"repeatOnMonthDay": parseInt($("input[name='oneverydate']",object).val()),
+										"retrySeconds": currentTask.retrySeconds,
+										"priority": currentTask.priority,
+										"firstRun": $("#startdate_"+object.id,object).val()
+									}
+					scheduleArray.push(scheduleObj);
+				});
+			});
+
+			requestFormData.append("services",JSON.stringify(processorObjList));
+			requestFormData.append("tasks",JSON.stringify(scheduleArray));
+			// needs LPIS/LUT file or additional configuration
+			var selectedProcessors = $("#processor").val();
+			var needLPIS = $("#content").data("serviceList").filter(obj => $.inArray(obj.id.toString(),selectedProcessors) >= 0 && obj.lpisRequired).length > 0;
+			var needAdditionalConfig = $("#content").data("serviceList").filter(obj => $.inArray(obj.id.toString(),selectedProcessors) >= 0 && obj.additionalConfigRequired).length > 0;
+			$.ajax({
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				url  : baseApiUrl + "request/save",
+				type : "POST",
+				data : requestFormData,
+				success: function (response) {
+					if (response.status === responseStatus.success) {
+						// open additional configuration page, if nedded, or go to dashboard
+						if ((needLPIS || needAdditionalConfig) && $("#conditions").is(":checked")) {
+							$("#request_usr_form").hide();
+							window.location.href="sap.html#additionalConfig?id=" + response.data.projectId;
+						} else {
+							window.location.href='sap.html#dashboard';
+						}
+						console.log(response.status + ": " + response.message);
+					}else {
+						console.log(response.status + ": " + response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("Error: " + errorThrown);
+				}
+			});
+			
+		}
+	});
+
+//# sourceURL=request_summary.js
+</script>
+

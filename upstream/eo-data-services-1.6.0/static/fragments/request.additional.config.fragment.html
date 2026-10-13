@@ -1,0 +1,475 @@
+<div class="content" class="clearfix">
+	<div class="request-form">
+		<div class="form-page panel" id="additional-config-page">
+			<h3 class="panel-title">Upload Files</h3>
+			<p style="font-style:italic">This is a section of additional information for your request.</p>
+			<div class="important_info">
+				<label>
+					<i class="fa fa-warning"></i><span>If the additional files are not available for the moment, you can upload them later from Dashboard, by editing the request.</span>
+				</label>
+			</div>
+			<div class="panel-body">
+				<h4 class="panel-title" id="request_name">Request name</h4>
+				<div class="form-group row">
+					<div class="panel panel-group config" id="accordion"></div>
+					<div class="panel panel-success collapse" id="panel-upload-template">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" href=""></a>
+							</h4>
+						</div>
+						<div class="panel-body panel-collapse collapse"  data-parent="#accordion">
+							<input type="hidden" name="crtOrderId" value="" />
+							<form enctype="multipart/form-data" class="tspace" method="post">
+								<input type="hidden" name="siteId" value="" />
+								<input type="hidden" name="folder" value="" />
+								<input type="hidden" name="descriptorId" value="" />
+								<input type="hidden" name="operationId" value="" />
+								<input type="hidden" name="parameters" value="" />
+								<input type="hidden" name="seasonId" value="" />
+								<input type="hidden" name="year" value="" />
+								<div class="parameters vspace">
+								</div>
+								<div class="form-group row vspace">
+									<label class="control-label col-md-4">Upload files:</label>
+									<div class="col-md-8 files">
+									</div>
+								</div>
+								<div class="form-group row vspace">
+									<div class="col-md-12 submit-buttons tspace">
+									</div>
+								</div>
+							</form>
+							<hr />
+						</div>
+					</div>
+					<div class="form-group form-group-sm row collapse" id="parameter-template">
+						<label class="control-label col-md-4"></label>
+						<div class="col-md-8 control-parent">
+							<input type="text" class="form-control" value="" />
+							<select class="form-control">
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="no_files_needed" style="display:none">
+					<h4> No files are needed for this request </h4>
+				</div>
+			</div>
+			<div class="upload-buttons">
+				<button class="request-btn blue-btn right-btn" id="upload_done">Done</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- include select2 -->
+<link rel="stylesheet" type="text/css" href="assets/libs/select2/4.1.0/select2.min.css" />
+<script type="text/javascript" src="assets/libs/select2/4.1.0/select2.min.js"></script>
+
+<style>
+	#accordion {padding:10px;}
+	#accordion .panel .panel-body {margin-bottom:0;}
+	#accordion .required:after{content:"";}
+
+	#additional-config-page input[name="files"]{padding:5px 10px 5px 35px;}
+	#additional-config-page .uploading .file-set .icon{display:block;}
+	#additional-config-page .icon{display:none;position:absolute;right:6px;top:4px;color:crimson;}
+	#additional-config-page .icon span{color:crimson;}
+	
+	#additional-config-page .parameters label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+	#accordion .required .control-label:after{content:"";}
+	#additional-config-page{padding:25px;position:relative;box-shadow:0 0 11px 1px rgb(0 0 0 / 37%);border-left:0px solid #d1e2ab;background:whitesmoke;color:#555;}
+	
+	#additional-config-page .upload-buttons{display:flow-root;padding:0 46.5%;}
+	#additional-config-page .no_files_needed{position:relative;color:var(--color-default);background-color:var(--accordion-header-bg-color);background-image:none;border-left:10px solid var(--color-default);padding:0;}
+	#additional-config-page .no_files_needed>h4{padding:1em;}
+	
+	.request-form .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgb(0 0 0 / 10%);padding:15px;}
+	.request-form h3.panel-title{text-align:center;padding-bottom:2%;}
+	div.request-form{border:0;}
+	
+</style>
+<script type="text/javascript">
+	
+	var data;
+	
+	var getSiteSeasons = function (siteId) {
+		return $.ajax({
+			cache: false,
+			url: baseApiUrl + "sites/seasons?site=" + siteId,
+			type: 'GET'
+		});
+	};
+		
+	var getUploadDescriptors = function (siteId) {
+        return $.ajax({
+            cache: false,
+            url: baseApiUrl + "sites/auxdata?siteId=" + siteId,
+            method: "GET",
+        });
+    }
+	
+	function validPanel(id) {
+        var operId = $('input[name="operationId"]', "#panel" + id).val();
+        var valid = true;
+        $.each($("div.required.operation-" + operId + " *:required", "#panel" + id), function () {
+            if ($(this).val() == "") {
+                $(this).closest(".control-parent").addClass("invalid");
+                valid = false;
+            } else {
+                $(this).closest(".control-parent").removeClass("invalid");
+            }
+        });
+        // Enable operation submit button
+        if (valid) {
+
+        }
+
+        return valid;
+    }
+	
+	function onOperationStatusEvent(descId, msg) {
+        var titleId = "site" + descId + "DataAccHref";
+        var str = $("#" + titleId).html();
+        var modifIdx = str.indexOf('<font color');
+        str = str.substring(0, modifIdx > 0 ? modifIdx : str.length);
+        str += ((msg && msg != "") ? '<font color="red"> (' + msg + ')</font>' : '');
+        $("#" + titleId).html(str);
+    }
+	
+	function initOperationUI(orderId, descId) {
+        var $panel = $("#panel" + descId, "#accordion");
+
+        //disable & hide all
+        $(".parameters .form-control", $panel).prop("disabled", true);
+        $(".parameters div.form-group", $panel).collapse('hide');
+        $(".submit-buttons .operation-btn", $panel).prop("disabled", true);
+
+        //show parameters & button for current oper
+        $(".parameters .order-" + orderId + " .form-control", $panel).prop("disabled", false);
+        $(".parameters .order-" + orderId, $panel).collapse('show');
+        $(".submit-buttons .order-" + orderId, $panel).prop("disabled", false);
+    }
+	
+	function onNewFileSelected(descId, fileId) {
+        var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+        $fileInput.closest("div").addClass("file-set");
+        $fileInput.prop("disabled", true);
+        $("#panel" + descId, "#accordion").addClass("uploading");
+        onOperationStatusEvent(descId, "changed");
+    }
+    function onFileRemove(descId, fileId) {
+        var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+        $fileInput.closest("div").removeClass("file-set");
+        $fileInput.replaceWith($fileInput.val("").clone(true).prop("disabled", false));
+        if ($("#panel" + descId + " .file-set", "#accordion").length == 0) {
+            $("#panel" + descId, "#accordion").removeClass("uploading operation-started operation-done");
+            onOperationStatusEvent(descId, "");
+        }
+    }
+	
+	function onOperationStartEvent(descId, opName) {
+        $("#panel" + descId).addClass("operation-started");
+        onOperationStatusEvent(descId, opName + " started, please wait!");
+    }
+	
+	function onOperationEndEvent(descId, msg) {
+        $("#panel" + descId).removeClass("operation-started").addClass("operation-done");
+        onOperationStatusEvent(descId, msg);
+    }
+	
+	function startOperation(descId, operId, operName) {
+        var $panel = $("#panel" + descId, "#accordion");
+        if ($panel.length > 0) {
+            if ($("#div_editsite").hasClass("uniqueByYear")) {
+                //copy the year to form and enable
+                //disable seasonId
+                $('input[name="year"]', $panel).val($('#upload_year').val()).prop("disabled", false);
+                $('input[name="seasonId"]', $panel).val('').prop("disabled", true);
+            } else if ($("#div_editsite").hasClass("uniqueBySeason")) {
+                //copy the seasonId to form and enable
+                //disable year
+                $('input[name="seasonId"]', $panel).val($('#upload_season').val()).prop("disabled", false);
+                $('input[name="year"]', $panel).val('').prop("disabled", true);
+            }
+
+            //calc parameters
+            var parameters = {};
+            $.each($(".parameters .operation-" + operId + " .form-control", $panel), function () {
+                if ($(this).is("input")) {
+                    parameters[$(this).data("name")] = $(this).val();
+                }
+                else if ($(this).is("select")) {
+                    var options = [];
+                    $.each($(this).find(':selected'), function () {
+                        options.push($(this).val());
+                    });
+                    parameters[$(this).data("name")] = options.join(',');
+                }
+            });
+            $('input[name="parameters"]', $panel).val(JSON.stringify(parameters));
+
+            // Disable operation button
+            $('input.operation-btn.operation-' + operId, $panel).prop("disabled", true);
+            // Enable all input file fields
+            $('input[name="files"]', $panel).prop("disabled", false);
+            onOperationStartEvent(descId, operName);
+            $.ajax({
+                async: true,
+                url: baseApiUrl + "auxdata/import/",
+                method: "POST",
+                processData: false,
+                contentType: false,
+                mimeType: "multipart/form-data",
+                data: new FormData($("form", $panel).get(0)),
+                success: function (JSONresponse) {
+                    var response = JSON.parse(JSONresponse);
+                    if (response.status == responseStatus.success) {
+                        onOperationEndEvent(descId, response.message);
+
+                        if (response.data) {
+                            var dataJSON = response.data.replace(/'/g, '"');
+                            var data = JSON.parse(dataJSON);
+
+                            var valueSetKey = Object.keys(data)[0];
+                            var valueSetHTML = "";
+                            $.each(data[valueSetKey], function (index, value) {
+                                valueSetHTML += "<option>" + value + "</option>";
+                            });
+
+                            $.each($("select[data-valueset='" + valueSetKey + "']", $panel), function (idx, obj) {
+                                $(this).append(valueSetHTML);
+                            });
+                        }
+
+                        //get current operation order
+                        var crtOrder = parseInt($('input[name="crtOrderId"]', $panel).val());
+                        var newOrder = crtOrder + 1;
+                        //set new operation order
+                        $('input[name="crtOrderId"]', $panel).val(newOrder);
+                        //init params/buttons for new operation
+                        initOperationUI(newOrder, descId);
+                    } else {
+                        onOperationStatusEvent(descId, "Error: " + response.message);
+                        $panel.removeClass("operation-started");
+                        $('input.operation-btn.operation-' + operId, $panel).prop("disabled", false);
+                    }
+                    // Disable active input file fields
+                    $('.file-set input[name="files"]', $panel).prop("disabled", true);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('input.operation-btn.operation-' + operId, $panel).prop("disabled", false);
+                    var responseJSON = { "status": textStatus, "error": errorThrown };
+                    if (jqXHR.responseJSON) {
+                        responseJSON = jqXHR.responseJSON;
+                    } else if (jqXHR.responseText) {
+                        responseJSON = xmlToJson(jqXHR.responseText);
+                        if (typeof responseJSON["Map"] !== "undefined") {
+                            responseJSON = responseJSON["Map"];
+                        }
+                    }
+                    onOperationStatusEvent(descId, "Error #" + responseJSON.status + ": " + responseJSON.error + " - " + responseJSON.message);
+                    $panel.removeClass("operation-started");
+                    // Disable active input file fields
+                    $('.file-set input[name="files"]', $panel).prop("disabled", true);
+                }
+            });
+        }
+    }
+	function getUploadSiteFiles(descriptors) {
+        $("#accordion").html("");
+        $.each(descriptors, function (descIdx, desc) {
+			var name = desc.name;
+			
+			/* if configuration name contains _ the first part is the processor short name for which this configuration.
+				This is used (is used in the workaround explained below)
+			*/
+			if (name.indexOf("_") > -1 ) {
+				name = name.substr(0,name.indexOf("_"));
+			}
+			var allUIVisibleParams = [];
+			$.each(data.processorsConfig, function (i,obj) {
+				var uiVisible = obj.parameters.filter(obj=> obj.serviceUiVisible);
+				jQuery.merge( allUIVisibleParams, uiVisible);
+			});
+			var selectedProcShortNames = data.processorsConfig.map(item=>item.shortName);
+			/*
+				This condition is an workaround to display only the needed additional configurations.
+				- if configuration name is "declaration" at least one procesor (from the selected ones) must have lpisRequired set to true
+				- when configuration name is not "declaration" one of the following must be true: 
+						- the configuration name must be found in the selected processors shortName
+						- the configuration _name must be found in the selected processors shortName
+						- the configuration name must be found as value in the ui visible paramaters (ex. insitu)
+			*/
+			if ((data.processorsConfig.filter(item=>item.lpisRequired === true).length > 0 && name === "declaration") ||
+				(name !== "declaration" && ($.inArray(name,selectedProcShortNames) >= 0 ||
+					selectedProcShortNames.toString().indexOf("_"+name) > -1 ||
+					typeof allUIVisibleParams.find(item=>item.value===name) !== "undefined"))) {
+				var $accordion = $("#panel-upload-template").clone(true).removeAttr("id");
+				// customize panel according to descriptor
+				$accordion.attr({ "id": "panel" + desc.id, "data-id": desc.id });
+				$(".panel-title a", $accordion).attr({ "id": "site" + desc.id + "DataAccHref", "href": "#site" + desc.id + "DataAcc" }).html(desc.label);
+				$(".panel-collapse", $accordion).attr({ "id": "site" + desc.id + "DataAcc" });
+				$("form", $accordion).attr({ "id": "siteform_" + desc.id + "_upload" });
+				$(".files", $accordion).attr({ "id": "container" + desc.id });
+				$("input[name='siteId']", $accordion).val(data.siteId);
+				$("input[name='folder']", $accordion).val(desc.uploadRelPath);
+				$("input[name='descriptorId']", $accordion).val(desc.id);
+				$accordion.data("dna", desc);
+
+				var firstOrderId = 9999;//some big value
+				var firstOperationId = 0;
+				$.each(desc.files, function (fileIdx, file) {
+					var extension = '.' + file.extensions.replace(/[{}\"]/g, '');
+					var fileHtml = '<label>' + file.label + ':</label>' +
+						'<div style="position:relative">' +
+						'<input type="hidden" name="fileIds" value="' + file.instanceId + '" />' +
+						'<input type="file" id="filelist' + desc.id + '_' + file.id + '" class="form-control" name="files" onchange="onNewFileSelected(' + desc.id + ',' + file.id + ')" accept="' + extension + '" value="" />' +
+						'<button name="cancel" type="button" title="Cancel" class="icon" onclick="onFileRemove(' + desc.id + ', ' + file.id + ')"><span class="glyphicon glyphicon-remove"></span></button>'
+					'</div>';
+					$("#container" + desc.id, $accordion).append(fileHtml);
+					$.each(file.operations, function (operationIdx, operation) {
+						var opId = desc.id + "_" + operation.id;
+
+						if (firstOrderId > operation.order) {
+							firstOrderId = operation.order;
+							firstOperationId = operation.id;
+						}
+						$.each(operation.parameters, function (paramIdx, param) {
+							if (param.label) {
+								var paramId = desc.id + "_" + param.name;
+								// customize parameter
+								var $param = $("#parameter-template").clone(true).removeAttr("id");
+								$("label.control-label", $param).attr({ "for": "postImportCmdParam" + paramId, "title": param.label }).html(param.label);
+								$(".form-control", $param).attr({
+									"id": "postCmdParam" + paramId
+									//"name": param.name
+								});
+								$(".form-control", $param).data("name", param.name);
+								if (param.valueSet) {
+									$("input", $param).remove();
+									if (param.valueSet[0].startsWith("$")) {
+										var vs = param.valueSet[0].replace(/\$/g, "");
+										$("select", $param).attr({ "data-valueset": vs });
+										$("select", $param).attr({ "multiple": "multiple" });
+										$("select", $param).addClass("multiselect");
+									}
+									else {
+										var selected = "";
+										$.each(param.valueSet, function (iddx, opt) {
+											selected = (opt === param.defaultValue ? " selected " : "");
+											$("select", $param).append('<option value="' + opt + '" ' + selected + '>' + opt + '</option>');
+										});
+									}
+								} else if (param.type.indexOf("String") >= 0 || param.type.indexOf("Integer") >= 0) {
+									$("select", $param).remove();
+									$("input", $param).val(param.value ? param.value : "");
+								} else if (param.type.indexOf("Date") >= 0 || param.type.indexOf("Integer") >= 0) {
+									$("select", $param).remove();
+									$("input", $param).val(param.value ? param.value : "");
+									$("input", $param).addClass("has-date");
+								}
+								if (param.required) {
+									$param.addClass("required");
+									$(".form-control", $param).attr({ "required": "required" });
+								}
+
+								$param.addClass("operation-" + operation.id);
+								$param.addClass("order-" + operation.order);
+								$(".parameters", $accordion).append($param);
+							}
+						});
+
+						/* START workaround to avoid duplicate buttons */
+						var prevButtons = $("input[type='button'][value='" + operation.name + "']", $accordion);
+						var duplicate = false;
+						if (prevButtons.length > 0) {
+						 $.each(prevButtons, function (idx, prev) {
+							var prevData = $(prev).data("dna");
+							if (operation.asynchronous === prevData.asynchronous && operation.fileDescriptorId === prevData.fileDescriptorId &&
+								operation.handlerPath === prevData.handlerPath && JSON.stringify(operation.parameters) == JSON.stringify(prevData.parameters)){
+								duplicate = true;
+							}
+							return true;
+						 });
+						}
+						/* END workaround to avoid duplicate buttons */
+						
+						// add button
+						if (!duplicate) {
+							var $opBtn = $('<input class="add-edit-btn operation-btn lspace operation-' + operation.id + ' order-' + operation.order + '" disabled id="bntStartOperation' + opId + '" type="button" value="' + operation.name + '">');
+							$opBtn.data("dna",operation);
+							$opBtn.on("click", function (e) {
+								var $panel = $(this).closest(".panel");
+								var id = $panel.data("id");
+								if ($panel.hasClass("uploading")) {
+									//set current operation id
+									$('input[name="operationId"]', $panel).val(operation.id);
+									if (validPanel(id)) {
+										//startUpload(id);
+										startOperation(id, operation.id, operation.name);
+									} else {
+										alert("Please correct all invalid parameters before executing the operation.");
+									}
+								}
+								else {
+									alert("No file selected.");
+								}
+							});
+							$(".submit-buttons", $accordion).append($opBtn);
+						}
+					});
+				});
+
+				//store first operation id and order id
+				$('input[name="operationId"]', $accordion).val(firstOperationId);
+				$('input[name="crtOrderId"]', $accordion).val(firstOrderId);
+
+				$("#accordion").append($accordion.removeClass("collapse"));
+				$("input.has-date", "#accordion").datepicker({ dateFormat: "yy-mm-dd" });
+
+				$(".multiselect").select2({ placeholder: "Select...", width: "100%", allowClear: true });
+				initOperationUI(firstOrderId, desc.id);
+			}
+        });
+        // Check upload form validity when any required input field is changed
+        $("div.required input[type='text']", "#accordion").on("change", function (e) {
+            var panelId = $(this).closest(".uploading").data("id");
+            validPanel(panelId);
+        });
+        // Automatically open first accordion panel
+        if ($("#accordion>.panel").length >= 1) {
+            $("#accordion>.panel:first-child>.panel-collapse").collapse('show');
+        } else {
+			$("#accordion").parent().hide();
+			$(".no_files_needed", "#additional-config-page").show();
+		}
+    }
+	
+	$(document).ready(function() {
+		var projectId = getUrlParameter("id");
+		var action = getUrlParameter("action");
+		if (getUrlParameter("action") === "edit"){
+			$(".important_info","#additional-config-page").hide();
+		} else {
+			$(".important_info","#additional-config-page").show();
+		}
+		
+		$.when(getDataFrom(projectId)).done(function(responseDataForm) {
+			data = responseDataForm.data;
+			$("#request_name").html(data.name);
+			// Get site descriptors
+			$.when(getUploadDescriptors(data.siteId)).done(function (responseUploadDesc) {
+				if (responseUploadDesc.status == responseStatus.success) {
+					getUploadSiteFiles(responseUploadDesc.data);
+				}
+			});
+		});
+		
+		$("#upload_done").on("click", function () {
+			window.location.href='sap.html#dashboard';
+		})
+    });
+//# sourceURL=request.additional.config.js
+</script>

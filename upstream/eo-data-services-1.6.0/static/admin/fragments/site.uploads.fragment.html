@@ -1,0 +1,527 @@
+<div class="panel panel-success collapse" id="panel-upload-template">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" href=""></a>
+        </h4>
+    </div>
+    <div class="panel-body panel-collapse collapse">
+        <input type="hidden" name="crtOrderId" value="" />
+        <form enctype="multipart/form-data" class="tspace" method="post">
+            <input type="hidden" name="siteId" value="" />
+            <input type="hidden" name="folder" value="" />
+            <input type="hidden" name="descriptorId" value="" />
+            <input type="hidden" name="operationId" value="" />
+            <input type="hidden" name="parameters" value="" />
+            <input type="hidden" name="seasonId" value="" />
+            <input type="hidden" name="year" value="" />
+            <div class="parameters vspace">
+            </div>
+            <div class="form-group row vspace">
+                <label class="control-label col-md-4">Upload files:</label>
+                <div class="col-md-8 files">
+                </div>
+            </div>
+            <div class="form-group row vspace">
+                <div class="col-md-12 submit-buttons tspace">
+                </div>
+            </div>
+        </form>
+        <hr />
+    </div>
+</div>
+<div class="form-group form-group-sm row collapse" id="parameter-template">
+    <label class="control-label col-md-4"></label>
+    <div class="col-md-8 control-parent">
+        <input type="text" class="form-control" value="" />
+        <select class="form-control">
+		</select>
+    </div>
+</div>
+
+<!-- include select2 -->
+<link rel="stylesheet" type="text/css" href="assets/libs/select2/4.0.5/select2.min.css" />
+<script type="text/javascript" src="assets/libs/select2/4.0.5/select2.min.js"></script>
+
+<style>
+    .container-fluid {
+        padding: 0
+    }
+
+        .container-fluid input[name="files"] {
+            padding: 5px 10px 5px 35px
+        }
+
+        .container-fluid .parameters .form-group {
+            margin-bottom: 5px
+        }
+
+        .container-fluid .parameters label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .container-fluid .uploading .invalid::after {
+            content: "*";
+            color: white;
+            font-size: 24px;
+            line-height: 1.1em;
+            text-align: right;
+            position: absolute;
+            top: 1px;
+            right: 16px;
+            padding: 0 3px 0 0;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(to top right, transparent 0%, transparent 50%, #ff000090 50%, #ff000090 100%);
+            border-radius: 0 2px 0 0;
+            pointer-events: none
+        }
+
+        .container-fluid .uploading input[type='file']:disabled ~ .upload-button {
+            pointer-events: none;
+            background-color: --disabled-input-gb-color
+        }
+
+
+        .container-fluid .operation-started font::after {
+            content: " ";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin: -5px 10px;
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-image: url(assets/dist/img/loader.gif);
+            background-size: contain
+        }
+
+        .container-fluid .moxie-shim {
+            display: none
+        }
+
+        .container-fluid .files label {
+            margin: 0
+        }
+
+            .container-fluid .files label:not(:first-child) {
+                margin-top: 5px
+            }
+
+        .container-fluid .icon {
+            display: none;
+            position: absolute;
+            right: 6px;
+            top: 4px;
+            color: crimson
+        }
+
+        .container-fluid .uploading .file-set .icon {
+            display: block
+        }
+
+        .container-fluid .required .control-label:after {
+            content: ""
+        }
+</style>
+<script type="text/javascript">
+    var uploadYear = (new Date).getFullYear();
+    //var uploadDescriptors = new Array();
+
+    var getUploadDescriptors = function (siteId) {
+        return $.ajax({
+            cache: false,
+            url: baseApiUrl + "sites/auxdata?siteId=" + siteId,
+            method: "GET",
+        });
+    }
+    var getUploadDescriptorsByYear = function (siteId, year) {
+        return $.ajax({
+            cache: false,
+            url: baseApiUrl + "sites/auxdata?siteId=" + siteId + "&year=" + year,
+            method: "GET",
+        });
+    }
+    var getUploadDescriptorsBySeason = function (siteId, seasonId) {
+        return $.ajax({
+            cache: false,
+            url: baseApiUrl + "sites/auxdata?siteId=" + siteId + "&seasonId=" + seasonId,
+            method: "GET",
+        });
+    }
+    var getSiteSeasons = function (siteId) {
+        return $.ajax({
+            cache: false,
+            url: baseApiUrl + "sites/seasons?site=" + siteId,
+            type: 'GET'
+        });
+    };
+
+    function getSiteSeasonsHtml(seasons) {
+        $.each(seasons, function (index, season) {
+            $("#upload_season").append('<option value="' + season.id + '">' + season.name + '</option>');
+
+        });
+    }
+
+    function manageActionsByDescriptors(descriptors) {
+        $("#div_editsite").removeClass("uniqueByYear uniqueBySeason");
+        var descByYear = $.map(descriptors, function (desc, index) { if (desc.uniqueBy == "year") return desc });
+        if (descByYear.length == 0) {
+            // Unique By Season
+            $("#div_editsite").addClass("uniqueBySeason");
+        } else if (descByYear.length == descriptors.length) {
+            // Unique By Year
+            $("#div_editsite").addClass("uniqueByYear");
+            //$("#upload_files", "#div_editsite").data("uniqueValue", new Date().getFullYear());
+        } else {
+            // Both By Year & Season
+            $("#upload_files", "#div_editsite").data("uniqueValue", new Date().getFullYear());
+            //$("#div_editsite").data("dna").uniqueValue = descByYear[0].uniqueValue;
+        }
+
+    }
+
+    function initOperationUI(orderId, descId) {
+        var $panel = $("#panel" + descId, "#accordion");
+
+        //disable & hide all
+        $(".parameters .form-control", $panel).prop("disabled", true);
+        $(".parameters div.form-group", $panel).collapse('hide');
+        $(".submit-buttons .operation-btn", $panel).prop("disabled", true);
+
+        //show parameters & button for current oper
+        $(".parameters .order-" + orderId + " .form-control", $panel).prop("disabled", false);
+        $(".parameters .order-" + orderId, $panel).collapse('show');
+        $(".submit-buttons .order-" + orderId, $panel).prop("disabled", false);
+    }
+
+    function getUploadSiteFiles(descriptors) {
+        var site = $("#div_editsite").data("dna");
+        $("#accordion").html("");
+        $.each(descriptors, function (descIdx, desc) {
+            var $accordion = $("#panel-upload-template").clone(true).removeAttr("id");
+            // customize panel according to descriptor
+            $accordion.attr({ "id": "panel" + desc.id, "data-id": desc.id });
+            $(".panel-title a", $accordion).attr({ "id": "site" + desc.id + "DataAccHref", "href": "#site" + desc.id + "DataAcc" }).html(desc.label);
+            $(".panel-collapse", $accordion).attr({ "id": "site" + desc.id + "DataAcc" });
+            $("form", $accordion).attr({ "id": "siteform_" + desc.id + "_upload" });
+            $(".files", $accordion).attr({ "id": "container" + desc.id });
+            $("input[name='siteId']", $accordion).val(site.id);
+            $("input[name='folder']", $accordion).val(desc.uploadRelPath);
+            $("input[name='descriptorId']", $accordion).val(desc.id);
+            $accordion.data("dna", desc);
+
+            var firstOrderId = 9999;//some big value
+            var firstOperationId = 0;
+            $.each(desc.files, function (fileIdx, file) {
+                var extension = '.' + file.extensions.replace(/[{}\"]/g, '');
+                var fileHtml = '<label>' + file.label + ':</label>' +
+                    '<div style="position:relative">' +
+                    '<input type="hidden" name="fileIds" value="' + file.instanceId + '" />' +
+                    '<input type="file" id="filelist' + desc.id + '_' + file.id + '" class="form-control" name="files" onchange="onNewFileSelected(' + desc.id + ',' + file.id + ')" accept="' + extension + '" value="" />' +
+                    '<button name="cancel" type="button" title="Cancel" class="icon" onclick="onFileRemove(' + desc.id + ', ' + file.id + ')"><span class="glyphicon glyphicon-remove"></span></button>'
+                '</div>';
+                $("#container" + desc.id, $accordion).append(fileHtml);
+                $.each(file.operations, function (operationIdx, operation) {
+                    var opId = desc.id + "_" + operation.id;
+
+                    if (firstOrderId > operation.order) {
+                        firstOrderId = operation.order;
+                        firstOperationId = operation.id;
+                    }
+                    $.each(operation.parameters, function (paramIdx, param) {
+                        if (param.label) {
+                            var paramId = desc.id + "_" + param.name;
+                            // customize parameter
+                            var $param = $("#parameter-template").clone(true).removeAttr("id");
+                            $("label.control-label", $param).attr({ "for": "postImportCmdParam" + paramId, "title": param.label }).html(param.label);
+                            $(".form-control", $param).attr({
+                                "id": "postCmdParam" + paramId
+                                //"name": param.name
+                            });
+                            $(".form-control", $param).data("name", param.name);
+                            if (param.valueSet) {
+                                $("input", $param).remove();
+                                if (param.valueSet[0].startsWith("$")) {
+                                    var vs = param.valueSet[0].replace(/\$/g, "");
+                                    $("select", $param).attr({ "data-valueset": vs });
+                                    $("select", $param).attr({ "multiple": "multiple" });
+                                    $("select", $param).addClass("multiselect");
+                                }
+                                else {
+                                    var selected = "";
+                                    $.each(param.valueSet, function (iddx, opt) {
+                                        selected = (opt === param.defaultValue ? " selected " : "");
+                                        $("select", $param).append('<option value="' + opt + '" ' + selected + '>' + opt + '</option>');
+                                    });
+                                }
+                            } else if (param.type.indexOf("String") >= 0 || param.type.indexOf("Integer") >= 0) {
+                                $("select", $param).remove();
+                                $("input", $param).val(param.value ? param.value : "");
+                            } else if (param.type.indexOf("Date") >= 0 || param.type.indexOf("Integer") >= 0) {
+                                $("select", $param).remove();
+                                $("input", $param).val(param.value ? param.value : "");
+                                $("input", $param).addClass("has-date");
+                            }
+                            if (param.required) {
+                                $param.addClass("required");
+                                $(".form-control", $param).attr({ "required": "required" });
+                            }
+
+                            $param.addClass("operation-" + operation.id);
+                            $param.addClass("order-" + operation.order);
+                            $(".parameters", $accordion).append($param);
+                        }
+                    });
+
+                    // add button
+                    var $opBtn = $('<input class="add-edit-btn operation-btn lspace operation-' + operation.id + ' order-' + operation.order + '" disabled id="bntStartOperation' + opId + '" type="button" value="' + operation.name + '">');
+                    $opBtn.on("click", function (e) {
+
+                        var $panel = $(this).closest(".panel");
+                        var id = $panel.data("id");
+                        if ($panel.hasClass("uploading")) {
+                            //set current operation id
+                            $('input[name="operationId"]', $panel).val(operation.id);
+                            if (validPanel(id)) {
+                                //startUpload(id);
+                                startOperation(id, operation.id, operation.name);
+                            } else {
+                                alert("Please correct all invalid parameters before executing the operation.");
+                            }
+                        }
+                        else {
+                            alert("No file selected.");
+                        }
+                    });
+                    $(".submit-buttons", $accordion).append($opBtn);
+                });
+            });
+
+            //store first operation id and order id
+            $('input[name="operationId"]', $accordion).val(firstOperationId);
+            $('input[name="crtOrderId"]', $accordion).val(firstOrderId);
+
+            $("#accordion").append($accordion.removeClass("collapse"));
+            $("input.has-date", "#accordion").datepicker({ dateFormat: "yy-mm-dd" });
+
+            $(".multiselect").select2({ placeholder: "Select...", width: "100%", allowClear: true });
+            initOperationUI(firstOrderId, desc.id);
+        });
+        // Check upload form validity when any required input field is changed
+        $("div.required input[type='text']", "#accordion").on("change", function (e) {
+            var panelId = $(this).closest(".uploading").data("id");
+            validPanel(panelId);
+        });
+        // Automatically open first accordion panel
+        if ($("#accordion>.panel").length >= 1) {
+            $("#accordion>.panel:first-child>.panel-collapse").collapse('show');
+        }
+    }
+    function validPanel(id) {
+        var operId = $('input[name="operationId"]', "#panel" + id).val();
+        var valid = true;
+        $.each($("div.required.operation-" + operId + " *:required", "#panel" + id), function () {
+            if ($(this).val() == "") {
+                $(this).closest(".control-parent").addClass("invalid");
+                valid = false;
+            } else {
+                $(this).closest(".control-parent").removeClass("invalid");
+            }
+        });
+        // Enable operation submit button
+        if (valid) {
+
+        }
+
+        return valid;
+    }
+    function onOperationStatusEvent(descId, msg) {
+        var titleId = "site" + descId + "DataAccHref";
+        var str = $("#" + titleId).html();
+        var modifIdx = str.indexOf('<font color');
+        str = str.substring(0, modifIdx > 0 ? modifIdx : str.length);
+        str += ((msg && msg != "") ? '<font color="red"> (' + msg + ')</font>' : '');
+        $("#" + titleId).html(str);
+    }
+    function onNewFileSelected(descId, fileId) {
+        var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+        $fileInput.closest("div").addClass("file-set");
+        $fileInput.prop("disabled", true);
+        $("#panel" + descId, "#accordion").addClass("uploading");
+        onOperationStatusEvent(descId, "changed")
+
+        validPanel(descId);
+    }
+    function onFileRemove(descId, fileId) {
+        var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+        $fileInput.closest("div").removeClass("file-set");
+        $fileInput.replaceWith($fileInput.val("").clone(true).prop("disabled", false));
+        if ($("#panel" + descId + " .file-set", "#accordion").length == 0) {
+            $("#panel" + descId, "#accordion").removeClass("uploading operation-started operation-done");
+            onOperationStatusEvent(descId, "");
+        }
+
+        validPanel(descId);
+    }
+    function onOperationStartEvent(descId, opName) {
+        $("#panel" + descId).addClass("operation-started");
+        onOperationStatusEvent(descId, opName + " started, please wait!");
+    }
+    function onOperationEndEvent(descId, msg) {
+        $("#panel" + descId).removeClass("operation-started").addClass("operation-done");
+        onOperationStatusEvent(descId, msg);
+    }
+    function startOperation(descId, operId, operName) {
+        var $panel = $("#panel" + descId, "#accordion");
+        if ($panel.length > 0) {
+            if ($("#div_editsite").hasClass("uniqueByYear")) {
+                //copy the year to form and enable
+                //disable seasonId
+                $('input[name="year"]', $panel).val($('#upload_year').val()).prop("disabled", false);
+                $('input[name="seasonId"]', $panel).val('').prop("disabled", true);
+            } else if ($("#div_editsite").hasClass("uniqueBySeason")) {
+                //copy the seasonId to form and enable
+                //disable year
+                $('input[name="seasonId"]', $panel).val($('#upload_season').val()).prop("disabled", false);
+                $('input[name="year"]', $panel).val('').prop("disabled", true);
+            }
+
+            //calc parameters
+            var parameters = {};
+            $.each($(".parameters .operation-" + operId + " .form-control", $panel), function () {
+                if ($(this).is("input")) {
+                    parameters[$(this).data("name")] = $(this).val();
+                }
+                else if ($(this).is("select")) {
+                    var options = [];
+                    $.each($(this).find(':selected'), function () {
+                        options.push($(this).val());
+                    });
+                    parameters[$(this).data("name")] = options.join(',');
+                }
+            });
+            if ($('#upload_year').data("is-param-set") == true) {
+                parameters["year"] =  $('#upload_year').val();
+            } 
+            if ($('#upload_season').data("is-param-set") == true) {
+                parameters["seasonId"] =  $('#upload_season').val();
+            } 
+            
+            $('input[name="parameters"]', $panel).val(JSON.stringify(parameters));
+
+            // Disable operation button
+            $('input.operation-btn.operation-' + operId, $panel).prop("disabled", true);
+            // Enable all input file fields
+            $('input[name="files"]', $panel).prop("disabled", false);
+            onOperationStartEvent(descId, operName);
+            $.ajax({
+                async: true,
+                url: baseApiUrl + "auxdata/import/",
+                method: "POST",
+                processData: false,
+                contentType: false,
+                mimeType: "multipart/form-data",
+                data: new FormData($("form", $panel).get(0)),
+                success: function (JSONresponse) {
+                    var response = JSON.parse(JSONresponse);
+                    if (response.status == responseStatus.success) {
+                        onOperationEndEvent(descId, response.message);
+
+                        if (response.data) {
+                            var dataJSON = response.data.replace(/'/g, '"');
+                            var data = JSON.parse(dataJSON);
+
+                            var valueSetKey = Object.keys(data)[0];
+                            var valueSetHTML = "";
+                            $.each(data[valueSetKey], function (index, value) {
+                                valueSetHTML += "<option>" + value + "</option>";
+                            });
+
+                            $.each($("select[data-valueset='" + valueSetKey + "']", $panel), function (idx, obj) {
+                                $(this).append(valueSetHTML);
+                            });
+                        }
+
+                        //get current operation order
+                        var crtOrder = parseInt($('input[name="crtOrderId"]', $panel).val());
+                        var newOrder = crtOrder + 1;
+                        //set new operation order
+                        $('input[name="crtOrderId"]', $panel).val(newOrder);
+                        //init params/buttons for new operation
+                        initOperationUI(newOrder, descId);
+                    } else {
+                        onOperationStatusEvent(descId, "Error: " + response.message);
+                        $panel.removeClass("operation-started");
+                        $('input.operation-btn.operation-' + operId, $panel).prop("disabled", false);
+                    }
+                    // Disable active input file fields
+                    $('.file-set input[name="files"]', $panel).prop("disabled", true);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $('input.operation-btn.operation-' + operId, $panel).prop("disabled", false);
+                    var responseJSON = { "status": textStatus, "error": errorThrown };
+                    if (jqXHR.responseJSON) {
+                        responseJSON = jqXHR.responseJSON;
+                    } else if (jqXHR.responseText) {
+                        responseJSON = xmlToJson(jqXHR.responseText);
+                        if (typeof responseJSON["Map"] !== "undefined") {
+                            responseJSON = responseJSON["Map"];
+                        }
+                    }
+                    onOperationStatusEvent(descId, "Error #" + responseJSON.status + ": " + responseJSON.error + " - " + responseJSON.message);
+                    $panel.removeClass("operation-started");
+                    // Disable active input file fields
+                    $('.file-set input[name="files"]', $panel).prop("disabled", true);
+                }
+            });
+        }
+    }
+
+    function getSeasonDominantYear(stringStartDate, stringEndDate) {
+        var startDate = new Date(stringStartDate);
+        var endDate = new Date(stringEndDate);
+
+        var startDateYear = startDate.getFullYear();
+        var endDateYear = endDate.getFullYear();
+        if (startDateYear === endDateYear) {
+            return startDateYear;
+        }
+        else {
+            var endOfFirstYear = new Date(startDateYear, 11, 31);
+            var diffTime = Math.abs(endOfFirstYear - startDate);
+            const daysFirstYear = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            var startOfLastYear = new Date(endDateYear, 0, 1);
+            diffTime = Math.abs(endDate - startOfLastYear);
+            const daysLastYear = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            return daysFirstYear > daysLastYear ? startDateYear : endDateYear;
+        }
+    }
+
+    function getSiteSeasonsCombo() {
+
+    }
+
+    $(document).ready(function () {
+        var $dialog = $("#div_editsite");
+        if ($dialog.length == 0 || typeof $dialog.data("dna") === "undefined") { return; }
+
+        var siteId = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+
+        // Get site descriptors
+        $.when(getUploadDescriptors(siteId))
+            .done(function (response) {
+                if (response.status == responseStatus.success) {
+                    manageActionsByDescriptors(response.data);
+                }
+            });
+
+    });
+
+
+//# sourceURL=uploads.js
+</script>

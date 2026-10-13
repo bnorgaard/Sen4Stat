@@ -1,0 +1,474 @@
+<table class="table" id="seasons">
+	<thead>
+		<tr>
+			<th>Season name</th>
+			<th class="dtField">Season start</th>
+			<th class="dtField">Season mid</th>
+			<th class="dtField">Season end</th>
+			<th class="ckField">Enabled</th>
+			<th class="ctField season-upload">Upload Files</th>
+			<th class="dtField">Active processors</th>
+			<th class="ctField">Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+<table class="add-line hidden">
+	<tbody>
+		<tr data-id="0">
+			<td><input class="form-control" type="text" name="season_name" data-save="" value="" disabled></td>
+			<td><input class="form-control" type="text" name="season_start" data-save="" value="" autocomplete="off"
+					disabled></td>
+			<td><input class="form-control" type="text" name="season_mid" data-save="" value="" autocomplete="off"
+					disabled></td>
+			<td><input class="form-control" type="text" name="season_end" data-save="" value="" autocomplete="off"
+					disabled></td>
+			<td><input class="form-control" type="checkbox" name="season_enabled" data-save="f" disabled></td>
+			<td class="season-upload"></td>
+			<td class="season-procs"></td>
+			<td>
+				<button name="add" title="Add season" class="icon"><span class="glyphicon glyphicon-plus"></span>
+				</button><button name="save" title="Save season" class="icon hidden"><span
+						class="glyphicon glyphicon-floppy-disk"></span>
+				</button><button name="cancel" title="Cancel" class="icon hidden"><span
+						class="glyphicon glyphicon-remove"></span></button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<style>
+	table#seasons{width:100%;border-width:1px 1px 0 1px;border-style:solid;border-color:#cccccc;border-radius:3px;border-collapse:separate !important;background-color:white;line-height:22px}
+	table#seasons tbody>tr:hover{background-color:transparent}
+	table#seasons th,table#seasons td{text-align:center;padding:2px 0px 1px 2px;border:0;border-bottom:1px solid #cccccc}
+	table#seasons td{vertical-align:top}
+	table#seasons th.dtField{width:100px}
+	table#seasons th.ckField{width:70px}
+	table#seasons th.ctField{width:60px}
+	table#seasons input{padding:2px;border-radius:0;box-shadow:none;-webkit-box-shadow:none;text-align:center;height:24px}
+	table#seasons input[type="checkbox"]{width:auto;display:inline;height:auto;cursor:default}
+	table#seasons .bootstrap-switch.bootstrap-switch-mini span{padding:2px 5px;font-size:12px}
+	
+	/* Processors */
+	table#seasons td div.proc{position:relative;height:24px}
+	table#seasons td div.proc h6{color:#0058ff;margin:0}
+	table#seasons td div.proc div{display:none;position:absolute;left:0;top:0;background-color:white;border:1px solid lightgray;padding:2px 5px;text-align:left;z-index:998;width:100%;width:calc(100% - 4px)}
+	table#seasons td div.proc input{margin:0}
+	table#seasons td div.proc label{font-weight:400;display:block;white-space:nowrap;margin:0;font-size:12px;line-height:2em}
+	table#seasons td div.proc span{display:block;white-space:nowrap;font-size:0.8em;color:#285e80;font-size:0.85em;line-height:1.2em}
+	/* Processors for existing seasons */
+	table#seasons tr:not(:last-child) div.proc:hover h6{display:none}
+	table#seasons tr:not(:last-child) div.proc:hover div{display:block;background-color:white;border:1px solid #cccccc;z-index:999;text-align:center}
+	table#seasons tr:not(:last-child) div.proc:hover div input{display:none}
+	/* Processors for new season */
+	table#seasons tr:last-child td div.proc h6{display:none}
+	table#seasons tr:last-child td div.proc div{display:block;position:relative;float:left}	
+	
+	/* Action buttons */
+	table#seasons .icon[name="upload"]{color:#487bd4}
+	table#seasons .icon[name="edit"  ]{color:orange}
+	table#seasons .icon[name="save"  ]{color:blue}
+	table#seasons .icon[name="remove"]{color:red}
+	table#seasons .icon[name="add"   ]{color:var(--color-default)}
+	table#seasons .icon[name="cancel"]{color:gray}
+	
+	.uniqueByYear .season-upload{display:none}
+</style>
+<script type="text/javascript">
+	$(document).ready(function () {
+		var getSiteSeasons = function (siteId) {
+			return $.ajax({
+				cache: false,
+				url: "/sites/seasons?site=" + siteId,
+				type: 'GET'
+			});
+		}
+		function get_active_processors(procs) {
+			var processors = [];
+			if (typeof procs === "undefined") {
+				$.ajax({
+					async: false,
+					url: "/sites/processors",
+					method: "GET",
+					success: function (response) {
+						if (response.status == responseStatus.success) {
+							processors = response.data;
+						} else {
+							console.log(response.message);
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log("Unable to get active processors list.");
+					}
+				});
+			} else {
+				processors = procs;
+			}
+
+			var $div = "";
+			if (processors.length > 0) {
+				var $procs = $('<div></div>');
+				$.each(processors, function (index, proc) {
+					var procHtml = '<label>' +
+						'<input name="' + proc.shortName.toLowerCase() +
+						'" data-id="' + proc.id +
+						'" type="checkbox"' + ((typeof procs !== "undefined" || proc.required) ? " checked disabled" : "") +
+						' />&nbsp;' + proc.shortName.toUpperCase() +
+						'</label>';
+					$procs.append(procHtml);
+					$('input[name="' + proc.shortName.toLowerCase() + '"]', $procs).data("dna", proc);
+				});
+				$div = $('<div class="proc' + (typeof procs === "undefined" ? " hidden" : "") + '"></div>');
+				$div.append('<h6>Hover to<br>reveal</h6>');
+				$div.append($procs);
+			}
+			return $div;
+		}
+		function getSeasonsEditHtml(seasons, $parent) {
+			$parent.html("");
+			$.each(seasons, function (index, season) {
+				var tr = '<tr data-id="' + season.id + '">' +
+					'<td><input class="form-control" type="text" name="season_name"  data-save="' + season.name + '" value="' + season.name + '" disabled></td>' +
+					'<td><input class="form-control" type="text" name="season_start" data-save="' + season.startDate + '" value="' + season.startDate + '" disabled></td>' +
+					'<td><input class="form-control" type="text" name="season_mid"   data-save="' + season.midDate + '" value="' + season.midDate + '" disabled></td>' +
+					'<td><input class="form-control" type="text" name="season_end"   data-save="' + season.endDate + '" value="' + season.endDate + '" disabled></td>' +
+					'<td><input class="form-control" type="checkbox" name="season_enabled" data-save="' + (season.enabled ? "t" : "f") + '" disabled></td>' +
+					'<td class="season-upload">' + (season.id > 0 ? '<button name="upload" title="Upload files" class="icon"' + (season.enabled ? '' : ' disabled') + '><span class="fa fa-cogs"></span></button>' : '') + '</td>' +
+					'<td class="season-procs"></td>' +
+					'<td>' +
+					(season.id > 0
+						?
+						'<button name="edit"   title="Edit season"   class="icon"><span class="glyphicon glyphicon-pencil"></span></button>' +
+						'<button name="save"   title="Save season"   class="icon hidden"><span class="glyphicon glyphicon-floppy-disk"></span></button>' +
+						'<button name="remove" title="Remove season" class="icon"><span class="glyphicon glyphicon-trash"></span></button>' +
+						'<button name="cancel" title="Cancel"        class="icon hidden"><span class="glyphicon glyphicon-remove"></span></button>'
+						:
+						'<button name="add"    title="Add season"  class="icon"><span class="glyphicon glyphicon-plus"></span></button>' +
+						'<button name="save"   title="Save season" class="icon hidden"><span class="glyphicon glyphicon-floppy-disk"></span></button>' +
+						'<button name="cancel" title="Cancel"      class="icon hidden"><span class="glyphicon glyphicon-remove"></span></button>'
+					) +
+					'</td>' +
+					'</tr>';
+				var $tr = $(tr);
+				$tr.data("dna", season);
+				$('input[name="season_enabled"]', $tr)
+					.prop("checked", season.enabled)
+					.bootstrapSwitch({
+						size: "mini",
+						onColor: "success",
+						offColor: "default",
+						disabled: true,
+						handleWidth: 25
+					});
+				$("td.season-procs", $tr).append(get_active_processors(season.enabledProcessors));
+				$parent.append($tr);
+			});
+			// Disable "enable site" checkbox if no seasons found
+			if (seasons.length == 0) {
+				$("#edit_enabled").bootstrapSwitch('state', false);
+				$("#edit_enabled").bootstrapSwitch('disabled', true);
+			} else {
+				$("#edit_enabled").bootstrapSwitch('disabled', false);
+			}
+		}
+		function setAddTableLine() {
+			var $tr_line = $("tr", "table.add-line tbody").clone(true);
+			$('#seasons>tbody:last-child').append($tr_line);
+		}
+		function replaceAddTableLine($dialog) {
+			//replace buttons for the newly added season
+			var td_line =
+				'<button class="icon"        name="edit"   title="Edit season"  ><span class="glyphicon glyphicon-pencil"></span></button>' +
+				'<button class="icon hidden" name="save"   title="Save season"  ><span class="glyphicon glyphicon-save"  ></span></button>' +
+				'<button class="icon"        name="remove" title="Remove season"><span class="glyphicon glyphicon-trash" ></span></button>' +
+				'<button class="icon hidden" name="cancel" title="Cancel"       ><span class="glyphicon glyphicon-times" ></span></button>';
+			$('#seasons>tbody>tr:last-child>td:last-child').html(td_line);
+
+			//insert a new add season line
+			setAddTableLine();
+			setButtonActions($dialog);
+			setDatepicker();
+			refreshDialogPosition($dialog);
+		}
+		function setButtonActions($dialog) {
+			$("#seasons .icon[name='edit']").unbind("click");
+			$("#seasons .icon[name='edit']").on("click", function (e) {
+				e.preventDefault();
+				var $parent = $(this).closest("tr");
+
+				// enable all season controls
+				$("td input.form-control", $parent).prop("disabled", false);
+
+				// enable bootstrapSwitch for season_enabled
+				var boots = $("input[name='season_enabled']", $parent);
+				$(boots).bootstrapSwitch('disabled', false);
+				$(".icon[name='upload']", $parent).prop("disabled", true);
+
+				// show/hide action buttons
+				$(this).addClass("hidden");
+				$(".icon[name='remove']", $parent).addClass("hidden");
+				$(".icon[name='save']", $parent).removeClass("hidden");
+				$(".icon[name='cancel']", $parent).removeClass("hidden");
+			});
+			$("#seasons .icon[name='add']").unbind("click");
+			$("#seasons .icon[name='add']").on("click", function (e) {
+				e.preventDefault();
+				var $parent = $(this).closest("tr");
+
+				// enable all season controls
+				$("td input.form-control", $parent).prop("disabled", false);
+
+				// set visibility for active processors
+				$("div.proc", $parent).removeClass("hidden");
+
+				// enable bootstrapSwitch for season_enabled
+				var boots = $("input[name='season_enabled']", $parent);
+				$(boots).bootstrapSwitch('disabled', false);
+
+				// show/hide action buttons
+				$(this).addClass("hidden");
+				$(".icon[name='save']", $parent).removeClass("hidden");
+				$(".icon[name='cancel']", $parent).removeClass("hidden");
+
+				refreshDialogPosition($dialog);
+			});
+			$("#seasons .icon[name='cancel']").unbind("click");
+			$("#seasons .icon[name='cancel']").on("click", function (e) {
+				e.preventDefault();
+				hidePanelError("#siteform_edit");
+
+				var $parent = $(this).closest("tr");
+				if ($parent.data("id") == 0) {
+					// *** cancel add new season ***
+					// disable all season controls
+					$("td input.form-control", $parent).prop("disabled", true);
+
+					// uncheck bootstrapSwitch for season_enabled and then disable it
+					var boots = $("input[name='season_enabled']", $parent);
+					$(boots).bootstrapSwitch('state', false);
+					$(boots).bootstrapSwitch('disabled', true);
+
+					// restore state of all active processors and hide them
+					$("div.proc input[type='checkbox']:enabled", $parent).attr("checked", false);
+					$("div.proc", $parent).addClass("hidden");
+
+					// show/hide action buttons
+					$(".icon[name='save']", $parent).addClass("hidden");
+					$(".icon[name='add']", $parent).removeClass("hidden");
+				} else {
+					// *** cancel update season ***
+					$($("td input.form-control", $parent)).each(function () {
+						if ($(this).attr("type") == "checkbox") {
+							// restore previous state of bootstrapSwitch for season_enabled and then disable it
+							if ($(this).attr("name") == "season_enabled") {
+								$(this).bootstrapSwitch('state', $(this).data("save") == "t");
+								$(this).bootstrapSwitch('disabled', true);
+								$(".icon[name='upload']", $parent).prop("disabled", $(this).data("save") == "f");
+							}
+						} else {
+							// restore previous value for season control
+							$(this).val($(this).data("save"));
+						}
+						// disable season control
+						$(this).prop("disabled", true);
+					});
+
+					// show/hide action buttons
+					$(".icon[name='save']", $parent).addClass("hidden");
+					$(".icon[name='edit']", $parent).removeClass("hidden");
+					$(".icon[name='remove']", $parent).removeClass("hidden");
+				}
+				// hide cancel action button
+				$(this).addClass("hidden");
+
+				refreshDialogPosition($dialog);
+			});
+			$("#seasons .icon[name='save']").unbind("click");
+			$("#seasons .icon[name='save']").on("click", function (e) {
+				e.preventDefault();
+				hidePanelError("#siteform_edit");
+
+				// read season "form" data
+				var $parent = $(this).closest("tr");
+				var site_id = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+				var season_id = $parent.data("id");
+				var season_name = $("td input[name='season_name']", $parent).val();
+				var season_start = $("td input[name='season_start']", $parent).val();
+				var season_mid = $("td input[name='season_mid']", $parent).val();
+				var season_end = $("td input[name='season_end']", $parent).val();
+				var season_enabled = $("td input[name='season_enabled']", $parent).bootstrapSwitch("state");
+				var processors = new Array();
+				if (season_id != 0) {
+					processors = $parent.data("dna").enabledProcessors;
+				} else {
+					$("div.proc input[type='checkbox']:checked:enabled", $parent).each(function () {
+						processors.push($(this).data("dna"));
+					});
+				}
+				var data = {
+					"id": season_id == 0 ? null : season_id,
+					"siteId": site_id,
+					"name": season_name,
+					"startDate": season_start,
+					"midDate": season_mid,
+					"endDate": season_end,
+					"enabled": season_enabled,
+					"enabledProcessors": processors
+				};
+				$.ajax({
+					url: "/sites/seasons/",
+					method: "POST",
+					data: JSON.stringify(data),
+					headers: { "content-type": "application/json" },
+					success: function (response) {
+						if (response.status == responseStatus.success) {
+							// show/hide action buttons
+							$(".icon[name='save']", $parent).addClass("hidden");
+							$(".icon[name='cancel']", $parent).addClass("hidden");
+							$(".icon[name='edit']", $parent).removeClass("hidden");
+							$(".icon[name='remove']", $parent).removeClass("hidden");
+							// disable input controls for saved season
+							$("td input.form-control", $parent).each(function () {
+								if ($(this).attr("type") == "checkbox") {
+									// save new state of bootstrapSwitch for season_enabled and then disable it
+									if ($(this).attr("name") == "season_enabled") {
+										var chk = $(this).bootstrapSwitch("state") ? "t" : "f";
+										$(this).attr("data-save", chk);
+										$(this).data("save", chk);
+										$(this).bootstrapSwitch('disabled', true);
+										$(".icon[name='upload']", $parent).prop("disabled", chk == "f");
+									}
+								} else {
+									// save new values for season controls
+									var sav = $(this).val();
+									$(this).attr("data-save", sav);
+									$(this).data("save", sav);
+								}
+								// disable season control
+								$(this).prop("disabled", true);
+							});
+							// for newly created season
+							if (season_id == 0) {
+								// disable controls for active processors
+								if ($("div.proc input[type='checkbox']:checked", $parent).length == 1) {
+									$("div.proc", $parent).remove();
+								} else {
+									// remove required processors
+									$("div.proc input[type='checkbox']:disabled", $parent).parent().remove();
+									// remove unselected processors
+									$("div.proc input[type='checkbox']:not(:checked)", $parent).parent().remove();
+									// disable remaining selected processors
+									if ($("div.proc input[type='checkbox']", $parent).length == 0) {
+										$("div.proc", $parent).remove();
+									} else {
+										$("div.proc input[type='checkbox']", $parent).attr("disabled", true);
+									}
+								}
+								// add upload button
+								var chk = $('input[name="season_enabled"]', $parent).bootstrapSwitch("state");
+								$("td.season-upload", $parent).html('<button name="upload" class="icon"' + (chk ? '' : ' disabled') + '><span class="fa fa-cogs">&nbsp;</span></button>');
+
+								// create "add new season" line
+								var new_season_id = response.data.id;
+								$parent.attr("data-id", new_season_id);
+								$parent.data("id", new_season_id);
+								replaceAddTableLine($dialog);
+
+								// enable site when at least one season has been added
+								$("#edit_enabled").bootstrapSwitch('disabled', false);
+							}
+							if (response.data && !response.data.enabledProcessors) {
+								response.data.enabledProcessors = processors;
+							}
+							$parent.data("dna", response.data);
+						} else {
+							showPanelError("#siteform_edit", response.message);
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						showPanelError("#siteform_edit", jqXHR);
+					}
+				});
+			});
+			$("#seasons .icon[name='remove']").unbind("click");
+			$("#seasons .icon[name='remove']").on("click", function (e) {
+				e.preventDefault();
+				hidePanelError("#siteform_edit");
+
+				if (confirm('Are you sure you want to delete this season?')) {
+					var $parent = $(this).closest("tr");
+					var site_id = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+					var season_id = $parent.data("id");
+					$.ajax({
+						url: "/sites/seasons?site=" + site_id + "&seasonId=" + season_id,
+						method: "DELETE",
+						success: function (response) {
+							if (response.status == responseStatus.success) {
+								// disable site when no seasons
+								if ($parent.siblings(":not([data-id=0])").length == 0) {
+									$("#edit_enabled").bootstrapSwitch('state', false);
+									$("#edit_enabled").bootstrapSwitch('disabled', true);
+								}
+								// remove season line from table
+								$parent.remove();
+								refreshDialogPosition($dialog);
+							} else {
+								showPanelError("#siteform_edit", response.message);
+							}
+						},
+						error: function (jqXHR, textStatus, errorThrown) {
+							showPanelError("#siteform_edit", jqXHR);
+						}
+					});
+				}
+			});
+			$("#seasons .icon[name='upload']").unbind("click");
+			$("#seasons .icon[name='upload']").on("click", function (e) {
+				e.preventDefault();
+				hidePanelError("#siteform_edit");
+
+				var $seasonTr = $(this).closest("tr");
+				var $seasonsDiv = $(this).closest("#site_seasons");
+				if ($seasonsDiv.length + $seasonTr.length > 1) {
+					$seasonsDiv.data("dna", $seasonTr.data("dna"));
+					$seasonsDiv.trigger("upload");
+				} else {
+					alert("Please select a valid season for upload");
+				}
+			});
+			// set bootstrapSwitch for all season_enabled controls
+			$("input[name='season_enabled']", "#seasons").bootstrapSwitch({
+				size: "mini",
+				onColor: "success",
+				offColor: "default",
+				disabled: true,
+				handleWidth: 25
+			});
+		}
+		function setDatepicker() {
+			$("table#seasons input[name='season_start']").datepicker({ changeYear: true, changeMonth: true, dateFormat: "yy-mm-dd" });
+			$("table#seasons input[name='season_mid']").datepicker({ changeYear: true, changeMonth: true, dateFormat: "yy-mm-dd" });
+			$("table#seasons input[name='season_end']").datepicker({ changeYear: true, changeMonth: true, dateFormat: "yy-mm-dd" });
+		}
+
+		// ==== START ==== //
+		var $dialog = $("#div_editsite");
+		if ($dialog.length == 0 || typeof $dialog.data("dna") === "undefined") { return; }
+
+		var siteId = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+		// Get site seasons
+		$.when(getSiteSeasons(siteId))
+			.done(function (response) {
+				if (response.status == responseStatus.success) {
+					getSeasonsEditHtml(response.data, $("tbody", "table#seasons"));
+					$("td.season-procs", "table.add-line").append(get_active_processors());
+					setAddTableLine();
+					setButtonActions($dialog);
+					setDatepicker();
+					refreshDialogPosition($dialog);
+				}
+			});
+	});
+
+//# sourceURL=seasons.js
+</script>

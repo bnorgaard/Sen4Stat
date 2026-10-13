@@ -1,0 +1,186 @@
+<style>
+	#useOutputCropMaskOfServiceId {width:50%;}
+	#useOutputCropMaskOfServiceId:disabled {color:lightgrey;}
+</style>
+<div class="sub-service l4b">
+	<h4 class="panel-title">Crop Type Map</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Map of the main crop types in a given region, with a minimum mapping unit of 0.01 ha and provided along with several quality flags. The crop types are classified over the cropland area identified in the cropland mask. The map is generated twice over the season, at the middle and at the end of the season.</span>
+		</label>
+	</div>
+	<div class="form-group row">
+		<div>
+			<label class="col-md-12" for="useInsituData">
+				<input type="radio" class="form-control" name="crop_map_mode" id="useInsituData" value="Supervised"/>
+				<label class="title">In-situ Data</label>
+			</label>		
+			<label class="col-md-10">									
+				<label class="col-md-12" for="insituDataFile">
+					<span>Please define your In-situ Data using a GIS layer in ESRI Shapefile (in a zip file including all the components of the layer), GeoJSON or KML format.</span>
+					<input type="file" class="form-control mode_supervised_group" id="insituDataFile" name="l4SupervisedFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" disabled/>
+				</label>			
+			</label>
+		</div>
+		<label class="col-md-12" for="useEarthSignature">
+			<input type="radio" class="form-control" name="crop_map_mode" id="useEarthSignature" value="EarthSignature" checked />
+			<label class="title">EarthSignature</label>
+		</label>								
+	</div>
+	
+	<div class="form-group row">
+		<label class="col-md-12" for="useReferenceMap">
+			<input type="checkbox" class="form-control" name="useReferenceMap" id="useReferenceMap" />
+			<label>Use your own reference crop mask</label>
+		</label>
+		
+		<label class="col-md-10">
+			<label class="col-md-12" for="chooseCropMask">
+				<input type="radio" class="form-control" name="chooseCropMask" id="chooseCropMask" disabled checked><label class="title">Choose file</label></span>
+			</label>			
+			<label class="col-md-12" for="referenceMapFile" style="padding-left:3.8rem">
+				<span>Please define your Crop Mask using a zip file (includes one or more tiles in TIFF format) or a TIFF format (representing one tile).</span>
+				<input type="file" class="form-control" id="referenceMapFile" name="l4bReferenceCropMaskFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" disabled/>
+			</label>
+			
+			<div id="usedPreviousServices" class="hidden">
+				<label class="col-md-12" for="usePreviousCropMask">
+					<input type="radio" class="form-control" name="chooseCropMask" id="usePreviousCropMask" disabled>
+					<label class="title">Use previous generated Crop Mask</label>
+				</label>
+				<label class="col-md-12" id="usePreviousCropMaskInfo" class="hidden">
+					<span>This option can not be used because there are no previous generated Crop Masks on the selected area of interest and sensing period. Or the existing Crop Masks are cont completed.</span>
+				</label>
+				<label class="col-md-12" style="padding-left:3.8rem">
+					<select id="useOutputCropMaskOfServiceId" class="form-control" disabled>
+						<option value="" selected disabled> -- Select service -- </option>
+					</select>
+				</label>				
+			</div>
+		</label>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	function initSetup() {
+		/* START set options visible based on previous page selected options */
+		if ($("#usePrevSite").is(":checked")) {
+			$("#usedPreviousServices").removeClass("hidden");
+		} else {
+			$("#usedPreviousServices").addClass("hidden");
+		}
+		/* END set options visible based on previous page selected options */
+		
+		if ($("#content").data("prevSelectedService") !== $("#prevSites").val()) {
+			populatePrevFields();
+		}
+	};
+	
+	/* START Check if exist previous service request and populate fields */
+	function populatePrevFields() {
+		$('#useOutputCropMaskOfServiceId')
+			.empty()
+			.append('<option value="" selected disabled> -- Select service -- </option>');
+		
+		if (typeof $("#content").data("existingServices") !== "undefined") {
+			$.each($("#content").data("existingServices"), function (index, value) {
+				var hasL4a = false;
+				var isL4aCompleted = false;
+				$.each(value.processors, function (key, object) {
+					if (object.shortName === "l4a") {
+						hasL4a = true;
+						if(object.status === 6) {
+							isL4aCompleted = true;
+						}
+					}
+				});
+				if (hasL4a && isL4aCompleted && $("#startDate").val() === value.startDate 
+						&& $("#endDate").val() === value.endDate) {
+					
+					var format = new ol.format.WKT();
+					var feature = format.readFeature(value.footprint);
+					var extent = feature.getGeometry().getExtent();
+					var latmin = Number(parseFloat($("#latmin").val()).toFixed(6));
+					var latmax = Number(parseFloat($("#latmax").val()).toFixed(6));
+					var lonmin = Number(parseFloat($("#lonmin").val()).toFixed(6));
+					var lonmax = Number(parseFloat($("#lonmax").val()).toFixed(6));
+					if (latmin === extent[1] && latmax === extent[3] && lonmin === extent[0] && lonmax === extent[2]) {
+						$("#useOutputCropMaskOfServiceId").append("<option value='" + value.id +"'>" + value.name + "</option>");
+					}
+				}
+			});
+		}
+		if ($("#useOutputCropMaskOfServiceId").find("option").length > 1) {
+			$("#usePreviousCropMaskInfo").addClass("hidden");
+			if ($("#useReferenceMap").is(":checked")) {
+				$("#usePreviousCropMask").prop("disabled", false);
+			}
+		} else {
+			$("#usePreviousCropMask").prop({"checked":false, "disabled":true}).trigger("change");
+			$("#chooseCropMask").prop("checked", true).trigger("change");
+			$("#usePreviousCropMaskInfo").removeClass("hidden");
+		}
+	};
+	/* END Check if exist previous service request and populate fields */
+	
+	$('.l4b').on('classChange', function() {
+		initSetup();
+	});
+	
+	$(document).ready(function() {
+		initSetup();
+		
+		$("input[name='crop_map_mode']").change(function () {
+			$(this).closest(".form-group").find("label.error").remove();
+			if ($(this).is(":checked") && $(this).attr("id") === "useInsituData") {
+				$("#insituDataFile").prop("disabled", false);
+			}else {
+				$("#insituDataFile").prop("disabled", true);
+			}
+		});
+		
+		$("#useReferenceMap").change(function () {
+			$(this).closest(".form-group").find("label.error").remove();
+			if ($(this).is(":checked")) {
+				$("#chooseCropMask").prop("disabled", false);
+				if ($("#useOutputCropMaskOfServiceId").find("option").length > 1) {
+					$("#usePreviousCropMask").prop("disabled", false);
+				} else {
+					$("#usePreviousCropMask").prop({"checked":false, "disabled":true});
+				}
+				
+				if ($("#chooseCropMask").is(":checked")) {
+					$("#referenceMapFile").prop("disabled", false);
+				}
+				if ($("#usePreviousCropMask").is(":checked")) {
+					$("#useOutputCropMaskOfServiceId").prop("disabled", false);
+				}
+			}else {
+				$("#chooseCropMask").prop("disabled", true);
+				$("#usePreviousCropMask").prop("disabled", true);
+				$("#referenceMapFile").prop("disabled", true);
+				$("#useOutputCropMaskOfServiceId").prop("disabled", true);
+			}
+		});
+		
+		$("input[name='chooseCropMask']").change(function () {
+			$(this).closest(".form-group").find("label.error").remove();
+			if ($(this).is(":checked") && $(this).attr("id") === "chooseCropMask") {
+				$("#referenceMapFile").prop("disabled", false);
+				$("#useOutputCropMaskOfServiceId").prop("disabled", true);
+			}else if ($(this).attr("id") === "chooseCropMask") {
+				$("#referenceMapFile").prop("disabled", true);
+				$("#useOutputCropMaskOfServiceId").prop("disabled", false);
+			}else if ($(this).is(":checked") && $(this).attr("id") === "usePreviousCropMask") {
+				$("#useOutputCropMaskOfServiceId").prop("disabled", false);
+				$("#referenceMapFile").prop("disabled", true);
+			}else {
+				$("#useOutputCropMaskOfServiceId").prop("disabled", true);
+				$("#referenceMapFile").prop("disabled", false);
+			}
+		});
+	});
+
+//# sourceURL=request_l4b.js
+</script>

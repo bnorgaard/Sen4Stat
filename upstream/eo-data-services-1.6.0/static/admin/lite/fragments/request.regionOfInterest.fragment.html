@@ -1,0 +1,326 @@
+<style>
+	#prevSites {width:50%}
+	#prevSites:disabled {color:lightgrey;}
+	#defineNew {margin-bottom:10px}
+	
+	@media (max-width:400px) {#prevSites{width:100%;}}
+</style>
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+<h3 class="panel-title">Define your observation data and region of interest</h3>
+
+<div class="panel-body">
+	<h4 class="panel-title">Area of interest and sensing period</h4>
+	
+	<div class="form-group row">
+		<label class="col-md-12" for="defineNew">
+			<input type="radio" class="form-control" name="serviceInfo" id="defineNew" value="defineNew" checked /><label>Define a new area of interest</label>
+		</label>
+		<label class="col-md-12" for="usePrevSite">
+			<input type="radio" class="form-control" name="serviceInfo" id="usePrevSite" value="usePrevSite"/><label>Reuse the area of interest and data from a previous service request</label>
+			<span>If you reuse the data from an existing request, you cannot increase the area of interest or sensing period, but you can reuse existing EO and Dynamic Crop Mask products, decreasing the processing time and costs.</span>
+		</label>
+		<label class="col-md-12" for="prevSites" style="padding-left:3.8rem">
+			<select id="prevSites"  class="form-control" disabled>
+				<option value="" selected disabled> -- Select service -- </option>			
+			</select>
+		</label>
+	</div>
+</div>
+
+<div class="panel-body">
+	<h4 class="panel-title">Earth Observation Data</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Select Earth observation data to be used.</span>
+		</label>
+	</div>
+	<div class="form-group row">
+		<label class="col-md-12 first-tag" for="useS2">
+			<input type="checkbox" class="form-control" name="useS2" id="useS2" value="Sentinel-2" checked /><label>Sentinel-2</label>
+		</label>
+	</div>
+	<div class="form-group row">
+		<label class="col-md-12" for="useL8">
+			<input type="checkbox" class="form-control" name="useL8" id="useL8" value="Landsat-8" /><label>Landsat-8</label>
+		</label>
+	</div>
+</div>
+
+<div class="panel-body roi">
+	<h4 class="panel-title">Region of interest</h4>
+	<div class="form-group row">
+		<label class="col-md-12">
+			<span>Please define your Region(s) of Interest using a GIS layer in ESRI Shapefile (in a zip file including all the components of the layer), GeoJSON or KML format.</span>
+			<input type="file" class="form-control" id="shapeFile" name="shapeFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');"/>
+			<span class="extra-info">Maximum file size: 5 MB</span>
+		</label>
+	</div>
+	<div class="form-group row">
+		<div class="col-md-12">
+			<div id="mapExtent"></div>
+		</div>
+	</div>
+	<div class="form-group row horizontal">
+		<div class="latlon">
+			<label class="col-md-2"><strong>Min Latitude </strong><input type="number" class="form-control" id="latmin" name="latmin" placeholder="Lat min" value="" /></label>
+			<label class="col-md-2"><strong>Max Latitude </strong><input type="number" class="form-control" id="latmax" name="latmax" placeholder="Lat max" value="" /></label>
+			<label class="col-md-2"><strong>Min Longitude</strong><input type="number" class="form-control" id="lonmin" name="lonmin" placeholder="Lon min" value="" /></label>
+			<label class="col-md-2"><strong>Max Longitude</strong><input type="number" class="form-control" id="lonmax" name="lonmax" placeholder="Lon max" value="" /></label>
+			<label class="col-md-4 hidden"><strong>Center and fit view</strong><button class="request-btn blue-btn btn-xs" id="show_on_map" style="font-size:16px">Show on map</button></label>
+		</div>
+	</div>
+</div>
+<div class="panel-body">
+	<h4 class="panel-title">Sensing period</h4>
+	<div class="form-group row">
+		<label class="col-md-12"><span>Select the sensing period of the data that will be used.</span></label>
+	</div>
+	<div class="form-group row horizontal" id="time_range_grp">
+		<label class="col-md-3" style="display:inline-block">
+			<strong>From:</strong>
+			<input type="text" class="form-control date-field" name="startDate" id="startDate" autocomplete="off" value="" />
+		</label>
+		<label class="col-md-3" style="display:inline-block">
+			<strong>To:</strong>
+			<input type="text" class="form-control date-field" name="endDate" id="endDate" autocomplete="off" value="" />
+		</label>
+		<label class="col-md-3" style="display:inline-block">
+			<strong>Period middle date is:</strong>
+			<input type="text" class="form-control" name="middate" id="middate" disabled />
+		</label>
+	</div>
+	<div class="form-group row">
+		<label class="col-md-12" for="additionalDataSpecifications"><strong>Additional data specifications</strong><span>Detail here any other complementary information about the selection of your datasets.</span>
+			<textarea class="form-control" rows="3" maxlength="300" name="additionalDataSpecifications" id="additionalDataSpecifications" placeholder="Free text (300 words max.)"></textarea>
+			<span class="extra-info">Free text (300 words max.)</span>
+		</label>
+	</div>
+</div>
+<div class="submit-buttons">
+	<button class="go-to-page request-btn blue-btn left-btn">Previous</button>
+	<button class="go-to-page request-btn blue-btn">Next</button>
+</div>
+
+<script type="text/javascript">
+	var clearShapefile = true;
+	$(document).ready(function() {
+		/* START Check if exist previous service request and populate fields */
+		if (typeof $("#content").data("existingServices") !== "undefined") {
+			$.each($("#content").data("existingServices"), function (index, value){
+				$("#prevSites").append("<option value='" + value.id +"'>" + value.name + "</option>");
+			});
+		}
+		
+		/* END Check if exist previous service request and populate fields */
+		
+		var getPoligon = function (form) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				mimeType   : "multipart/form-data",
+				url  : baseApiUrl + "services/decode-shape",
+				type : "POST",
+				data : form
+			});
+		};
+		
+		$("#shapeFile").on("change", function (e) {
+			clearShapefile = false;
+			var formData = new FormData($('#request_usr_form').get(0));
+			$.when(getPoligon(formData)).done(function(JSONresponse){
+				var _map = window.myPolygonMap;
+				_map.removeAllFeatures();
+				_map.startDrawing();
+				var response = JSON.parse(JSONresponse);
+				if (response.status === responseStatus.success) {
+					var polygon = response.data;
+					populateRegionOfInterest(polygon);
+				} else {
+					var error = "<label id='roiSelect-error' class='error col-md-12' for='roiSelect'> Wrong selected file format or content.</label>";
+					$("#shapeFile").closest("div").append(error);
+					console.log(response.status + ": " + response.message);
+				}
+				clearShapefile = true;
+			});
+		});
+		
+		$("#request_usr_page_2").on("change", "#latmin, #latmax, #lonmin, #lonmax", function () {
+			var latmin = $("#latmin").val();
+			var latmax = $("#latmax").val();
+			var lonmin = $("#lonmin").val();
+			var lonmax = $("#lonmax").val();
+			var _map = window.myPolygonMap;
+			if (latmin != "" && latmax != "" && lonmin != "" && lonmax != "") {
+				drawRectangle(latmin, latmax, lonmin, lonmax, _map.source);
+				_map.fitAllFeatures();
+				_map.restartActiveInteraction();
+				$("#shapeFile").val(null);
+			}else if (latmin != "" || latmax != "" || lonmin != "" || lonmax != "") {
+				$("#shapeFile").val(null);
+				_map.removeAllFeatures();
+				_map.startDrawing();
+			}
+		});
+		
+		$("input[name='serviceInfo']").change(function () {
+			var _map = window.myPolygonMap;
+			
+			$(this).closest(".form-page").find("label.error").remove();
+			if ($(this).is(":checked") && $(this).attr("id") === "usePrevSite") {
+				$(this).closest("div.form-group").removeClass("has-error");
+				$("#content").data("prevSelectedService", $("#prevSites").val());
+				$("#prevSites").prop("disabled", false);
+				
+				//disable region of interest and sensing period
+				$(".panel-body.roi").find('input').each(function() {
+					$(this).prop("disabled", true);
+				});
+				$("div#time_range_grp").find('input').each(function() {
+					$(this).prop("disabled", true);
+				});
+				
+				populateWithPrevServiceInfo(_map);
+			} else {
+				$("#prevSites").prop("disabled", true);
+				// enable and reset observation data
+				$.each($("input[type='checkbox']"), function () {
+					if (this.id.startsWith("use")) {
+						if (this.value === "Sentinel-2") {
+							$(this).prop("checked", true);
+						} else {
+							$(this).prop("checked", false);
+						}
+						$(this).prop("disabled", false);
+					}
+				});
+				
+				//enable region of interest and sensing period
+				$(".panel-body.roi").find('input').each(function() {
+					$(this).prop("disabled", false);
+				});
+				$("div#time_range_grp").find('input').each(function() {
+					$(this).prop("disabled", false);
+				});
+				
+				clearRegionOfInterest();
+				clearSensingPeriod();
+				_map.initializeInteractions();
+				_map.setReadOnly(false);
+				_map.removeAllFeatures();
+			}
+			if (!_map.readOnly) {
+				_map.startDrawing();
+			}
+		});
+		
+		$("#prevSites").change(function () {
+			populateWithPrevServiceInfo(window.myPolygonMap);
+		});
+		
+		function populateWithPrevServiceInfo (_map) {
+			var existingSiteId = $("#prevSites").val();
+			if (existingSiteId !== null) {
+				var existingSite;
+				$.each($("#content").data("existingServices"), function(index, item) {
+					if(item.id === parseInt(existingSiteId)) {
+						existingSite = item;
+						return false;
+					}
+				});
+				$.each($("input[type='checkbox']"), function () {
+					if (this.id.startsWith("use")) {
+						if ($.inArray(this.value, existingSite.datasets) >= 0) {
+							$(this).prop({"checked": true, "disabled": true});
+						}
+					}
+				});
+				populateRegionOfInterest(existingSite.footprint);
+				if ($("#usePrevSite").is(":checked")) {
+					_map.setReadOnly(true);
+					_map.resetInteractions();
+				}
+				$("#startDate").val(existingSite.startDate);
+				$("#endDate").val(existingSite.endDate);
+				$("#middate").val(computeMiddate(existingSite.startDate, existingSite.endDate));
+			}
+		};
+		
+		function populateRegionOfInterest(polygon) {
+			var _map = window.myPolygonMap;
+			_map.createShapeFromGeometry(polygon, { extraFeatureDescription: "preview" }, true);
+			_map.fitAllFeatures();
+			_map.restartActiveInteraction();
+		};
+		
+		
+		function clearSensingPeriod() {
+			$("#startDate").val(null);
+			$("#endDate").val(null);
+			$(".date-field").closest("div").find("label.error").remove();
+		};
+		
+		// Date pickers with active validation
+		$(".date-field").datepicker({ changeYear: true, changeMonth: true, yearRange: "1970:2037", dateFormat: "yy-mm-dd" })
+		.on('change', function() {
+			if ($("#startDate").val() != "" && $("#endDate").val() != "") {
+				$(this).valid();
+			}
+		});
+	});
+/* Map functionalities */
+	function clearRegionOfInterest() {
+		$("#latmin").val(null);
+		$("#latmax").val(null);
+		$("#lonmin").val(null);
+		$("#lonmax").val(null);
+		if (clearShapefile){
+			$("#shapeFile").val(null);
+		}
+		$("#shapeFile").closest("div.roi").find("label.error").each(function() {
+			$(this).remove();
+		});
+	};
+
+	window.myPolygonMap = { mapActive: false };
+	var olPoly = $("#mapExtent").poly2D({ startLat: 47, startLon: 14, zoom: 3.5, maxFeaturesNo: 1, extraFeatureDescription: "preview", panPrc: 0 });
+	$.when(olPoly).done(function (result) {
+		if (typeof result.readOnly === "boolean") {
+			$("#mapExtent").removeClass("hidden");
+			myPolygonMap = result;
+			var _map = myPolygonMap;
+			if (_map.mapActive) {
+				_map.setReadOnly(false);
+			}
+		}
+		_map.el.on("newfootprint", function (evt, footprint) {
+			evt.stopPropagation();
+			var drawnFeatures = _map.getAllFeatures().getArray();
+			if (drawnFeatures.length > 0) {
+				var extent = drawnFeatures[0].getGeometry().getExtent();
+				var transedExtent = ol.proj.transformExtent(extent, "EPSG:3857", "EPSG:4326");
+				clearRegionOfInterest();
+				$("#latmin").val(transedExtent[1]);
+				$("#latmax").val(transedExtent[3]);
+				$("#lonmin").val(transedExtent[0]);
+				$("#lonmax").val(transedExtent[2]);
+			}else {
+				clearRegionOfInterest();
+			}
+		});
+	});
+	// Bring all features on map into view
+	$("#show_on_map").on("click", function (e) {
+		if (myPolygonMap.mapActive) {
+			var _map = myPolygonMap;
+			_map.fitAllFeatures();
+		}
+	});
+/* END Map functionalities */
+
+//# sourceURL=request_region_of_interest.js
+</script>

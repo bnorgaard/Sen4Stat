@@ -1,0 +1,578 @@
+<table class="table" id="site_customization">
+    <thead>
+        <tr>
+            <th>Site name</th>
+            <th class="dataField">Value</th>
+            <th class="actionField">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<table class="add-customization-line hidden">
+    <tbody>
+        <tr data-id="0">
+            <td class="hidden">
+                <input class="form-control" type="number" data-save="" name="id" disabled>
+            </td>
+            <td>
+                <input class="form-control hidden" type="text" name="site_name" data-save="" value="" disabled>
+                <select class="form-control" name="site_name" data-save="" disabled>
+                    <option selected value="" disabled hidden>-- Select a site --</option>
+                </select>
+            </td>
+            <td>
+                <input class="form-control" type="text" name="value" data-save="" value="" autocomplete="off" disabled>
+                <select class="form-control hidden" name="value" data-save="" disabled>
+                    <option selected value="" disabled hidden>-- Select a value --</option>
+                </select>
+            </td>
+            <td>
+                <button name="add" title="Add site" class="icon"><span class="glyphicon glyphicon-plus"></span>
+                </button>
+                <button name="save" title="Save site" class="icon hidden"><span
+                        class="glyphicon glyphicon-floppy-disk"></span>
+                </button>
+                <button class="icon hidden" name="edit" title="Edit site"><span
+                        class="glyphicon glyphicon-pencil"></span></button>
+                <button class="icon hidden" name="remove" title="Remove site"><span
+                        class="glyphicon glyphicon-trash"></span></button>
+                <button name="cancel" title="Cancel" class="icon hidden"><span
+                        class="glyphicon glyphicon-remove"></span>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script src="https://momentjs.com/downloads/moment.min.js"></script>
+<!-- includes for bootstrap-switch -->
+<link href="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.js"></script>
+
+<style>
+    table#site_customization .icon:focus {
+        outline: none;
+    }
+
+    /* Style for dialogs */
+    table#site_customization {
+        width: 100%;
+        border-width: 1px 1px 0 1px;
+        border-style: solid;
+        border-color: #cccccc;
+        border-radius: 3px;
+        border-collapse: separate !important;
+        background-color: white;
+        line-height: 22px
+    }
+
+    table#site_customization tbody>tr:hover {
+        background-color: transparent
+    }
+
+    table#site_customization th,
+    table#site_customization td {
+        text-align: center;
+        padding: 2px 0px 1px 2px;
+        border: 0;
+        border-bottom: 1px solid #cccccc
+    }
+
+    table#site_customization td {
+        vertical-align: top;
+    }
+
+    table#site_customization .select2-container {
+        padding: 2px;
+        border-radius: 0;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        text-align: center;
+        height: 24px
+    }
+
+    table#site_customization input {
+        padding: 2px;
+        border-radius: 0;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        text-align: center;
+        height: 24px
+    }
+
+    table#site_customization select {
+        padding: 2px;
+        border-radius: 0;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+        height: 24px
+    }
+
+    /* Processors for existing site customization */
+    table#site_customization tr:not(:last-child) div.proc:hover h6 {
+        display: none
+    }
+
+    table#site_customization tr:not(:last-child) div.proc:hover div {
+        display: block;
+        background-color: white;
+        border: 1px solid #cccccc;
+        z-index: 999;
+        text-align: center
+    }
+
+    table#site_customization tr:not(:last-child) div.proc:hover div input {
+        display: none
+    }
+
+    /* Processors for new season */
+    table#site_customization tr:last-child td div.proc h6 {
+        display: none
+    }
+
+    table#site_customization tr:last-child td div.proc div {
+        display: block;
+        position: relative;
+        float: left
+    }
+
+    /* Action buttons */
+
+    table#site_customization .icon[name="edit"] {
+        color: orange
+    }
+
+    table#site_customization .icon[name="save"] {
+        color: blue;
+    }
+	
+	table#site_customization .icon[name="save"]:disabled {
+        color: #eee;
+    }
+
+    table#site_customization .icon[name="remove"] {
+        color: red
+    }
+
+    table#site_customization .icon[name="add"] {
+        color: var(--color-default)
+    }
+
+    table#site_customization .icon[name="cancel"] {
+        color: gray
+    }
+
+    table#site_customization .icon {
+        border: 1px solid transparent;
+        border-radius: 5px;
+        width: 22px;
+        height: 18px;
+        padding: 0;
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        background-color: transparent;
+    }
+
+    /* error  */
+    .error-block {
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var fieldData = $("#customization_form").data("fieldData");
+        var siteList = $("#customization_form").data("siteList");
+        var dataType = $("#customization_form").data("dataType");
+        var getDatabaseFieldData = function (categoryId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "config" + "?categoryId=" + categoryId,
+                type: "GET"
+            });
+        };
+
+        var saveCustomization = function (value, siteId) {
+            var url = baseApiUrl + "config" + "?key=" + fieldData.key + "&value=" + value + "&siteId=" + siteId;
+            return $.ajax({
+                cache: false,
+                url: url,
+                type: "POST"
+            });
+        };
+
+        var updateCustomization = function (itemId, value, siteId) {
+            var url = baseApiUrl + "config" + "?itemId=" + itemId + "&value=" + value + "&siteId=" + siteId;
+            return $.ajax({
+                cache: false,
+                url: url,
+                type: "PUT"
+            });
+        };
+
+        var removeCustomization = function (itemId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "config" + "?itemId=" + itemId,
+                type: "DELETE"
+            });
+        };
+
+        function addEmptyRows(data) {
+            var $emptytr = $("tr", "table.add-customization-line").clone(true);
+            var $selectSite = $("select[name='site_name']", $emptytr);
+            addSelectSiteOptions($selectSite, data);
+
+            if (dataType === undefined) {
+                var $selectValue = $("select[name='value']", $emptytr).removeClass("hidden");
+                addSelectValueOptions($selectValue);
+                $("input[name='value']", $emptytr).addClass("hidden");
+            } else {
+                var $input = $("input[name='value']", $emptytr).attr("type", dataType);
+                if (dataType === "checkbox") {
+                    //add bootstrapSwitch on all checkboxes
+                    $input.bootstrapSwitch({
+                        size: "small",
+                        onColor: "success",
+                        offColor: "default",
+                        onText: "TRUE",
+                        offText: "FALSE"
+                    });
+                }
+                if (data.allowedValues && data.allowedValues.bounds !== undefined && data.allowedValues.bounds !== null) {
+                    $.each(data.allowedValues.bounds, function (prop, value) {
+                        if (prop == "min" && value == "") {
+                            $input.attr(prop, Number.MIN_VALUE);
+                        } else if (prop == "max" && value == "") {
+                            $input.attr(prop, Number.MAX_VALUE);
+                        } else {
+                            $input.attr(prop, value);
+                        }
+                    });
+                }
+                if (data.dataType === "date") {
+                    $input.datetimepicker({
+                        format: "YYYY-MM-DD", showClose: true, widgetPositioning: {
+                            vertical: 'bottom'
+                        }
+                    });
+                }
+            }
+            $("tbody", "table#site_customization").append($emptytr);
+        };
+
+        function addSelectSiteOptions($select, resposeData) {
+            $.each(siteList, function (index, site) {
+                if (!$("option[value='" + site.id + "']", $select).length) {
+                    $select.append('<option name="' + site.shortName +'" value="' + site.id + '">' + site.name + '</option>');
+                }
+                //if the site is already added in customization it will be disabled in the list 
+                $.map(resposeData.customizations, function (value) {
+                    if (value.site === site.id)
+                        $("option[value='" + site.id + "']", $select).remove();
+                });
+            });
+        };
+
+        function addSelectValueOptions($select) {
+            $.each(fieldData.allowedValues.allowed_values, function (index, value) {
+                $select.append('<option name="' + value.display + '" value="' + value.value +'">' + value.display +'</option>');
+            });
+
+        };
+
+
+        function getSiteProp(id, prop) {
+            return siteList.find(val => val.id === id)[prop];
+        };
+
+        function addTeableRows() {
+            if (fieldData.customizations !== null) {
+                $.each(fieldData.customizations, function (index, custom) {
+                    var $tr = $("tr", "table.add-customization-line").clone(true);
+                    $("select[name='site_name']", $tr).addClass("hidden");
+                    $tr.attr("data-id", custom.site);
+                    $("input[name='id']", $tr).attr("data-save", custom.id);
+                    $("input[name='site_name']", $tr).attr({ "value": getSiteProp(custom.site, "name"), "data-save": custom.name }).removeClass("hidden");
+                    if (dataType === undefined) {
+                        $("input[name='value']", $tr).addClass("hidden");
+                        $("select[name='value']", $tr).attr("data-save", custom.value).removeClass("hidden");
+                        addSelectValueOptions($("select[name='value']", $tr));
+                        $("select[name='value']", $tr).find("option[value='" + custom.value + "']").prop("selected", true);
+                    } else {
+                        if (dataType === "checkbox") {
+                            //add bootstrapSwitch on all checkboxes
+                            $("input[name='value']", $tr).bootstrapSwitch({
+                                size: "small",
+                                onColor: "success",
+                                offColor: "default",
+                                onText: "TRUE",
+                                offText: "FALSE"
+                            });
+                        }
+                        $("input[name='value']", $tr).attr({ "data-save": custom.value, "value": custom.value, "type": dataType });
+                    }
+                    $("button[name='add']", $tr).addClass("hidden");
+                    $("button[name='edit']", $tr).removeClass("hidden");
+                    $("button[name='remove']", $tr).removeClass("hidden");
+                    $("tbody", "table#site_customization").prepend($tr);
+                });
+            }
+            var numberExistingSites = siteList.length;
+            var numberCustomSites = $("tbody", "table#site_customization").children("tr").length;
+            if (numberExistingSites > numberCustomSites) {
+                addEmptyRows(fieldData);
+            }
+
+        };
+
+
+        function refreshRow($row) {
+            var custom;
+            var numberExistingSites = siteList.length;
+            var numberCustomSites = $($row).siblings().andSelf().length;
+            $.when(getDatabaseFieldData(fieldData.categoryId)).done(function (response) {
+                var data = response.data.find(val => val.key === fieldData.key);
+                var siteId = $($row).attr("data-id") !== "0" ? $($row).attr("data-id") : $("select[name='site_name']", $row).children("option:selected").val();
+                custom = data.customizations.find(id => id.site == siteId);
+
+                $($row).attr("data-id", custom.site);
+                $("input[name='id']", $row).attr("data-save", custom.id);
+                $("input[name='site_name']", $row).attr({ "value": getSiteProp(custom.site, "name"), "data-save": custom.name }).removeClass("hidden");
+                $("select[name='site_name']", $row).prop("disabled", true).addClass("hidden");
+
+                if (dataType === undefined) {
+                    $("select[name='value']", $row).attr("data-save", custom.value).prop("disabled", true);
+                } else {
+                    $("input[name='value']", $row).attr({ "data-save": custom.value, "value": custom.value, "type": dataType }).prop("disabled", true);
+                }
+
+                $("button[name='add']", $row).addClass("hidden");
+                $("button[name='save']", $row).addClass("hidden");
+                $("button[name='cancel']", $row).addClass("hidden");
+                $("button[name='edit']", $row).removeClass("hidden");
+                $("button[name='remove']", $row).removeClass("hidden");
+
+                if (numberExistingSites > numberCustomSites && !$($row).siblings("[data-id='0']").length) {
+                    addEmptyRows(data);
+                }
+
+            });
+        };
+
+        function addError(message, response, row) {
+
+            $(row).closest("form").find("span.error-block").removeClass("hidden").html(message + " " + response.message + " <span class='glyphicon glyphicon-ok'></span>");
+
+
+            $(row).closest("form").on("click", "span[class='glyphicon glyphicon-ok']", function () {
+                $(this).closest("div").find("span.error-block").addClass("hidden").html("");
+            });
+            cancelAction(row);
+        };
+
+        function cancelAction($row) {
+            var siteName = $("[name='site_name']:not(.hidden)", $row);
+            var siteValue = $("[name='value']:not(.hidden)", $row);
+            //check if cancel is prest after add or edit
+            if (!siteName.prop('disabled')) {
+                $("button[name='add']", $row).removeClass("hidden");
+            } else {
+                siteName.attr("value", siteName.attr("value"));
+                siteValue.attr("value", siteValue.attr("data-save"));
+                $("button[name='edit']", $row).removeClass("hidden");
+                $("button[name='remove']", $row).removeClass("hidden");
+            }
+
+            siteName.val(siteName.attr("value")).prop("disabled", true);
+            siteValue.val(siteValue.attr("data-save")).prop("disabled", true);
+            if (siteValue.attr("type") === "checkbox") {
+                siteValue.bootstrapSwitch("disabled", true);
+            }
+
+            $("button[name='save']", $row).addClass("hidden");
+            $("button[name='cancel']", $row).addClass("hidden");
+			siteInError = "";
+			if ($("input[name='value']:not(:disabled)").length  > 0) {
+				$.each($("input[name='value']:not(:disabled)"), function(idx, elem) {
+					$(elem).trigger("change");
+				});
+			} else {
+				$($row.closest("form")).find("input[type='button']").prop("disabled",false);
+				$($row.closest("div")).siblings("div:has(span.error-block)").find("span").html("");
+				$($row.closest("div")).siblings("div:has(span.error-block)").find("span").addClass("hidden");
+			}
+        };
+
+        function setButtonActions() {
+            var $row;
+            $("#site_customization .icon[name='add']").unbind("click");
+            $("#site_customization").on("click", ".icon[name='add']", function (e) {
+                e.preventDefault();
+                $row = this.closest("tr");
+
+                // enable site_name select element
+                var $select = $("select[name='site_name']:not(.hidden)", $row).removeAttr("disabled");
+
+                // change displayed buttons
+                $("button[name='add']", $row).addClass("hidden");
+                $("button[name='save']", $row).removeClass("hidden");
+                $("button[name='cancel']", $row).removeClass("hidden");
+                // enable value field when a site is selected
+                $select.change(function () {
+                    $valueCol = $(this).parent().siblings("td").find("[name='value']:not(.hidden)");
+                    $valueCol.attr("id", $select.children("option:selected").attr("value")).removeAttr("disabled");
+                    if ($valueCol.attr("type") === "checkbox") {
+                        $valueCol.bootstrapSwitch('disabled', false);
+                    }
+                });
+
+            });
+
+            $("#site_customization .icon[name='edit']").unbind("click");
+            $("#site_customization").on("click", ".icon[name='edit']", function (e) {
+                e.preventDefault();
+                $row = this.closest("tr");
+                // enable value input element
+                var $input = $("[name='value']:not(.hidden)", $row).removeAttr("disabled");
+                if ($input.attr("type") === "checkbox") {
+                    $input.bootstrapSwitch('disabled', false);
+                }
+
+                // change displayed buttons
+                $("button[name='edit']", $row).addClass("hidden");
+                $("button[name='remove']", $row).addClass("hidden");
+                $("button[name='save']", $row).removeClass("hidden");
+                $("button[name='cancel']", $row).removeClass("hidden");
+            });
+
+            $("#site_customization .icon[name='cancel']").unbind("click");
+            $("#site_customization").on("click", ".icon[name='cancel']", function (e) {
+				e.preventDefault();
+                $row = this.closest("tr");
+                cancelAction($row);
+            });
+
+            $("#site_customization .icon[name='save']").unbind("click");
+            $("#site_customization").on("click", ".icon[name='save']", function (e) {
+                e.preventDefault();
+                $row = this.closest("tr");
+                var siteName = $("[name='site_name']:not(.hidden)", $row);
+                var value = $("[name='value']:not(.hidden)", $row).val();
+                if ($("[name='value']:not(.hidden)", $row).attr("type") === "checkbox") {
+                    value = $("[name='value']:not(.hidden)", $row).prop("checked");
+                } else if (fieldData.allowedValues && fieldData.allowedValues.allowed_values !== undefined && fieldData.allowedValues.allowed_values !== null && fieldData.allowedValues.allowed_values.length > 0) {
+                    value = $("[name='value']:not(.hidden)", $row).children("option:selected").attr("value");
+                }
+
+                var siteId;
+                if (!siteName.prop('disabled')) {
+                    siteId = $("[name='site_name']:not(.hidden)", $row).children("option:selected").val();
+                    $.when(saveCustomization(value, siteId)).done(function (response) {
+                        if (response.status == responseStatus.success) {
+                            refreshRow($row);
+                        } else {
+                            var site = siteList.find(val => val.id = $("[name='site_name']:not(.hidden)", $row).children("option:selected").val()).name;
+                            addError("Unable to save customization: " + site, response, $row);
+                        }
+                    });
+                } else {
+                    siteId = $($row).attr("data-id");
+                    var itemId = $("[name='id']", $row).attr("data-save");
+                    $.when(updateCustomization(itemId, value, siteId)).done(function (response) {
+                        if (response.status == responseStatus.success) {
+                            refreshRow($row);
+                        } else {
+                            var site = siteList.find(val => val.id = $($row).attr("data-id")).name;
+                            addError("Unable to update customization : " + site, response, $row);
+                        }
+                    });
+                }
+
+            });
+
+            $("#site_customization .icon[name='remove']").unbind("click");
+            $("#site_customization").on("click", ".icon[name='remove']", function (e) {
+                e.preventDefault();
+                $row = this.closest("tr");
+                var itemId = $("[name='id']", $row).attr("data-save");
+                if (confirm("Are you sure you want to delete this configuration?")) {
+                    $.when(removeCustomization(itemId)).done(function (response) {
+                        if (response.status == responseStatus.success) {
+                            var $emptyRow = $($row).siblings("[data-id='0']");
+                            $row.remove();
+                            $.when(getDatabaseFieldData(fieldData.categoryId)).done(function (response) {
+                                var data = response.data.find(val => val.key === fieldData.key);
+                                if ($emptyRow !== undefined) {
+                                    var $select = $("select[name='site_name']", $emptyRow);
+                                    addSelectSiteOptions($select, data);
+                                } else {
+                                    addEmptyRows(data);
+                                }
+                            });
+
+                        } else {
+                            var site = siteList.find(val => val.id = $($row).attr("data-id")).name;
+                            addError("Unable to remove customization: " + site, response, $row);
+                        }
+                    });
+                } else {
+                    refreshRow($row);
+                }
+            });
+        };
+
+
+        addTeableRows();
+        setButtonActions();
+
+		var siteInError = "";
+		$("#customization_form").on("change paste keyup", "input[name='value']", function (e){
+			var siteNameElem = $(this).parent().siblings("td:has([name='site_name'])").find(":not(.hidden)");
+			var currentSiteName = siteNameElem[0].nodeName.toLowerCase() === "select" ? siteNameElem.find(":selected").text() : siteNameElem.val();
+			if (!typeValidation(this)) {
+				/*if ($(this).closest("div").siblings("div:has(span.error-block)").find("span").hasClass("hidden")) {
+					siteInError = "";
+				}*/
+				if (siteInError.indexOf(currentSiteName) < 0 ) {
+					siteInError += (siteInError === "" ? "" : ", ") + currentSiteName;
+				}
+				
+				var error = 'Value should be ' + fieldData.dataType + " for " + siteInError;
+				$(this).closest("div").siblings("div:has(span.error-block)").find("span").html(error);
+				$(this).closest("div").siblings("div:has(span.error-block)").find("span").removeClass("hidden");
+				$(this).closest("tr").find(".icon[name='save']").prop("disabled",true);
+				$(this).closest("form").find("input[type='button']").prop("disabled",true);
+			} else {
+				$(this).closest("tr").find(".icon[name='save']").prop("disabled",false);
+				siteInError = siteInError.replace(", " + currentSiteName,"").replace(currentSiteName + ", ","");
+				var validForm = true;
+				$.each($(this).closest("form").find("input[name='value']"), function (idx, element) {
+					if (!typeValidation(element)) {
+						validForm = false;
+						return false;
+					}
+				});
+				if (validForm) {
+					$(this).closest("form").find("input[type='button']").prop("disabled",false);
+					siteInError = "";
+					$(this).closest("div").siblings("div:has(span.error-block)").find("span").html("");
+					$(this).closest("div").siblings("div:has(span.error-block)").find("span").addClass("hidden");
+				} else {
+					var error = 'Value should be ' + fieldData.dataType + " for " + siteInError;
+					$(this).closest("div").siblings("div:has(span.error-block)").find("span").html(error);
+				}
+			}
+		});
+		
+        function typeValidation(element) {
+            if (element.type === "number") {
+                return element.value === "" ? false : fieldData.dataType === "int" ? Number.isInteger(Number(element.value)) : fieldData.dataType === "float" ? parseFloat(element.value) % 1 !== 0 : fieldData.dataType === "double" ? $.isNumeric(element.value) : true;
+            }
+            return true;
+        }
+
+    });
+    //# sourceURL=configurations.customization.js
+</script>

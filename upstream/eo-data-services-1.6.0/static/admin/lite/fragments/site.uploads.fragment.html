@@ -1,0 +1,303 @@
+<div class="panel panel-success collapse" id="panel-upload-template">
+	<div class="panel-heading">
+		<h4 class="panel-title">
+			<a data-toggle="collapse" href=""></a>
+		</h4>
+	</div>
+	<div class="panel-body panel-collapse collapse">
+		<form enctype="multipart/form-data" class="tspace" method="post">
+			<input type="hidden" name="siteId" value="" />
+			<input type="hidden" name="folder" value="" />
+			<div class="parameters vspace">
+			</div>
+			<div class="form-group row vspace">
+				<label class="control-label col-md-4">Upload files:</label>
+				<div class="col-md-8 files">
+				</div>
+			</div>
+			<div class="form-group row vspace">
+				<div class="col-md-12 submit-buttons tspace">
+				</div>
+			</div>
+		</form>
+		<hr/>
+	</div>
+</div>
+<div class="form-group form-group-sm row collapse" id="parameter-template">
+	<label class="control-label col-md-4"></label>
+	<div class="col-md-8 control-parent">
+		<select class="form-control">
+			<option value="0">Select...</option>
+		</select>
+		<input type="text" class="form-control" value="" />
+	</div>
+</div>
+<style>
+	.container-fluid{padding:0}
+	.container-fluid input[name="file"]{padding:5px 10px 5px 35px}
+	.container-fluid .parameters .form-group{margin-bottom:5px}
+	.container-fluid .parameters label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+	.container-fluid .upload-button {position:absolute;left:3px;top:3px;border:1px solid #808080;border-radius:3px;padding:4px 10px 4px 10px;line-height:18px;width:120px}
+	.container-fluid .uploading .invalid::after{content:"*";color:white;font-size:24px;line-height:1.1em;text-align:right;position:absolute;top:1px;right:16px;padding:0 3px 0 0;width:25px;height:25px;background:linear-gradient(to top right, transparent 0%, transparent 50%, #ff000090 50%, #ff000090 100%);border-radius:0 2px 0 0;pointer-events:none}
+	.container-fluid .uploading input[type='file']:disabled~.upload-button{pointer-events:none;background-color:--disabled-input-gb-color}
+	.container-fluid .upload-button:hover{background-color:#c7c7c7}
+	.container-fluid .uploading-started font::after{content:" ";display:inline-block;width:24px;height:24px;margin:-5px 10px;background-position:50% 50%;background-repeat:no-repeat;background-color:transparent;background-image:url(assets/dist/img/loader.gif);background-size:contain}
+	.container-fluid .moxie-shim{display:none}
+	.container-fluid .files label{margin:0}
+	.container-fluid .files label:not(:first-child){margin-top:5px}
+	.container-fluid .icon{display:none;position:absolute;right:6px;top:4px;color:crimson}
+	.container-fluid .uploading .file-set .icon{display:block}
+	.container-fluid .required .control-label:after{content:""}
+</style>
+<script type="text/javascript">
+var uploadYear = (new Date).getFullYear();
+//var uploadDescriptors = new Array();
+
+var getUploadDescriptors = function (siteId) {
+	return $.ajax({
+		cache: false,
+		url: baseApiUrl + "sites/auxdata?siteId=" + siteId,
+		method: "GET",
+	});
+}
+var getUploadDescriptorsByYear = function (siteId, year) {
+	return $.ajax({
+		cache: false,
+		url: baseApiUrl + "sites/auxdata?siteId=" + siteId + "&year=" + year,
+		method: "GET",
+	});
+}
+var getUploadDescriptorsBySeason = function (siteId, seasonId) {
+	return $.ajax({
+		cache: false,
+		url: baseApiUrl + "sites/auxdata?siteId=" + siteId + "&seasonId=" + seasonId,
+		method: "GET",
+	});
+}
+
+function manageActionsByDescriptors(descriptors) {
+	$("#div_editsite").removeClass("uniqueByYear uniqueBySeason");
+	
+	var descByYear = $.map(descriptors, function (desc, index) { if (desc.uniqueBy == "year") return desc });
+	if (descByYear.length == 0) {
+		// Unique By Season
+		$("#div_editsite").addClass("uniqueBySeason");
+	} else if (descByYear.length == descriptors.length) {
+		// Unique By Year
+		$("#div_editsite").addClass("uniqueByYear");
+		$("#upload_files", "#div_editsite").data("uniqueValue", new Date().getFullYear());
+	} else {
+		// Both By Year & Season
+		$("#upload_files", "#div_editsite").data("uniqueValue", new Date().getFullYear());
+		//$("#div_editsite").data("dna").uniqueValue = descByYear[0].uniqueValue;
+	}
+}
+function getUploadSiteFiles(descriptors) {
+	var site = $("#div_editsite").data("dna");
+	$("#accordion").html("");
+	$.each(descriptors, function (descIdx, desc) {
+		var $accordion = $("#panel-upload-template").clone(true).removeAttr("id");
+		// customize panel according to descriptor
+		$accordion.attr({ "id": "panel" + desc.id, "data-id": desc.id });
+		$(".panel-title a"      , $accordion).attr({ "id": "site"      + desc.id + "DataAccHref", "href": "#site" + desc.id + "DataAcc" }).html(desc.label);
+		$(".panel-collapse"     , $accordion).attr({ "id": "site"      + desc.id + "DataAcc" });
+		$("form"                , $accordion).attr({ "id": "siteform_" + desc.id + "_upload" });
+		$(".files"              , $accordion).attr({ "id": "container" + desc.id });
+		$("input[name='siteId']", $accordion).val(site.id);
+		$("input[name='folder']", $accordion).val(desc.uploadRelPath);
+		$accordion.data("dna", desc);
+		$.each(desc.operations, function (operationIdx, operation) {
+			var opId = desc.id + "_" + operation.id;
+			if (operation.name.toLowerCase() === "upload") {
+				$.each(operation.files, function (idx, file) {
+					var extension = '.' + file.extensions.replace(/[{}\"]/g, '');
+					var fileHtml =  '<label>' + file.label + ':</label>' +
+									'<div style="position:relative">' +
+										'<input type="file" id="filelist' + desc.id + '_' + file.id + '" class="form-control" name="file" onchange="onNewFileSelected(' + desc.id + ',' + file.id + ')" accept="' + extension + '" value="" />' +
+										'<button class="upload-button">Choose File</button>' +
+										'<button name="cancel" title="Cancel" class="icon" onclick="onFileRemove(' + desc.id + ', ' + file.id + ')"><span class="glyphicon glyphicon-remove"></span></button>'
+									'</div>';
+					$("#container" + desc.id, $accordion).append(fileHtml);
+				});
+				$.each(operation.parameters, function (paramIdx, param) {
+					var paramId = desc.id + "_" + param.name;
+					// customize parameter
+					var $param = $("#parameter-template").clone(true).removeAttr("id");
+					$("label.control-label", $param).attr({ "for" : "postUploadCmdParam" + paramId, "title": param.label }).html(param.label);
+					$(".form-control"      , $param).attr({ "id"  : "postUploadCmdParam" + paramId,
+															"name": "postUploadCmdParam" + paramId });
+					if (param.type == "select") {
+						$("input" , $param).remove();
+						$.each(param.options, function (iddx, opt) {
+							$("select", $param).append('<option value="' + opt.id + '">' + opt.label + '</option>');
+						});
+					} else if (param.type.indexOf("String") >= 0 || param.type.indexOf("Integer") >= 0) {
+						$("select", $param).remove();
+						$("input", $param).val(param.value ? param.value : "");
+					} else if (param.type.indexOf("Date") >= 0 || param.type.indexOf("Integer") >= 0) {
+						$("select", $param).remove();
+						$("input", $param).val(param.value ? param.value : "");
+						$("input", $param).addClass("has-date");
+					}
+					if (param.required) {
+						$param.addClass("required");
+						$(".form-control", $param).attr({ "required": "required" });
+					}
+					$(".parameters", $accordion).append($param.removeClass("collapse"));
+				});
+				// add upload button
+				var $uploadBtn = $('<input class="add-edit-btn upload-btn" id="bntStartOperation' + opId + '" type="button" value="Start ' + operation.name + '">');
+				$uploadBtn.on("click", function(e) {
+					// Only start upload if at least one file has been selected
+					var $panel = $(this).closest(".panel");
+					var id = $panel.data("id");
+					if ($panel.hasClass("uploading-done")) {
+						alert("Upload already done.");
+					} else if ($panel.hasClass("uploading")) {
+						if (validPanel(id)) {
+							startUpload(id);	
+						} else {
+							alert("Please correct all invalid parameters before uploading the selected files.");
+						}
+					} else {
+						alert("Nothing to upload.");
+					}
+				});
+				$(".submit-buttons", $accordion).append($uploadBtn);
+			} else {
+				// add other operation button
+				var $opBtn = $('<input class="add-edit-btn operation-btn lspace" id="bntStartOperation' + opId + '" type="button" value="Start ' + operation.name + '">');
+				$(".submit-buttons", $accordion).append($opBtn);
+			}
+		});
+		$("#accordion").append($accordion.removeClass("collapse"));
+		$("input.has-date", "#accordion").datepicker({dateFormat: "yy-mm-dd"});
+	});
+	// 
+	$(".upload-button").on("click", function (e) {
+		e.preventDefault();
+		$(this).siblings('input[type="file"]').trigger("click");
+	});
+	// Check upload form validity when any required input field is changed
+	$("div.required input[type='text']", "#accordion").on("change", function (e) {
+		var panelId = $(this).closest(".uploading").data("id");
+		validPanel(panelId);
+	});
+	// Automatically open first accordion panel
+	if ($("#accordion>.panel").length >= 1) {
+		$("#accordion>.panel:first-child>.panel-collapse").collapse('show');
+	}
+}
+function validPanel(id) {
+	var valid = true;
+	$.each($("div.required *:required", "#panel" + id + ".uploading"), function () {
+		if ($(this).val() == "") {
+			$(this).closest(".control-parent").addClass("invalid");
+			valid = false;
+		} else {
+			$(this).closest(".control-parent").removeClass("invalid");
+		}
+	});
+	// Enable operation submit button
+	if (valid) {
+		
+	}
+	
+	return valid;
+}
+function onFileUploadStatusEvent(descId, msg) {
+	var titleId = "site" + descId + "DataAccHref";
+	var str = $("#" + titleId).html();
+	var modifIdx = str.indexOf('<font color');
+	str = str.substring(0, modifIdx > 0 ? modifIdx : str.length);
+	str += ((msg && msg != "") ? '<font color="red"> (' + msg + ')</font>' : '');
+	$("#" + titleId).html(str);
+}
+function onNewFileSelected(descId, fileId) {
+	var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+	$fileInput.closest("div").addClass("file-set");
+	$fileInput.prop("disabled", true);
+	$("#panel" + descId, "#accordion").addClass("uploading");
+	onFileUploadStatusEvent(descId, "changed")
+	
+	validPanel(descId);
+}
+function onFileRemove(descId, fileId) {
+	var $fileInput = $("#filelist" + descId + "_" + fileId, "#accordion");
+	$fileInput.closest("div").removeClass("file-set");
+	$fileInput.replaceWith($fileInput.val("").clone(true).prop("disabled", false));
+	if ($("#panel" + descId + " .file-set", "#accordion").length == 0) {
+		$("#panel" + descId, "#accordion").removeClass("uploading uploading-started uploading-done");
+		onFileUploadStatusEvent(descId, "");
+	}
+	
+	validPanel(descId);
+}
+function onFileUploadStartEvent(descId) {
+	$("#panel" + descId).addClass("uploading-started");
+	onFileUploadStatusEvent(descId, "Upload started, please wait!");
+}
+function onFileUploadEndEvent(descId, msg) {
+	$("#panel" + descId).removeClass("uploading-started").addClass("uploading-done");
+	onFileUploadStatusEvent(descId, msg);
+}
+function startUpload(descId) {
+	var $panel = $("#panel" + descId, "#accordion");
+	if ($panel.length > 0) {
+		// Enable all input file fields
+		$('input[name="file"]', $panel).prop("disabled", false);
+		onFileUploadStartEvent(descId);
+		$.ajax({
+			async      : true,
+			url        : baseApiUrl + "products/upload",
+			method     : "POST",
+			processData: false,
+			contentType: false,
+			mimeType   : "multipart/form-data",
+			data       : new FormData($("form", $panel).get(0)),
+			success: function (JSONresponse) {
+				var response = JSON.parse(JSONresponse);
+				if (response.status == responseStatus.success) {
+					onFileUploadEndEvent(descId, response.message);
+				} else {
+					onFileUploadStatusEvent(descId, "Error: " + response.message);
+					$panel.removeClass("uploading-started");
+				}
+				// Disable active input file fields 
+				$('.file-set input[name="file"]', $panel).prop("disabled", true);
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				var responseJSON = { "status": textStatus, "error": errorThrown };
+				if (jqXHR.responseJSON) {
+					responseJSON = jqXHR.responseJSON;
+				} else if (jqXHR.responseText) {
+					responseJSON = xmlToJson(jqXHR.responseText);
+					if (typeof responseJSON["Map"] !== "undefined") {
+						responseJSON = responseJSON["Map"];
+					}
+				}
+				onFileUploadStatusEvent(descId, "Error #" + responseJSON.status + ": " + responseJSON.error + " - " + responseJSON.message);
+				$panel.removeClass("uploading-started");
+				// Disable active input file fields 
+				$('.file-set input[name="file"]', $panel).prop("disabled", true);
+			}
+		});
+	}
+}
+
+$(document).ready(function () {
+	var $dialog = $("#div_editsite");
+	if ($dialog.length == 0 || typeof $dialog.data("dna") === "undefined") { return; }
+	
+	var siteId = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+	// Get site descriptors
+	$.when(getUploadDescriptors(siteId))
+	.done(function (response) {
+		if (response.status == responseStatus.success) {
+			manageActionsByDescriptors(response.data);
+		}
+	});
+});
+
+//# sourceURL=uploads.js
+</script>

@@ -1,0 +1,88 @@
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="content" class="clearfix">
+			<div id="rate">
+				<h3 class="panel-title"></h3>
+				<div class="rate-body panel ui-tabs-panel ui-corner-bottom ui-widget-content">
+					<h4 class="panel-title">Rate service</h4>
+					<div class="panel-body">
+						<input id="input_id" name="input_name" type="number" class="rating" data-rtl="false" data-show-caption="false" data-show-clear="false" data-show-caption-as-title="false">
+					</div>
+				</div>
+				<div class="rate-reason-body panel ui-tabs-panel ui-corner-bottom ui-widget-content">
+					<h4 class="panel-title">Reason</h4>
+					<div class="panel-body">
+						<textarea id="rate_reason" name="rate_reason" placeholder="Write reason..."></textarea>
+					</div>
+				</div>
+				<div class="submit-buttons">
+					<button class="request-btn cancel-btn left-btn" id="cancel_rating">Cancel</button>
+					<button class="request-btn blue-btn" id="send_rating">Send</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<link rel="stylesheet" type="text/css" href="assets/libs/star-rating/css/star-rating.min.css"/>
+<script src="assets/libs/star-rating/js/star-rating.min.js"></script>
+<style>
+#rate{
+	width:70%;
+	margin:5rem auto 0 auto;
+    font-size:14px;
+    padding:2.5rem;
+    position:relative;
+    box-shadow:0 0 1.1rem 0.1rem rgb(0 0 0 / 37%);
+    border-left:0px solid #d1e2ab;
+    background:whitesmoke;
+    color:#555;
+}
+#rate .panel-body{text-align:center;padding-top:3rem;}
+#rate .rate-body, #rate .rate-reason-body{
+	background-color:white;
+    border-radius:0.4rem;
+    border:0.1rem solid lightgray;
+    margin-bottom:1.5rem;
+    box-shadow:0.3rem 0.3rem 0.8rem -0.2rem rgb(0 0 0 / 10%);
+    padding:1.5rem;
+}
+#rate h3.panel-title{text-align:center;padding:2% 0;text-transform: capitalize;}
+#rate h4.panel-title{color:#3a6ba0;padding:1rem;margin:-1.5rem -1.5rem -1.5rem -1.5rem;border-bottom:0.1rem dashed #e2e2e2}
+#rate textarea#rate_reason{width:100%;height:28rem;resize:none}
+#rate textarea#rate_reason:focus{border-color:#66afe9;outline:0;box-shadow:inset 0 0.1rem 0.1rem rgb(0 0 0 / 8%), 0 0 0.8rem rgb(102 175 233 / 60%)}
+</style>
+<script>
+	$(document).ready(function () {
+		var requestName = getUrlParameter("name");
+		$("#rate h3.panel-title").html(requestName)
+		$("#wp-custom-header h1.header-post-title-class").html("Rate service");
+		
+		/* Buttons action */
+		$("#cancel_rating").click( function(event) {
+			event.preventDefault();
+			window.location.href = "sap.html#dashboard";
+		});
+		 //TODO implement a save/send way
+		$("#send_rating").click( function(event) {
+			event.preventDefault();
+			var rateValue = $('#input_id').val();
+			var message = $("#rate_reason").val();
+			if (rateValue === '') {
+				rateValue = 0;
+			}
+			alert("Rate: " + rateValue + " stars \nMessage: " + message);
+		});
+		
+		$("#input_id").on('rating:change', function(event, value) {
+			//alert(value);
+			$('#input_id').val(value);
+		});
+		
+		// initialize with defaults
+		$("#input_id").rating();
+		 
+		// with plugin options
+		$("#input_id").rating({min:1, max:10, step:2, size:'lg'});
+	});
+	//# sourceURL=rating.js
+</script>

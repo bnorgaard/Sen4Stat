@@ -1,0 +1,32 @@
+/* liteScroller */
+.lite-scroller                   {position:relative!important;padding:0!important;border-width:0!important;overflow:visible!important;}
+
+/* Knob */
+.lite-scroller-knob              {position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;top:0px;right:0px;width:2em;height:4em;border-radius:4px;background-color:#454545;box-shadow:0 0 2px 1px rgb(0 0 0/30%);z-index:1;pointer-events:all;}
+.lite-scroller-knob::after       {content:"";position:absolute;top:2px;bottom:2px;left:2px;right:2px;border:1px solid #ba8826;border-radius:2px;}
+.lite-scroller-knob::before      {content:"";display:block;width:50%;height:50%;max-width:1em;max-height:2em;background-image:url(lite-scroller-knob.svg);background-size:100% 100%;background-repeat:no-repeat;}
+.lite-scroller-knob:active       {cursor:grabbing;}
+.lite-scroller-knob:active::after{cursor:grab;border-color:orange;border-radius:4px;}
+
+/* Body */
+.lite-scroller-body{overflow-x:hidden;overflow-y:auto;height:unset;}
+.lite-scroller-knob:not(.hidden)+.lite-scroller-body{pointer-events:all;}
+
+/* Hover */
+.lite-scroller-knob:hover::after{cursor:grab;border-color:orange;border-radius:4px;}
+.lite-scroller-knob:hover       {cursor:grab;}
+
+/* Hide default scrollbar */
+.lite-scroller-body::-webkit-scrollbar      {width:0;height:0;background-color:transparent;border:0px solid transparent;border-radius:0;}
+.lite-scroller-body::-webkit-scrollbar-thumb{border:0 solid transparent;border-radius:0;background-clip:content-box;background-color:transparent;}
+
+/* Position */
+.lite-scroller-knob.knob-right         {left:unset!important;}
+.lite-scroller-knob.knob-left          {right:unset!important;}
+.lite-scroller-knob.knob-in.knob-right {right:0px!important;}
+.lite-scroller-knob.knob-knob.tl-left  {left:0px!important;}
+.lite-scroller-knob.knob-out.knob-right{right:-2em;}
+.lite-scroller-knob.knob-out.knob-left {left:-2em;}
+
+/* Prevent object selection while dragging the scroll cursor */
+.lite-scroller-knob{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}

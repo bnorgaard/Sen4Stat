@@ -1,0 +1,37 @@
+<div id="myFlatMap" tabindex="-1">
+	<div id="map" class="map" tabindex="0"></div>
+	<div class="drawers left-side">
+	</div>
+	<div class="drawers right-side">
+		<div class="poly-panel">
+			<label class="poly-map-title"></label>
+			<div class="poly-actions-panel drawer-panel pinned">
+				<div class="drawer-pin"><button class="btn-poly"><i class="fa fa-thumb-tack"></i></button></div>
+				<div class="drawer-title">Map Tools</div>
+				<div class="drawer-content">
+					<div class="poly-action-tools">
+						<div class="poly-buttons">
+							<button class="btn-poly" name="addNewShape"><i class="fa fa-plus fa-fw"></i> Add new <i class="fa fa-angle-right"></i></button><br>
+							<select name="select-shape" class="poly-shape-type"><option value="Box"> Rectangle</option><option value="Polygon">Polygon</option></select><br>
+							<button class="btn-poly hidden" name="removeSelectedShapes"><i class="fa fa-trash-o fa-fw"></i> Remove selected</button>
+							<button class="btn-poly" name="removeAllShapes"><i class="fa fa-times fa-fw"></i> Remove all</button>
+							<div class="poly-switch hidden"><input id="adjustFeature" name="adjustFeature" type="checkbox"/><label for="adjustFeature"></label></div>
+						</div>
+					</div>
+					<textarea rows="4" name="userText" class="hidden" placeholder="Paste standard WKT geometry"></textarea></span>
+					<div class="poly-action-tools hidden">
+						<div class="poly-buttons">
+							<button class="btn-poly" name="parseUserText"><i class="fa fa-align-left fa-fw"></i> Parse modified text</button>
+							<button class="btn-poly" name="straightenSelectedShape"><i class="fa fa-arrows-h fa-fw"></i> Straighten selected</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="sliderscontainer drawer-panel pinned">
+			<div class="drawer-pin"><button class="btn-poly"><i class="fa fa-thumb-tack"></i></button></div>
+			<div class="drawer-title">Layers</div>
+			<div class="drawer-content"></div>
+		</div>
+	</div>
+</div>

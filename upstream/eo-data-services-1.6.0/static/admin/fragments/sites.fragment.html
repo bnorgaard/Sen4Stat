@@ -1,0 +1,1344 @@
+<div class="panel panel-resources">
+    <div class="panel-heading">
+        <h2 class="panel-title">Site manager</h2>
+    </div>
+    <div class="panel-body">
+        <input type="button" name="addsite" class="add-edit-btn vspace" value="Create new site">
+        <div class="panel-group">
+            <div class="panel bevel" style="border:1px solid lightgray">
+                <div id="div_addsite" style="display:none">
+                    <!-- form add site -->
+                    <form enctype="multipart/form-data" id="siteform_add" method="post" class="tspace vspace">
+                        <input type="hidden" name="userId" />
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-4">Site name:</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="name">
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-4" style="color:gray">Seasons:</label>
+                            <div class="col-md-8">
+                                <h6 style="color:gray">Seasons can only be added/modified after site creation</h6>
+                            </div>
+                        </div>
+						<div class="form-group form-group-sm row roi">
+                            <label class="control-label col-md-4">Site shape file:</label>
+                            <div class="col-md-8">
+                                <input type="file" class="form-control" name="shapeFile">
+                            </div>
+							<div class="col-md-12">
+								<div id="mapExtent" class=""></div>
+							</div>
+							<div class="col-md-12 latlon">
+								<label class="col-md-3"><strong>Min Latitude </strong><input type="number" class="form-control" id="latmin" name="latlon" placeholder="Lat min" value="" /></label>
+								<label class="col-md-3"><strong>Max Latitude </strong><input type="number" class="form-control" id="latmax" name="latlon" placeholder="Lat max" value="" /></label>
+								<label class="col-md-3"><strong>Min Longitude</strong><input type="number" class="form-control" id="lonmin" name="latlon" placeholder="Lon min" value="" /></label>
+								<label class="col-md-3"><strong>Max Longitude</strong><input type="number" class="form-control" id="lonmax" name="latlon" placeholder="Lon max" value="" /></label>
+							</div>
+							<div class="col-md-12 roiRegionSelection">
+								<label class="col-md-3">
+									<strong>Country </strong>
+									<select id="roiCountry" class="form-control">
+										<option value="" selected disabled> -- Select country -- </option>			
+									</select>
+								</label>
+								<label class="col-md-3 hidden">
+									<strong>Region </strong>
+									<select id="roiRegion" class="form-control">
+										<option value="" selected disabled> -- Select region -- </option>			
+									</select>
+								</label>
+							</div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <div class="col-md-12 error hidden">
+                            </div>
+                        </div>
+                        <div class="submit-buttons">
+                            <input class="add-edit-btn" type="submit" value="Save" />
+                            <input class="add-edit-btn cancel-btn lspace" type="button" value="Abort" />
+                        </div>
+                    </form>
+                </div>
+                <div id="div_editsite" style="display:none">
+                    <!-- form edit sites -->
+                    <form id="siteform_edit" method="post" class="tspace vspace">
+                        <input type="hidden" id="edit_siteid" name="edit_siteid" value="">
+                        <input type="hidden" id="shortname" name="shortname" value="">
+                        <div class="form-group row">
+                            <h3 class="control-label col-md-12" id="edit_sitename">Site name:</h3>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-12">Enabled sensors:</label>
+                            <div class="col-md-12 loading" id="site_tiles">
+                                <img src="assets/dist/img/loader.gif" width="64px" height="64px">
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-12">List of seasons:</label>
+                            <div class="col-md-12 loading" id="site_seasons">
+                                <img src="assets/dist/img/loader.gif" width="64px" height="64px">
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-2" for="edit_enabled">Enable site:</label>
+                            <div class="col-md-10">
+                                <input type="checkbox" name="edit_enabled" id="edit_enabled">
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <div class="col-md-12 error hidden">
+                            </div>
+                        </div>
+                        <div class="submit-buttons" style="text-align:right">
+                            <input class="add-edit-btn delete-btn" id="delete_site" type="button" value="Delete Site" style="float:left" />
+                            <button class="add-edit-btn upload-btn lspace" id="upload_files"><span class="fa fa-cogs">&nbsp;</span>Upload Files</button>
+                            <input class="add-edit-btn lspace" type="submit" value="Save Site" />
+                            <input class="add-edit-btn cancel-btn lspace" type="button" value="Close" />
+                        </div>
+                    </form>
+                </div>
+                <div id="div_deletesite" style="display:none">
+                    <!--  form delete site -->
+                    <form id="siteform_delete" method="delete" class="tspace vspace">
+                        <input type="hidden" class="form-control" name="siteId" value="">
+                        <input type="hidden" class="form-control" name="siteShortName" value="">
+                        <div class="form-group row">
+                            <h3 class="control-label col-md-12" id="delete_sitename">Site name:</h3>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <label class="control-label col-md-12">Select which products types to be deleted along with the site:</label>
+                            <div class="col-md-12">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-11 loading" id="product_types">
+                                    <img src="assets/dist/img/loader.gif" width="64px" height="64px">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group form-group-sm row">
+                            <div class="col-md-12 error hidden">
+                            </div>
+                        </div>
+                        <div class="submit-buttons">
+                            <input class="add-edit-btn delete-btn left-btn" type="submit" value="Confirm Delete Site" style="float:left" />
+                            <input class="add-edit-btn cancel-btn" type="button" value="Abort" />
+                        </div>
+                    </form>
+                </div>
+                <div id="div_uploadfiles" style="display:none">
+                    <!--  form upload files -->
+                    <div class="form-group form-group-sm row">
+                        <h3 class="control-label col-md-12" id="upload_sitename">Site name:</h3>
+                    </div>
+                    <div class="form-group form-group-sm row tspace vspace">
+                        <div>
+                            <label class="control-label col-md-4">Season:</label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="upload_season"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm row tspace vspace unique-by-year">
+                        <div>
+                            <label class="control-label col-md-4">Year:</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="upload_year" name="upload_year" value="" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-fluid">
+                        <div id="upload_html_page"></div>
+                        <div class="panel-group config" id="accordion"></div>
+                        <div class="submit-buttons" style="margin:10px 0">
+                            <input class="add-edit-btn cancel-btn" type="button" value="Close" />
+                        </div>
+                    </div>
+                </div>
+                <!-- list of sites -->
+                <div class="panel">
+                    <div class="panel-heading"><h3 class="panel-title">Sites list</h3></div>
+                    <div class="panel-body">
+                        <table id="sites" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Site name</th>
+                                    <th rowspan="2">Short name</th>
+                                    <th class="seasons">Seasons</th>
+                                    <th rowspan="2" style="text-align:center">Edit</th>
+                                    <th rowspan="2">Enabled</th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        <table class="subtable"><thead><tr><th>Season name</th><th>Season start</th><th>Season mid</th><th>Season end</th><th>Enabled</th></tr></thead><tbody></tbody></table>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+    </div>
+</div>
+<div class="error-notification">
+    <div class="error main hidden">
+    </div>
+</div>
+<style>
+    input[name='addsite'] {
+        text-align: left;
+        width: 220px
+    }
+
+    input[type='checkbox'] {
+        margin-right: 10px
+    }
+
+    .loading {
+        background-color: white;
+        text-align: center;
+        padding: 15px;
+        border: 1px solid lightgray
+    }
+
+    table.table th.seasons,
+    table.table td.seasons {
+        height: auto;
+        text-align: center
+    }
+
+    table.table thead th:last-child, table.table tbody td:last-child {
+        text-align: center
+    }
+
+    table.table td a {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        color: var(--color-default);
+        font-size: 1.1em;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: underline
+    }
+
+    table.table tr.site.editing,
+    table.table tr.site.editing:hover {
+        background-color: var(--color-default);
+        color: white
+    }
+
+        table.table tr.site.editing tr:hover {
+            background-color: #8BB245;
+            color: white
+        }
+
+    table.table tr.editing td a {
+        color: white
+    }
+
+    table.table .bootstrap-switch.bootstrap-switch-mini span {
+        padding: 0px;
+        font-size: 10px
+    }
+
+    table.subtable th, .subtable td {
+        width: 20%;
+        text-align: center
+    }
+
+    table.subtable thead th:first-child, .subtable tbody td:first-child {
+        text-align: left
+    }
+
+    table.table > tbody > tr > td:first-child {
+        font-size: 14px;
+        font-weight: 700
+    }
+
+    label.selected {
+        color: crimson
+    }
+/*
+    .uniqueBySeason .upload-btn {
+        display: none
+    }
+*/
+    /* Set dialog title color */
+    #div_addsite {
+        outline-color: var(--color-default)
+    }
+
+    #div_editsite {
+        outline-color: #f38e00
+    }
+
+    #div_deletesite {
+        outline-color: crimson
+    }
+
+    #div_uploadfiles {
+        outline-color: #487bd4
+    }
+	
+	/* Set map style */
+	#mapExtent {
+		height: 47vh;
+		border: 1px solid #c5c5c5;
+		margin: 10px 0;
+	}
+}
+</style>
+<!-- includes for bootstrap-switch -->
+<link href="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.js"></script>
+<!-- includes for validate form -->
+<script src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+
+<script type="text/javascript">
+    // ======================== PUBLIC SITES FUNCTIONS ======================== //
+    function purgeAllSitesDialogs() {
+        purgeUiDialog("div_addsite");
+        purgeUiDialog("div_editsite");
+        purgeUiDialog("div_deletesite");
+        purgeUiDialog("div_uploadfiles");
+    }
+    // ======================== DOCUMENT READY ======================== //
+    $(document).ready(function () {
+		var clearSelections = true;
+		var clearShapefile = true;
+		var roiIgnoreLevels = []
+	
+        var getSites = function (userId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+                type: "GET"
+            });
+        };
+        var getSite = function (siteId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/" + siteId,
+                type: 'GET',
+            });
+        };
+        var getSiteSeasons = function (siteId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/seasons?site=" + siteId,
+                type: 'GET'
+            });
+        };
+        var getProductTypes = function (userId) { // TODO implementation for userId
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "products/types/",
+                headers: { "content-type": "application/json" },
+                type: 'GET'
+            });
+        };
+        var getRegions = function (){
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				url  : baseApiUrl + "rois/countries",
+				type : "GET"
+			});
+		}
+		
+        function getSiteSeasonsHtml(seasons, $parent) {
+            $parent.html("");
+            var $container = (seasons.length == 0) ? $("<span>-</span>") : $('<table class="subtable"></table>');
+            $.each(seasons, function (index, season) {
+                // Create a table line for each site in list
+                var tr = '<tr class="season" data-id="' + season.id + '">' +
+                    '<td>' + season.name + '</td>' +
+                    '<td>' + season.startDate + '</td>' +
+                    '<td>' + season.midDate + '</td>' +
+                    '<td>' + season.endDate + '</td>' +
+                    '<td><input type="checkbox" class="season-enabled"></td>' +
+                    '</tr>';
+                var $tr = $(tr);
+                $('input.season-enabled', $tr)
+                    .prop("checked", season.enabled)
+                    .bootstrapSwitch({
+                        size: "mini",
+                        onColor: "success",
+                        offColor: "default",
+                        disabled: true,
+                        handleWidth: 25
+                    });
+                $container.append($tr);
+            });
+            $parent.append($container);
+        }
+        function getSitesHtml(sites, $parent) {
+            hidePanelError(".error-notification");
+
+            $parent.html("");
+            $.each(sites, function (index, site) {
+                // Create a line for each site in the list
+                var tr = '<tr class="site" data-id="' + site.id + '">' +
+                    '<td>' + site.name + '</td>' +
+                    '<td>' + site.shortName + '</td>' +
+                    '<td class="seasons"></td>' +
+                    '<td><a class="site-edit">Edit</a></td>' +
+                    '<td><input type="checkbox" class="site-enabled"></td>' +
+                    '</tr>';
+                var $tr = $(tr);
+                $('input.site-enabled', $tr)
+                    .prop("checked", site.enabled)
+                    .bootstrapSwitch({
+                        size: "mini",
+                        onColor: "success",
+                        offColor: "default",
+                        disabled: true,
+                        handleWidth: 25
+                    });
+
+                // Change row style when starting site editing
+                $('a.site-edit', $tr)
+                    .on("click", function (e) {
+                        $("tr.site", $parent).removeClass("editing");
+                        $tr.addClass("editing");
+                        openEditSiteDialog(site.id);
+                    });
+
+                // Get site seasons
+                $.when(getSiteSeasons(site.id))
+                    .done(function (response) {
+                        if (response.status === responseStatus.success) {
+                            getSiteSeasonsHtml(response.data, $("td.seasons", $tr));
+                        } else {
+                            showPanelError(".error-notification", response.message, true);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        showPanelError(".error-notification", jqXHR.responseText, true);
+                    });
+                $tr.data("dna", site);
+                $parent.append($tr);
+            });
+        }
+        function refreshSiteHtml(siteId, $parent) {
+            hidePanelError(".error-notification");
+
+            var $tr = $('tr[data-id="' + siteId + '"]:not(.hidden)', $parent);
+            if ($tr.length > 0) {
+                $.when(getSite(siteId), getSiteSeasons(siteId))
+                    .done(function (responseSite, responseSeasons) {
+                        var site = responseSite[0];
+                        var seasons = responseSeasons[0];
+                        if (site.status === responseStatus.success && seasons.status === responseStatus.success) {
+                            // Update site data
+                            $tr.data("dna", site.data);
+
+                            // Refresh site
+                            $('input.site-enabled', $tr)
+                                .prop("checked", site.data.enabled)
+                                .bootstrapSwitch('destroy', true)
+                                .bootstrapSwitch({ size: "mini", onColor: "success", offColor: "default", disabled: true, handleWidth: 25 });
+
+                            // Refresh seasons list
+                            getSiteSeasonsHtml(seasons.data, $("td.seasons", $tr));
+                        } else {
+                            var msg = (site.status === responseStatus.success ? "" : site.message);
+                            msg += (seasons.status === responseStatus.success ? "" : (msg == "" ? "" : "<br>") + seasons.message);
+                            showPanelError(".error-notification", msg);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        showPanelError(".error-notification", jqXHR.responseText);
+                    });
+            }
+        }
+        function getProductTypesHtml(productTypes, $parent) {
+            $parent.html("");
+            $.each(productTypes, function (index, ptype) {
+                // Create a table line for each site in list
+                var pt = '<div class="row product-type">' +
+                    '<label class="control-label col-md-4" for="delete_chk' + ptype.shortName + '">' +
+                    '<input id="delete_chk' + ptype.shortName + '" type="checkbox" name="delete_chk' + ptype.shortName + '" value="' + ptype.id + '" />' + ptype.shortName +
+                    '</label>' +
+                    '<div class="col-md-8">' +
+                    '<span>' + ptype.description + '</span>' +
+                    '</div>' +
+                    '</div>';
+                var $pt = $(pt);
+                $parent.append($pt);
+            });
+            refreshDialogPosition($parent.closest(".ui-dialog-content"));
+        }
+        function openAddNewSiteDialog() {
+            // open add site dialog and close all others
+            $(".ui-dialog-content:not(#div_addsite)").dialog("close");
+            $("#div_addsite").dialog("open");
+        }
+        function openEditSiteDialog(siteId) {
+            var site = $("tr.site[data-id=" + siteId + "]", "#sites").data("dna");
+            $("#edit_sitename").html(site.name);
+            $("#edit_siteid").val(site.id);
+            $("#shortname").val(site.shortName);
+            $("#edit_enabled").bootstrapSwitch('state', site.enabled);
+
+            // set editing variables
+            $("#div_editsite").data("dna", site);
+
+            // Get site tiles
+            $.ajax({
+                cache: false,
+                url: "fragments/site.tiles.fragment.html",
+                type: "GET",
+                dataType: "html",
+                success: function (data) {
+                    $("#site_tiles", "#div_editsite").removeClass("loading").html(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Status: " + textStatus + "   Error: " + errorThrown);
+                }
+            });
+
+            // Get site seasons
+            $.ajax({
+                cache: false,
+                url: "fragments/site.seasons.fragment.html",
+                type: "GET",
+                dataType: "html",
+                success: function (data) {
+                    $("#site_seasons", "#div_editsite").removeClass("loading").html(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Status: " + textStatus + "   Error: " + errorThrown);
+                }
+            });
+
+            // Get uploaded files
+            $.ajax({
+                cache: false,
+                url: "fragments/site.uploads.fragment.html",
+                type: "GET",
+                dataType: "html",
+                success: function (data) {
+                    $("#upload_html_page", "#div_uploadfiles").html(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Status: " + textStatus + "   Error: " + errorThrown);
+                }
+            });
+
+            $("#accordion").collapse('hide');
+            $("#accordion").on("hidden.bs.collapse shown.bs.collapse", function (e) {
+                $(this).closest(".ui-dialog").position({
+                    my: "center",
+                    at: "center",
+                    of: "#div_editsite",
+                    collision: "fit",
+                    // Ensure the titlebar is always visible
+                    using: function (pos) {
+                        var topOffset = $(this).css(pos).offset().top;
+                        if (topOffset < 0) {
+                            $(this).css("top", pos.top - topOffset);
+                        }
+                    }
+                });
+            });
+
+            // open edit site dialog and close all others
+            $(".ui-dialog-content:not(#div_editsite)").dialog("close");
+            $("#div_editsite").dialog("open");
+        }
+        function openDeleteSiteDialog() {
+            var form = $("#siteform_delete").get(0);
+            hidePanelError(form);
+
+            var site = $("#div_editsite").data("dna");
+            $('input[name="siteId"]', "#div_deletesite").val(site.id);
+            $('input[name="siteShortName"]', "#div_deletesite").val(site.shortName);
+            $('#delete_sitename', "#div_deletesite").html(site.name);
+            $("label", "#div_deletesite").removeClass("selected");
+
+            // Get product types (needed when deleting site along with products of a certain type)
+            $.when(getProductTypes())
+                .done(function (response) {
+                    if (response.status === responseStatus.success) {
+                        $("div#product_types").removeClass("loading");
+                        getProductTypesHtml(response.data, $("div#product_types"));
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(form, jqXHR.responseText);
+                });
+
+            // open delete dialog
+            $("#div_deletesite").dialog("open");
+        }
+        function changeUploadSeason(seasonData) {
+            openUploadSiteFilesDialog({ 'uniqueBy': 'Season', 'uniqueData': seasonData });
+        }
+        function openUploadSiteFilesDialog(selectedSeasonId) {
+            var site = $("#div_editsite").data("dna");
+
+            $.when(getSiteSeasons(site.id))
+                .done(function (response) {
+                    if (response.status === responseStatus.success) {
+
+                        var selectedSeason = null;
+                        if (selectedSeasonId == 0) {
+                            selectedSeason = response.data[0];
+                            $("#upload_season").empty();
+                            $.each(response.data, function (index, season) {
+                                $("#upload_season").append('<option value="' + season.id + '">' + season.name + '</option>');
+                            });
+                        }
+                        else {
+                            $.each(response.data, function (index, season) {
+                                if (season.id == selectedSeasonId) {
+                                    selectedSeason = season;
+                                }
+                            });
+                        }
+
+                        $(".unique-by-year", "#div_uploadfiles").addClass("hidden");
+                        //$(".unique-by-season", "#div_uploadfiles").addClass("hidden");
+                        if ($("#div_editsite").hasClass("uniqueByYear")) {
+
+                            //set dominant year and show
+                            $("#upload_year").val(getSeasonDominantYear(selectedSeason.startDate, selectedSeason.endDate));
+                            $("#upload_year").removeClass("collapse");
+
+                            $(".unique-by-year", "#div_uploadfiles").removeClass("hidden");
+                            if (typeof getUploadDescriptorsByYear !== "undefined" && typeof getUploadSiteFiles !== "undefined") {
+                                $("#upload_sitename", "#div_uploadfiles").html(site.name);
+                                //$("#upload_year"    , "#div_uploadfiles").val(descriptor.uniqueData);
+                                closeDialog($("#div_uploadfiles"));
+                                $.when(getUploadDescriptorsByYear(site.id, $("#upload_year").val()/*descriptor.uniqueData*/))
+                                    .done(function (response) {
+                                        if (response.status === responseStatus.success) {
+                                            descriptors = response.data;
+                                            getUploadSiteFiles(descriptors);
+                                            $.each(descriptors, function (descIdx, desc) {
+                                                $.each(desc.files, function (fileIdx, file) {
+                                                    $.each(file.operations, function (operationIdx, operation) {
+                                                        $.each(operation.parameters, function (paramIdx, param) {
+                                                            if (param.name == "year" && !param.label) {
+                                                                $("#upload_year").attr("data-is-param-set", "true");
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                            // open add site dialog and close all others
+                                            $("#div_uploadfiles").dialog("open");
+                                        }
+                                    });
+
+                            }
+                        } else {
+                            //$(".unique-by-season", "#div_uploadfiles").removeClass("hidden");
+                            if (typeof getUploadDescriptorsBySeason !== "undefined" && typeof getUploadSiteFiles !== "undefined") {
+                                $("#upload_sitename", "#div_uploadfiles").html(site.name);
+                                //$("#upload_season_name", "#div_uploadfiles").html(descriptor.uniqueData.name + " [" + descriptor.uniqueData.startDate + " &raquo; " + descriptor.uniqueData.endDate + " ]");
+                                //hide year
+                                $("#upload_year").addClass("collapse");
+                                $("#upload_year").val("");
+
+                                closeDialog($("#div_uploadfiles"));
+                                $.when(getUploadDescriptorsBySeason(site.id, $("#upload_season").val()))
+                                    .done(function (response) {
+                                        if (response.status === responseStatus.success) {
+                                            descriptors = response.data;
+                                            getUploadSiteFiles(descriptors);
+                                            
+                                            $.each(descriptors, function (descIdx, desc) {
+                                                $.each(desc.files, function (fileIdx, file) {
+                                                    $.each(file.operations, function (operationIdx, operation) {
+                                                        $.each(operation.parameters, function (paramIdx, param) {
+                                                            if (param.name == "seasonId" && !param.label) {
+                                                                $("#upload_season").attr("data-is-param-set", "true");
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                            // open add site dialog and close all others
+                                            $("#div_uploadfiles").dialog("open");
+                                        }
+                                    });
+                            }
+                        }
+
+                    } else {
+                        showPanelError(".error-notification", response.message, true);
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(".error-notification", jqXHR.responseText, true);
+                });
+
+
+        }
+        function refreshAllSites() {
+            hidePanelError(".error-notification");
+            // Get sites
+            $.when(getSites(window.userIsAdmin ? void 0 : window.userID))
+                .done(function (response) {
+                    if (response.status === responseStatus.success) {
+                        getSitesHtml(response.data, $("table#sites>tbody"));
+                    } else {
+                        showPanelError(".error-notification", response.message);
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(".error-notification", jqXHR.responseText);
+                });
+        }
+        function saveNewSite(form) {
+            hidePanelError(form);
+			var formData = new FormData(form);
+			// keep to form data the footprint or shape file
+			if (formData.get("shapeFile") === null || formData.get("shapeFile").size <= 0) {
+				formData.delete("shapeFile");
+				formData.append("footprint", formData.get("userText"));
+			}
+			formData.delete("userText");
+			formData.delete("latlon");
+            $.ajax({
+                async: true,
+                url: baseApiUrl + "sites/",
+                method: "POST",
+                processData: false,
+                contentType: false,
+                mimeType: "multipart/form-data",
+                data: formData,
+                success: function (JSONresponse) {
+                    var response = JSON.parse(JSONresponse);
+                    if (response.status === responseStatus.success) {
+                        refreshAllSites();
+                        closeDialog(form);
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(form, jqXHR);
+                }
+            });
+        }
+        function updateSite(form) {
+            hidePanelError(form);
+
+            var $dialog = $("#div_editsite");
+
+            // Set site status (enables / disabled)
+            var siteId = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+            var siteEnabled = $("#edit_enabled").bootstrapSwitch('state');
+            $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/status?siteId=" + siteId + "&enabled=" + (siteEnabled ? "true" : "false"),
+                method: "GET",
+                success: function (response) {
+                    if (response.status === responseStatus.success) {
+                        // Update site tiles if site status has been correctly set
+                        if (typeof updateSiteTiles === "function") {
+                            $.when(updateSiteTiles($dialog))
+                                .done(function (response) {
+                                    if (response.status === responseStatus.success) {
+                                        closeDialog(form);
+                                    } else {
+                                        showPanelError(form, response.message);
+                                    }
+                                })
+                                .fail(function (jqXHR, textStatus, errorThrown) {
+                                    showPanelError(form, jqXHR);
+                                });
+                        }
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(form, jqXHR);
+                }
+            });
+        }
+        function deleteSite(form) {
+            hidePanelError(form);
+
+            var pTypes = new Array();
+            $.each($("#product_types input[type='checkbox']:checked", form), function () { pTypes.push(this.value); });
+            var postData = JSON.stringify({
+                siteId: $('input[name="siteId"]', form).val(),
+                siteShortName: $('input[name="siteShortName"]', form).val(),
+                userId: window.userID,
+                productTypeIds: pTypes
+            });
+            $.ajax({
+                url: baseApiUrl + "sites/",
+                type: "DELETE",
+                processData: false,
+                data: postData,
+                headers: {
+                    "content-type": "application/json",
+                },
+                success: function (response) {
+                    if (response.status === responseStatus.success) {
+                        refreshAllSites();
+                        //hide deleted site row
+                        $("tr[data-id='"+$('input[name="siteId"]', form).val()+"']").addClass("hidden");
+                        closeDialog(form);
+                        closeDialog($("#siteform_edit").get(0));
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(form, jqXHR);
+                }
+            });
+        }
+
+        // ======================== Dialog Ui Functions ======================== //
+        function defineFormDialogs() {
+            // clear all previous dialogs
+            purgeAllSitesDialogs();
+
+            // create dialog for add site form
+            $("#div_addsite").dialog({
+                title: "Add New Site",
+                width: "860px",
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+				open: function( event, ui ) { initMap(); },
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); },
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            });
+
+            // create dialog for edit site form
+            $("#div_editsite").dialog({
+                title: "Edit Site",
+                width: '800px',
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            });;
+            // create dialog for delete site form
+            $("#div_deletesite").dialog({
+                title: "Delete Site",
+                width: '700px',
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            });
+            // create dialog for upload files
+            $("#div_uploadfiles").dialog({
+                title: "Upload Files",
+                width: '700px',
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            });
+
+            // create switch for enabled checkbox in the add site form
+            $("[name='add_enabled']").bootstrapSwitch({
+                size: "small",
+                onColor: "success",
+                offColor: "default"
+            });
+            // create switch for enabled checkbox in the edit site form
+            $("[name='edit_enabled']").bootstrapSwitch({
+                size: "small",
+                onColor: "success",
+                offColor: "default",
+                onSwitchChange: function (event, state) {
+                    if (typeof enableDisableTiles === "function") {
+                        enableDisableTiles($("#div_editsite"));
+                    }
+                }
+            });
+        }
+        function resetFormDialog($forms) {
+            $.each($forms, function (index, form) {
+                if (form.id) {
+                    if (form.id == "siteform_add") {
+                        $(form).validate().resetForm();
+                        form.reset();
+                        hidePanelError(form);
+                    } else if (form.id == "siteform_edit") {
+                        $(form).validate().resetForm();
+                        form.reset();
+                        hidePanelError(form);
+
+                        $("tr.site", "table#sites").removeClass("editing");
+
+                        // Refresh site in list
+                        var siteId = (typeof $("#div_editsite").data("dna")) === "undefined" ? void 0 : $("#div_editsite").data("dna").id;
+                        var $parent = $("table#sites>tbody");
+                        refreshSiteHtml(siteId, $parent);
+                    } else if (form.id == "siteform_delete") {
+                        hidePanelError(form);
+                        form.reset();
+                    } else if ($(form).hasClass("upload-form")) {
+                        hidePanelError(form);
+                        // removeAppendedColoredText
+                        var $acc = $(form).closest(".panel").find(".panel-title>a");
+                        if ($acc.length > 0) {
+                            var str = $acc.html();
+                            var modifIdx = str.indexOf('<font color');
+                            $acc.html(str.substring(0, modifIdx > 0 ? modifIdx : str.length));
+                        }
+                        // reset uploaded statuses
+                        $(form).closest(".panel").removeClass("uploading uploading-started uploading-done");
+                        $(form).closest(".panel").find('input[name="file"]').prop("disabled", false);
+                        form.reset();
+                    }
+                }
+            });
+        }
+
+        // ======================== START ======================== //
+        // populating the continent, country and region fileds
+		$.when(getRegions()).done(function (response) {
+			if (response.status === responseStatus.success) {
+				$("#div_addsite").data("retrivedRegions", response.data);
+			} else {
+				console.log(response.status + ": " + response.message);
+			}
+		});
+		
+        refreshAllSites();
+        defineFormDialogs();
+
+		//sort displayed options
+		$.each($("select[id]","div.roiRegionSelection"), function (idx,elem) {
+			var sortedOptsList = $(elem).find("option:not(:disabled)");
+			sortedOptsList.sort(function(a, b) { return $(a).text() > $(b).text() ? 1 : -1; });
+			$(elem).find("option:not(:disabled)").remove();
+			$(elem).append(sortedOptsList);
+		});
+
+        // validate add form
+		$.validator.addMethod('roiSelect', function (value, element, params) {
+			if ($("[name='shapeFile']").closest("div").find("label#roiSelect-error").length > 0) {
+				clearRegionOfInterest();
+			}
+			return $("[name='shapeFile']").val() != ''|| $(".latlon input[type='number']").filter(function () { return this.value !== ''; }).length == 4;
+		},'Select either a shapefile or the geographical coordinates.');
+		
+        $("input[name=userId]", "#siteform_add").val(window.userID);
+        $("#siteform_add").validate({
+            rules: {
+                name: { required: true, pattern: "[A-Z]{1}[\\w ]*" },
+                shapeFile: { roiSelect: true },
+				latlon:    { roiSelect: true }
+            },
+            messages: {
+                name: { pattern: "First letter must be uppercase. Letters, digits, spaces and underscores are allowed" }
+            },
+            highlight: function (element, errorClass) {
+                $(element).closest("div").addClass("has-error");
+            },
+            unhighlight: function (element, errorClass) {
+				if ($(element).closest(".roi").length > 0) {
+					$(element).closest(".roi").find("div").removeClass("has-error");
+				} else {
+					$(element).closest("div").removeClass("has-error");
+				}
+            },
+            errorPlacement: function (error, element) {
+                if (element.closest(".roi").length > 0) {
+					error.insertAfter($(element).closest(".roi").find(">div:last-child"));
+				} else {
+                error.appendTo(element.parent());
+				}
+            },
+            submitHandler: function (form) {
+                saveNewSite(form);
+            },
+            // set this class to error-labels to indicate valid fields
+            success: function (label) {
+                label.remove();
+            },
+        });
+
+        // validate edit site form
+        $("#siteform_edit").validate({
+            rules: {
+                shortname: { required: true, pattern: "[a-z]{1}[a-z_ ]*" }
+            },
+            messages: {
+                shortname: { pattern: "Only small letters,space and underscore are allowed" }
+            },
+            highlight: function (element, errorClass) {
+                $(element).parent().addClass("has-error");
+            },
+            unhighlight: function (element, errorClass) {
+                $(element).parent().removeClass("has-error");
+            },
+            errorPlacement: function (error, element) {
+                error.appendTo(element.parent());
+            },
+            submitHandler: function (form) {
+                //check the tiles
+                var tilesL8NotValid = ''; var tilesS2NotValid = '';
+                if ($("#chkS2Edit").is(':checked')) {
+                    var s2Tiles = $('textarea[name="S2Tiles"]').val();
+
+                    if (s2Tiles != "") {
+                        tilesS2Arr = s2Tiles.split(',');
+                        for (i = 0; i < tilesS2Arr.length; i++) {
+                            var noMatch = tilesS2Arr[i].replace(/^(\d{2}[A-Z]{3})(,\d{2}[A-Z]{3})*/gm, '');
+                            if (noMatch.trim() != '') {
+                                tilesS2NotValid = tilesS2NotValid + " " + tilesS2Arr[i];
+                            }
+                        }
+                    }
+                }
+                if ($("#chkL8Edit").is(':checked')) {
+                    var l8Tiles = $('textarea[name="L8Tiles"]').val();
+                    if (l8Tiles != "") {
+                        tilesL8Arr = l8Tiles.split(',');
+                        for (i = 0; i < tilesL8Arr.length; i++) {
+                            var noMatch = tilesL8Arr[i].replace(/^(\d{6})(,\d{6})*/gm, '');
+                            if (noMatch.trim() != '') {
+                                tilesL8NotValid = tilesL8NotValid + " " + tilesL8Arr[i];
+                            }
+                        }
+                    }
+                }
+                if (tilesS2NotValid != '') {
+                    $(".invalidTilesS2").text("Invalid tile: " + tilesS2NotValid);
+                } else {
+                    $(".invalidTilesS2").text("");
+                }
+                if (tilesL8NotValid != '') {
+                    $(".invalidTilesL8").text("Invalid tile: " + tilesL8NotValid);
+                } else {
+                    $(".invalidTilesL8").text("");
+                }
+                if (tilesS2NotValid == '' && tilesL8NotValid == '') {
+                    updateSite(form);
+                }
+            },
+            // set this class to error-labels to indicate valid fields
+            success: function (label) {
+                label.remove();
+            },
+        });
+
+        // open Add new site dialog
+        $("input[name=addsite]").on("click", function (e) {
+			// if retrive region wasn't success the roi selection section will be hidden
+			if ( typeof $("#div_addsite").data("retrivedRegions") !== "undefined") {
+				$(".roiRegionSelection", "#div_addsite").removeClass("hidden");
+				populateCountry($("#div_addsite").data("retrivedRegions").regions, 1, "", "");
+			} else {
+				$(".roiRegionSelection", "#div_addsite").addClass("hidden");
+			}
+            openAddNewSiteDialog();
+        });
+        // open Delete Site dialog
+        $("#div_editsite").on("click", "#delete_site", function (e) {
+            e.preventDefault();
+            openDeleteSiteDialog();
+        });
+        $("#siteform_delete").on("change", "input[type='checkbox']", function (e) {
+            if ($(this).is(":checked")) {
+                $(this).closest("label").addClass("selected");
+            } else {
+                $(this).closest("label").removeClass("selected");
+            }
+        });
+        // validate Delete site form
+        $("#siteform_delete").on("submit", function (e) {
+            e.preventDefault();
+            deleteSite(this);
+        });
+        // open Upload Files dialog for default configuration year
+        $("#div_editsite").on("click", "#upload_files", function (e) {
+            e.preventDefault();
+            openUploadSiteFilesDialog(0);
+        });
+        // open Upload Files dialog for selected season
+        $("#site_seasons").on("upload", function (e) {
+            changeUploadSeason(0);
+        });
+
+        $("#upload_season").change(function() {
+            openUploadSiteFilesDialog($(this).val());
+        });
+		
+	/* Map functionalities */
+		$("[name='shapeFile']", "#div_addsite").on("change", function (e) {
+			clearShapefile = false;
+			resetSelections();
+			var formData = new FormData($('#siteform_add').get(0));
+			$.when(getPoligon(formData)).done(function(JSONresponse){
+				var _map = window.myPolygonMap;
+				_map.removeAllFeatures();
+				_map.startDrawing();
+				var response = JSON.parse(JSONresponse);
+				if (response.status === responseStatus.success) {
+					var polygon = response.data;
+					populateRegionOfInterest(polygon);
+				} else {
+					var error = "<label id='roiSelect-error' class='error col-md-12' for='roiSelect'> Wrong selected file format or content.</label>";
+					$("[name='shapeFile']").closest("div").append(error);
+					console.log(response.status + ": " + response.message);
+				}
+				clearShapefile = true;
+			});
+		});
+		
+		$("#div_addsite").on("change", "#roiCountry, #roiRegion", function () {
+			filterRoi($(this).children("option:selected"));
+			var selection = $($(this).children("option:selected")[0]).text();
+			var level = parseInt($($(this).children("option:selected")[0]).attr("data-level"));
+			var wkt = findWKT($("#div_addsite").data("retrivedRegions").regions, selection, level);
+			clearSelections = false;
+			populateRegionOfInterest(wkt);
+			clearSelections = true;
+		});
+		
+		$("#div_addsite").on("change", "#latmin, #latmax, #lonmin, #lonmax", function () {
+			resetSelections();
+			$("[name='shapeFile']").val(null);
+			var latmin = $("#latmin").val();
+			var latmax = $("#latmax").val();
+			var lonmin = $("#lonmin").val();
+			var lonmax = $("#lonmax").val();
+			var _map = window.myPolygonMap;
+			if (latmin != "" && latmax != "" && lonmin != "" && lonmax != "") {
+				drawRectangle(latmin, latmax, lonmin, lonmax, _map.source);
+				_map.fitAllFeatures();
+				_map.restartActiveInteraction();
+				
+			}else if (latmin != "" || latmax != "" || lonmin != "" || lonmax != "") {
+				_map.removeAllFeatures();
+				_map.startDrawing();
+			}
+		});
+		
+		var getPoligon = function (form) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				mimeType   : "multipart/form-data",
+				url  : baseApiUrl + "request/decode-shape",
+				type : "POST",
+				data : form
+			});
+		};
+		
+		function drawRectangle(latmin, latmax, lonmin, lonmax, source) {
+		   
+			var polyCoords = [];
+			var p1 = lonmin + "," + latmin;
+			var p2 = lonmax + "," + latmin;
+			var p3 = lonmax + "," + latmax;
+			var p4 = lonmin + "," + latmax;
+			var coords = (p1 + " " + p2 + " " + p3 + " " + p4).split(' ');
+			for (var i in coords) {
+				var c = coords[i].split(',');
+				polyCoords.push(ol.proj.transform([parseFloat(c[0]), parseFloat(c[1])], 'EPSG:4326', 'EPSG:3857'));
+			}
+		   
+			var feature = new ol.Feature({
+				geometry: new ol.geom.Polygon([polyCoords])
+			});
+			feature.setProperties({"extraFeatureDescription": "preview"});
+			source.clear();
+			source.addFeature(feature);
+		   
+			return feature;
+		}
+		
+		function iterateToFindWKT (data, regionName, level, currentLevel) {
+			var found;
+				$.each(data, function (index, object) {
+					if (currentLevel < level) {
+						found = iterateToFindWKT (object.regions, regionName, level, currentLevel + 1);
+						if (typeof found !== "undefined") {
+							return false;
+						}
+					} else {
+						if (typeof object.regions !== "undefined" && object.regions !== null) {
+							found = object.regions.find(element => element.name === regionName);
+							if (typeof found !== "undefined") {
+								return false;
+							}
+						}
+					}
+				});
+			return found;
+		}
+		
+		function findWKT (data, regionName, level) {
+			var found;
+			if (level === 1) {
+					found = data.find(element => element.name === regionName);
+				}
+				if (level >= 2) {
+					found = iterateToFindWKT (data, regionName, level, 2);
+				}
+			return found.extentPolygon;
+		}
+	
+		function populateRegionOfInterest(polygon) {
+			var _map = window.myPolygonMap;
+			_map.createShapeFromGeometry(polygon, { extraFeatureDescription: "preview" }, true);
+			$("textarea[name='userText']").val(polygon);//WORKAROUND to avoid GEOMETRYCOLLECTION to be send insted of MULTIPOLYGON
+			_map.fitAllFeatures();
+			_map.restartActiveInteraction();
+		};
+		
+		function populateCountry (data, level, parentIndex, value) {
+			var $container = regionTypeEnum(level);
+			$.each(data, function (index,obj) {
+				if ($.inArray(level, roiIgnoreLevels) < 0) {
+					$container.append("<option data-level='" + level + "' data-parent-index='" + parentIndex + "' value='" + value + index +"'>" + obj.name + "</option>");
+					if (typeof obj.regions !== "undefined" && obj.regions !== null) {
+						populateCountry (obj.regions, level + 1, value + index.toString(), value + index.toString());
+					}
+				}
+				if (typeof obj.regions !== "undefined" && obj.regions !== null && $.inArray(level, roiIgnoreLevels) >= 0) {
+					populateCountry (obj.regions, level + 1, parentIndex, value + index.toString());
+				}
+			});
+		}
+	
+		function filterRoi (selection) {
+			var parentIndex = selection.attr("data-parent-index");
+			var selectionId = selection.parent().attr("id");
+			
+			var nextLevelElement = $("#" + selectionId).closest("label").next();
+			if (nextLevelElement.length > 0) {
+				$("option",nextLevelElement).removeClass("keep hidden");
+				$("option[value!='']",nextLevelElement).prop("selected",false);
+				$("option[value='']",nextLevelElement).prop("selected",true);
+				var elementId = nextLevelElement.find("select").attr("id");
+				//variable used to keep the removed options, in order to add them later
+				var hiddenOptions = "";
+				$("#" + elementId).find("option[data-parent-index='" + selection.val() +"']").addClass("keep");//mark those elements that needs to be kept
+				//remove unmarked elements and add the to hiddenOptions variable
+				$("#" + elementId).find("option:not(.keep)[value!='']").remove().map(function(){hiddenOptions+=$(this).addClass("hidden").prop('outerHTML')});
+				//add the removed elements on the end of the select element
+				$("#" + elementId).append(jQuery.parseHTML(hiddenOptions));
+				$("#" + elementId).find("option[value='']").prop('selected', true);
+				//if next level element has data (except the option with no value) and is hidden, remove hidden class;
+				if (nextLevelElement.hasClass("hidden") && $("#" + elementId).find("option:not(.hidden)").length > 1) {
+					nextLevelElement.removeClass("hidden");
+				} else if ($("#" + elementId).find("option:not(.hidden)").length < 2) {//if next level element does not have data (except the option with no value) add hidden class
+					nextLevelElement.addClass("hidden");
+				}
+				filterRoi(nextLevelElement);
+			}
+			
+			var prevElement = $("#" + selectionId).closest("label").prev();
+			if (prevElement.length > 0) {
+				selectRoi(prevElement.find("select").attr("id"), parentIndex);
+			} else {
+				selection.nextAll("label").addClass("hidden");
+			}
+		}
+	
+		function selectRoi(elemId, value) {
+			$("#" + elemId).find("option[value='" + value +"']").prop("selected",true);
+		}
+		
+		function resetCountryFilters() {
+			$("#roiCountry").find("option").removeClass("hidden");
+			$("#roiCountry").find("option").removeClass("keep");
+		}
+		
+		function resetSelections() {
+			$("#roiCountry").find("option[value='']").prop("selected", true);
+			$("#roiRegion").find("option[value='']").prop("selected", true);
+			$("#roiRegion").parent().addClass("hidden");
+			resetCountryFilters();
+		}
+	
+		function clearRegionOfInterest() {
+			$("#latmin").val(null);
+			$("#latmax").val(null);
+			$("#lonmin").val(null);
+			$("#lonmax").val(null);
+			if (clearShapefile){
+				$("[name='shapeFile']").val(null);
+			}
+			if (clearSelections) {
+				resetSelections();
+			}
+			$("[name='shapeFile']").closest("div.roi").find("label.error").each(function() {
+				$(this).remove();
+    });
+		};
+		
+		window.myPolygonMap = { mapActive: false };
+		function initMap() {
+			var olPoly = $("#mapExtent").poly2D({ startLat: 47, startLon: 14, zoom: 4, maxFeaturesNo: 1, extraFeatureDescription: "preview", panPrc: 0 });
+			$(".sliderscontainer", "#mapExtent").remove();
+			$(".drawer-content:not(.minimized)", "#mapExtent").addClass("hidden");
+			$(".drawer-content.minimized", "#mapExtent").removeClass("hidden");
+
+			$.when(olPoly).done(function (result) {
+				if (typeof result.readOnly === "boolean") {
+					myPolygonMap = result;
+					var _map = myPolygonMap;
+					if (_map.mapActive) {
+						_map.setReadOnly(false);
+					}
+				}
+				_map.el.on("newfootprint", function (evt, footprint) {
+					evt.stopPropagation();
+					var drawnFeatures = _map.getAllFeatures().getArray();
+					if (drawnFeatures.length > 0) {
+						var extent = drawnFeatures[0].getGeometry().getExtent();
+						var transedExtent = ol.proj.transformExtent(extent, "EPSG:3857", "EPSG:4326");
+						if (clearSelections) {
+							resetSelections();
+						}
+						$("#latmin").val(transedExtent[1]);
+						$("#latmax").val(transedExtent[3]);
+						$("#lonmin").val(transedExtent[0]);
+						$("#lonmax").val(transedExtent[2]);
+						// when shape is drawn on map remove error for all ROI fields
+						$(".roi", "#div_addsite").find("label.error").remove();
+						$(".roi div.has-error", "#div_addsite").removeClass("has-error");
+					}else {
+						clearRegionOfInterest();
+					}
+				});
+			});
+		}
+    });
+//# sourceURL=sites.js
+</script>

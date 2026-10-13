@@ -1,0 +1,94 @@
+<script type="text/javascript">
+// ==== PUBLIC SITE TILES FUNCTIONS ==== //
+function updateSiteTiles($dialog) {
+	var siteId  = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+	var data = new Array();
+	$.each($("textarea.tile-list", $dialog), function (index, txt) {
+		var sensorActive  = $(txt).closest(".row").find("input.tile-active").is(":checked");
+		var satteliteName = $(txt).closest(".row").find("input.tile-active").val();
+		var sensor = {
+			"satelliteName": satteliteName,
+			"enabled"      : sensorActive,
+			"tiles"        : $(txt).val().length == 0 ? null : $(txt).val().split(",")
+		};
+		data.push(sensor);
+	});
+	
+	var deferred = $.Deferred();
+	$.ajax({
+		url: "/sites/tiles/" + siteId,
+		method: "POST",
+		data   : JSON.stringify(data),
+		headers: { "content-type": "application/json" },
+		success: function (response) {
+			deferred.resolve(response);
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			deferred.reject(jqXHR, textStatus, errorThrown);
+		}
+	});
+	return deferred.promise();
+}
+function enableDisableTiles($dialog) {
+	var siteEnabled = $('[name="edit_enabled"]', $dialog).bootstrapSwitch('state');
+	$.each($("textarea.tile-list", $dialog), function (index, txt) {
+		if (siteEnabled) {
+			var sensorActive = $(txt).closest(".row").find("input.tile-active").is(":checked");
+			$(txt).prop('disabled', !sensorActive);
+		} else {
+			$(txt).prop('disabled', !siteEnabled);
+		}
+	});
+}
+$(document).ready(function () {
+	function getSiteTiles($dialog) {
+		hidePanelError("#siteform_edit");
+		
+		var siteId      = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").id;
+		var siteEnabled = (typeof $dialog.data("dna") === "undefined") ? void 0 : $dialog.data("dna").enabled;
+		var $siteTiles  = $("#site_tiles", $dialog);
+		// Get site tiles
+		$.ajax({
+			url: "/sites/tiles?siteId=" + siteId,
+			method: "GET",
+			success: function (response) {
+				if (response.status === responseStatus.success) {
+					$siteTiles.html("");
+					$.each(response.data, function (index, tile) {
+						var tileHtml = 	'<div class="form-group form-group-sm row">' +
+											'<div class="col-md-2">' +
+												'<input class="tile-active" id="chk' + tile.satelliteName + 'Edit" type="checkbox" name="chk' + tile.satelliteName + 'Edit" value="' + tile.satelliteName + '"' + (tile.enabled ? ' checked="checked"' : '') + (tile.required ? ' disabled' : '') + '>' +
+												'<label class="control-label" for="chk' + tile.satelliteName + 'Edit">' + tile.satelliteName + '</label>' +
+											'</div>' +
+											'<div class="col-md-10">' +
+												'<textarea class="form-control tile-list" style="resize:vertical;font-size:0.8em;" rows="3" name="' + tile.satelliteName + 'Tiles"' + (tile.enabled && siteEnabled ? '' : ' disabled') + '></textarea>' +
+												'<span class="invalidTiles' + tile.satelliteName + '"></span>' +
+											'</div>' +
+										'</div>';
+						$siteTiles.append(tileHtml);
+						$("input.tile-active", $siteTiles).on("change", function (e) {
+							enableDisableTiles($dialog);
+						});
+						if (tile.tiles) {
+							$('textarea[name="' + tile.satelliteName + 'Tiles"]' , $siteTiles).val(tile.tiles.join(","));
+						}
+					});
+					refreshDialogPosition($dialog);
+				} else {
+					showPanelError("#siteform_edit", response.message);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				showPanelError("#siteform_edit", jqXHR);
+			}
+		});
+	}
+	
+	var $dialog = $("#div_editsite");
+	if ($dialog.length == 0 || typeof $dialog.data("dna") === "undefined") { return; }
+	
+	getSiteTiles($dialog);
+});
+
+//# sourceURL=tiles.js
+</script>

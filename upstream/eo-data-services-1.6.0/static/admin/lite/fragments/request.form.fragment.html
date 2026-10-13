@@ -1,0 +1,828 @@
+<link rel="stylesheet" type="text/css" href="assets/dist/css/styles-dashboard.css"/>
+<style>
+.request-form{width:70%;margin:0 auto;font-size:14px;background-color:whitesmoke}
+.request-form h3.panel-title{text-align:center; padding-bottom:2%}
+.request-form .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgba(0,0,0,0.1);padding:15px}
+.request-form h4.panel-title{color:#3a6ba0;padding:10px;margin:-15px -15px 15px -15px;border-bottom:1px dashed #e2e2e2}
+
+.request-form [name]{padding:2px 5px;border-radius:0;font-weight:400}
+.request-form [name]:disabled{background-color:#F2F2F2}
+.request-form input:read-only{color:#aaa}
+.request-form [type="radio"],
+.request-form [type="checkbox"]{width:auto;height:auto;margin-right:10px;display:inline;box-shadow:none}
+
+.request-form .form-group{margin-bottom:10px}
+.request-form .panel-body .form-group:last-child{margin-bottom:0}
+.request-form .form-group span{font-weight:400;color:gray;display:block;font-style:italic;min-height:5px;text-align:justify}
+.request-form .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+.request-form .form-group label       span.title{display:inline;font-style:normal;color:#555}
+.request-form .form-group label:hover span.title{font-weight:700}
+.request-form .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+.request-form .form-group label:hover span.extra-info{color:gray}
+.request-form .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+.request-form .form-group label :checked~span.extra-info{color:#3a6ba0}
+.request-form .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+
+.request-form .horizontal span{text-align:left}
+.request-form .horizontal.has-error .error{width:100%}
+.request-form .form-group.has-error .show-no-error{border-color:#ccc !important;box-shadow:none !important}
+
+.request-form label.highlight{font-style:italic}
+.request-form label.highlight span{font-weight:700}
+
+.request-form .summary-chapter .form-group label{margin:0;display:table;float:left;width:100%}
+.request-form .summary-chapter .form-group label.highlight{margin-bottom:5px}
+.request-form .summary-chapter .form-group label>*{margin:0;display:table-cell;line-height:1.2em;padding:3px 10px;font-size:14px;font-weight:400;font-style:normal;vertical-align:top;text-align:left}
+.request-form .summary-chapter .form-group label>span{width:35%;padding-left:0}
+.request-form .summary-chapter .form-group label>p   {width:65%;border-top:1px solid #eaeaea;color:#1e6aa2}
+.request-form .summary-chapter .form-group label:nth-child(odd) p{background-color:#f7f7f7}
+
+.request-form .summary-chapter .form-group .chapter-subgroup{margin-bottom:10px;float:left;margin-left:4%;width:96%}
+.request-form .summary-chapter .form-group .chapter-subgroup label>span{margin-left:4%;width:20%}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label>*{background-color:#f7f7f7;border:0;padding:3px 10px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>*{background-color:#eaeaea;border-bottom:1px solid lightgray;font-style:normal;font-weight:700;line-height:1.4em}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:nth-child(2){margin-top:-5px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:not(.highlight):last-child>*{border-bottom:5px solid #f0f0f0;margin-bottom:5px}
+
+.request-form .terms-conditions>label       >label{color:#3a6ba0;font-style:normal}
+.request-form .terms-conditions>label:hover>label{text-decoration:underline}
+.request-form label.title{font-weight:normal}
+
+#mapExtent{height:480px;border:1px solid #c5c5c5;margin-bottom:10px}
+#myFlatMap .poly-actions-panel.drawer-panel .drawer-content{width:auto}
+
+#request_usr_page_2 input[type="file"]:disabled{color:lightgray}
+
+.glyphicon.glyphicon-backward,.glyphicon.glyphicon-forward{top:1rem;font-size:2rem;color:#c5c5c5;background-color:whitesmoke;position:absolute;z-index:10}
+.glyphicon-backward:not([disabled]):hover,.glyphicon.glyphicon-forward:not([disabled]):hover{color:#4c9ac8}
+
+.glyphicon.glyphicon-backward{left:0.5rem}
+.glyphicon.glyphicon-forward{right:0.5rem}
+</style>
+<!-- include validation plugin -->
+<script type="text/javascript" src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+<!-- include map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+<!-- include moment js -->
+<script type="text/javascript" src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+
+<div class="inner-wrap">
+	<div id="primary">	
+		<div id="content" class="clearfix">
+			<form id="request_usr_form" enctype="multipart/form-data" method="POST" action="">
+				<input type="hidden" name="usageProfile" value="" />
+				<div class="request-form">	
+					<i class="glyphicon glyphicon-backward hidden" disabled></i>
+					<i class="glyphicon glyphicon-forward"></i>
+					<ul>
+						<li><a href="#request_usr_page_1">Page 1</a></li>
+						<li><a href="#request_usr_page_2">Page 2</a></li>
+						<li><a href="#request_usr_page_3">Page 3</a></li>
+						<li><a href="#request_usr_page_4">Page 4</a></li>
+					</ul>
+					
+					<!--<h3 class="panel-title">Define your service request</h3>-->
+					<!-- PAGE 1: Select service list, add project name and additional support-->
+					<div id="request_usr_page_1" class="form-page panel" style="display: none;">
+						<h3 class="panel-title">Define your service request</h3>
+						<div class="panel-body">
+							<h4 class="panel-title">Services list</h4>
+							<div class="form-group row">
+								<label class="col-md-12 first-tag" for="processor">
+									<span class="info">Select a service form list</span>
+									<select multiple="multiple" class="form-control" size="7" name="processor" id="processor">
+										<option value="l3b" data-description="Vegetation Status Indicators: informs about the evolution of the green vegetation corresponding to the crop vegetative development">EarthAgriculture - Vegetation Status Indicators</option>
+										<option value="l4a" data-description="Dynamic Crop Mask: binary map separating annual cropland areas and other areas, thus corresponding to a mask over annually cultivated area. This binary map is produced along the agricultural season on a monthly basis, to serve for instance as a mask for monitoring crop growing conditions, as basis for sampling stratification and for agricultural extension">EarthAgriculture - Dynamic Crop Mask</option>
+										<option value="l4b" data-description="Crop Type Map: map of the main crop types in a given region, with a minimum mapping unit of 0.01 ha and provided along with several quality flags. The crop types are classified over the cropland area identified in the cropland mask. The map is generated twice over the season, at the middle and at the end of the season">EarthAgriculture - Crop Type Map</option>
+									</select>
+									<span class="extra-info">&nbsp;</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Please enter a name to your request</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="name">
+									<input type="text" class="form-control" maxlength="30" name="name" id="name" placeholder="Request name..." autocomplete="off" value="" />
+									<span class="extra-info">30 characters max</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Your foreseen activities and support needs</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="ask_for_support">
+									<span>Before specifying the parametrs for your service, please describe your request, its context and objectives, and the foreseen work and processing to be performed.</span>
+									<input type="checkbox" class="form-control has-group-toggle" name="ask_for_support" id="ask_for_support" /><label>Request additional support</label>
+								</label>
+							</div>
+							<div class="form-group row group-toggle hidden">
+								<label class="col-md-12" for="additionalSupport">
+									<textarea class="form-control" rows="5" maxlength="2000" name="additionalSupport" id="additionalSupport" placeholder="Free text (2000 words max.)"></textarea>
+									<span class="extra-info">Free text (2000 words max.)</span>
+								</label>
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn cancel-btn left-btn" onclick="window.location.href='sap.html#dashboard'">Cancel</button>
+							<button class="go-to-page request-btn blue-btn">Next</button>
+						</div>
+					</div>
+					
+					<!-- PAGE 2: Select observation data, region of interest and sensing period-->
+					<div id="request_usr_page_2" class="form-page panel" style="display: none;">
+						
+					</div>
+					
+					<!-- PAGE 3: Config selected services-->
+					<div id="request_usr_page_3" class="form-page panel" style="display: none;">
+						<h3 class="panel-title">Parameterize the selected services</h3>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn blue-btn left-btn">Previous</button>
+							<button class="go-to-page request-btn blue-btn" id="right-btn">Review and submit the request</button>
+						</div>
+					</div>
+					
+					<!-- PAGE 4: Summary-->
+					<div id="request_usr_page_4" class="form-page" style="display: none;">
+						
+					</div>
+					
+				</div>
+			</form>
+			
+		</div>
+		
+	</div>
+</div>
+<!-- Template -->
+<div id="processor_config_template" class="display:none">
+	<div id="processor_config" class="panel-body"></div>
+</div>
+<script type="text/javascript">
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("request_submit");
+	}
+
+	$(document).ready(function() {
+		var previousServiceList = [];
+		var formData = new FormData();
+		$("#wp-custom-header h1.header-post-title-class").html("User service request");
+		$("ul", ".request-form").addClass("hidden");
+		$(".request-form").tabs({
+			activate: function (event, ui) {
+				var currentServiceList = $("#processor").val();
+				var currentSelectedService = $("#prevSites").val();
+				switch (ui.newPanel.get(0).id) {
+					case "tab_usr_page1":
+						break;
+					case "request_usr_page_1":
+						if (JSON.stringify(currentServiceList) != JSON.stringify(previousServiceList)) {
+							previousServiceList = $("#processor").val();
+						}
+						break;
+					case "request_usr_page_2":
+						if (JSON.stringify(currentServiceList) != JSON.stringify(previousServiceList)) {
+							existingServices();
+						}
+						if (currentSelectedService !== $("#content").data("prevSelectedService")) {
+							$("#content").data("prevSelectedService", currentSelectedService);
+						}
+						break;
+					case "request_usr_page_4":
+						if (currentSelectedService !== $("#content").data("prevSelectedService")) {
+							$("#content").data("prevSelectedService", currentSelectedService);
+						}
+						break;
+				}
+			}
+		});
+		
+		$("#processor").on("change", function (e) {
+			if ($("#processor").val().indexOf("agriculture") >= 0) {
+				$(this).siblings(".info").html("EarthAgriculture service provides reports and statistical analysis of the vegetation status over several crop types into an area of interest over a season");
+			} else {
+				$(this).siblings(".info").html("");
+			}
+			$(this).siblings(".extra-info").html("");
+			$.each ($(this).children("option:selected"), function (index, option) {
+				if ($(this).parent().siblings(".extra-info").html() !== "") {
+					$(this).parent().siblings(".extra-info").append("<br/><br/>");
+				}
+				$(this).parent().siblings(".extra-info").append($(option).data("description"));
+			});
+		});
+
+		$("body").on("change", ".has-group-toggle", function (e) {
+			if ($(this).is(':checked')) {
+				$(this).closest(".form-group").next().removeClass("hidden");
+			} else {
+				$(this).closest(".form-group").next().addClass("hidden");
+			}
+		});
+		
+		$("#request_usr_page_3").on("change", "input[name='schedule_type']", function () {
+			if ($(this).is(":checked") && $(this).attr("id") === "l4a_schedule_once") {
+				$("#l4aOnceFirstTimeRun").prop("disabled", false);
+				$("#l4a_schedule_repeat").prop("disabled", false).trigger("change");
+			} else if ($(this).attr("id") === "l4a_schedule_once") {
+				$("#l4aOnceFirstTimeRun").prop("disabled", true);
+				$("#l4aOnceFirstTimeRun").closest("div").find("label.error").remove();
+			} else if ($(this).is(":checked") && $(this).attr("id") === "l4a_schedule_repeat") {
+				$("#l4aRepeatFirstTimeRun").prop("disabled", false);
+				$("#l4aOneverydate").prop("disabled", false);
+				$("#l4a_schedule_once").prop("disabled", false).trigger("change");
+			} else if ($(this).attr("id") === "l4a_schedule_repeat") {
+				$("#l4aRepeatFirstTimeRun").prop("disabled", true);
+				$("#l4aOneverydate").prop("disabled", true);
+				$("#l4aRepeatFirstTimeRun").closest("div").find("label.error").remove();
+			} else if($(this).is(":checked") && $(this).attr("id") === "schedule_once") {
+				$("#onceFirstTimeRun").prop("disabled", false);
+				$("#schedule_repeat").prop("disabled", false).trigger("change");
+			} else if ($(this).attr("id") === "schedule_once") {
+				$("#onceFirstTimeRun").prop("disabled", true);
+				$("#onceFirstTimeRun").closest("div").find("label.error").remove();
+			} else if ($(this).is(":checked") && $(this).attr("id") === "schedule_repeat") {
+				$("#repeatFirstTimeRun").prop("disabled", false);
+				$("#oneverydate").prop("disabled", false);
+				$("#schedule_once").prop("disabled", false).trigger("change");
+			} else if ($(this).attr("id") === "schedule_repeat") {
+				$("#repeatFirstTimeRun").prop("disabled", true);
+				$("#oneverydate").prop("disabled", true);
+				$("#repeatFirstTimeRun").closest("div").find("label.error").remove();
+			}
+			
+			if ($(this).is(":checked")) {
+				var inputsAreNotEmpty = false;
+				$.each($(this).siblings("label").find("input.form-control"), function (index, element) {
+					if (element.value !== "") {
+						inputsAreNotEmpty = true;
+						return false;
+					}
+				});
+				if (inputsAreNotEmpty) {
+					$('#request_usr_form').valid();
+				}
+			}
+		});
+		
+		$("#request_usr_page_3").on("change", "input[name='l4SupervisedFile'], input[name='l4bReferenceCropMaskFile']", function () {
+			if (this.value !== "") {
+				var valid = $("#request_usr_form").validate().element(':input[name="'+$(this).attr("name")+'"]');
+				if (!valid) {
+					var error = "<label id='" + this.id + "-error' class='error col-md-12' for='" + this.id + "'> Wrong selected file format or content.</label>";
+					if ($(this).closest("div").find("label#" + this.id+"-error")) {
+						$(this).closest(".form-group").find("label#" + this.id+"-error").remove();
+					}
+					$(this).closest("div").append(error);
+				}
+			}
+		});
+		
+		/* Functions */
+			/* START Get existing projects and populate the fileds*/
+			var getExistingServices = function () {
+				return $.ajax({
+					beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+					cache: false,
+					async: false,
+					url  : baseApiUrl + "services/all-reuse?userId="+window.userID,
+					type : "GET"
+				});
+			};
+		
+			function existingServices() {
+				$.when(getExistingServices()).done(function (response) {
+					if (response.status === responseStatus.success) {
+						$("#content").data("existingServices", response.data);
+					} else {
+						console.log(response.status + ": " + response.message);
+					}
+				});
+			}
+			/* END Get existing projects and populate the fileds*/
+		
+		// Get Regex pattern for a comma separated list of numbers between 1 and maxValue
+		// (only works when maxValue is between 100 and 999)
+		function getListOfNumbersRegex(maxValue) {
+			var hundreds = parseInt(maxValue/100);
+			if (hundreds > 0) {
+				var decimals = parseInt((maxValue - hundreds*100)/10);
+				var units    = parseInt(maxValue - hundreds*100 - decimals*10);
+				
+				var number = "[1-9]|[1-9][0-9]|";
+				number += hundreds > 1 ? "[1-" + (hundreds-1) + "][0-9][0-9]|" : "";
+				number += decimals > 0 ? hundreds + "[0-" + (decimals-1) + "][0-9]|" : "";
+				number += (hundreds*10+decimals) + "[0-" + units + "]";
+				return "^ *(" + number + ")( *, *(" + number + "))* *$";
+			} else {
+				return "^.*$";
+			}
+		}
+
+		// Clean list format to match the following example: n1, n2, n3, ...
+		function prettifyNumericList() {
+			$.each($(".numeric-list"), function () {
+				// Trim value
+				var list = $(this);
+				var value = list.val().replace(/^ *| *$/g, "");
+				value = value.replace(/ *, */g, ", ");
+				list.val(value);
+			});
+		}
+		
+		// Populate summary page;
+		function populate_summary_page() {
+			// PAGE 1: About the service request
+			var selectedProcessors = $("#processor").val();
+			var selectedProcessorsText = [];
+			$("option:checked","#processor").toArray().forEach(function (currentValue) {
+				selectedProcessorsText.push(currentValue.outerHTML.replace("EarthAgriculture - ",""));
+			});
+			
+			$("#sum_usr_processor"         ).html(selectedProcessorsText);
+			$("#sum_usr_project_name"      ).html($("#name").val());
+			$("#sum_usr_additional_support").html($("#additionalSupport").val().replace(/\n/g, "<br/>"));
+			
+			// PAGE 2: Parameterize the selected services
+			if ($("#useS2").is(":checked")) {
+				$("#sum_usr_useS2").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_useS2").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("#useL8").is(":checked")) {
+				$("#sum_usr_useL8").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_useL8").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			// Show selected services summary
+			if ($.inArray("l3b", selectedProcessors) >= 0) {
+				$(".vegetation", "#request_usr_page_4").removeClass("hidden");
+				if ($("#includeNDVI").is(":checked")) {
+					$("#sum_usr_includeNDVI").html('&#10003;').css({ color: "" });
+				} else {
+					$("#sum_usr_includeNDVI").html('&#10007;').css({ color: "#b7b7b7" });
+				}
+				if ($("#includeLAI").is(":checked")) {
+					$("#sum_usr_includeLAI").html('&#10003;').css({ color: "" });
+				} else {
+					$("#sum_usr_includeLAI").html('&#10007;').css({ color: "#b7b7b7" });
+				}
+			} else {
+				$(".vegetation", "#request_usr_page_4").addClass("hidden");
+			}
+			
+			$("#sum_usr_dynamic_crop_mask_file").html("");
+			$("#sum_usr_mode_insitu_file", "div.crop_type_map").html("");
+			$("#sum_usr_mode_insitu_file", "div.crop_mask_type").html("");
+			
+			if ($.inArray("l4a", selectedProcessors) >= 0 && $.inArray("l4b", selectedProcessors) < 0) {
+				$(".dynamic_crop_mask", "#request_usr_page_4").removeClass("hidden");
+				if ($("input[name='crop_mask_mode']:checked").val() == "Unsupervised") {
+					$("#sum_usr_mode_unsupervised"      ).html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_supervised"        ).html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_mode_use_EarthSignature").html('&#10007;').css({ color: "#b7b7b7" });
+				} else if ($("input[name='crop_mask_mode']:checked").val() == "Supervised") {
+					$("#sum_usr_mode_supervised"        ).html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_unsupervised"      ).html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_mode_use_EarthSignature").html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_dynamic_crop_mask_file").html($("#modeSupervisedFile").val().split('\\').pop() + "&nbsp;");
+				} else {
+					$("#sum_usr_mode_use_EarthSignature").html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_unsupervised"      ).html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_mode_supervised"        ).html('&#10007;').css({ color: "#b7b7b7" });
+				}
+				
+				if ($("#l4a_schedule_once").is(":checked")) {
+					$("#sum_usr_type_repeat", "div.dynamic_crop_mask ").html("Once on " + $("#l4aOnceFirstTimeRun").val());
+				} else if ($("#l4a_schedule_repeat").is(":checked")) {
+					$("#sum_usr_type_repeat", "div.dynamic_crop_mask ").html("Repeat on every " + $("#l4aOneverydate").val() + " day of month, starting with " + $("#l4aRepeatFirstTimeRun").val());
+				} else {
+					$("#sum_usr_type_repeat", "div.dynamic_crop_mask ").html("");
+				}
+			} else {
+				$(".dynamic_crop_mask", "#request_usr_page_4").addClass("hidden");
+			}
+			
+			if ($.inArray("l4a", selectedProcessors) < 0 && $.inArray("l4b", selectedProcessors) >= 0) {
+				$(".crop_type_map", "#request_usr_page_4").removeClass("hidden");
+				if ($("input[name='crop_map_mode']:checked").val() == "Supervised") {
+					$("#sum_usr_mode_insitu", "div.crop_type_map"        ).html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_EarthSignature", "div.crop_type_map").html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_mode_insitu_file", "div.crop_type_map").html($("#insituDataFile").val().split('\\').pop() + "&nbsp;");
+				} else {
+					$("#sum_usr_mode_EarthSignature", "div.crop_type_map").html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_insitu", "div.crop_type_map"        ).html('&#10007;').css({ color: "#b7b7b7" });
+				}
+				if ($("#useReferenceMap").is(":checked")) {
+					if ($("#chooseCropMask").is(":checked")) {
+						$("#sum_usr_useReferenceMap_file", "div.crop_type_map").html('&#10003;').css({ color: "" });
+						$("#sum_usr_useReferenceMap_selected_file", "div.crop_type_map").html($("#referenceMapFile").val().split('\\').pop() + "&nbsp;").css({ color: "" });
+					} else {
+						$("#sum_usr_useReferenceMap_file", "div.crop_type_map").html('&#10007;').css({ color: "#b7b7b7" });
+						$("#sum_usr_useReferenceMap_selected_file", "div.crop_type_map").html("").css({ color: "" });
+					}
+					
+					if ($("#usePreviousCropMask").is(":checked")) {
+						$("#sum_usr_useReferenceMap_project", "div.crop_type_map").html('&#10003;').css({ color: "" });
+						$("#sum_usr_useReferenceMap_selected_project", "div.crop_type_map").html($("#useOutputCropMaskOfServiceId :selected").text()).css({ color: "" });
+					} else {
+						$("#sum_usr_useReferenceMap_project", "div.crop_type_map").html('&#10007;').css({ color: "#b7b7b7" });
+						$("#sum_usr_useReferenceMap_selected_project", "div.crop_type_map").html("").css({ color: "" });
+					}
+				} else {
+					$("#sum_usr_useReferenceMap_file", "div.crop_type_map").html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_useReferenceMap_project", "div.crop_type_map").html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_useReferenceMap_selected_file", "div.crop_type_map").html("").css({ color: "" });
+					$("#sum_usr_useReferenceMap_selected_project", "div.crop_type_map").html("").css({ color: "" });
+				}
+			} else {
+				$(".crop_type_map", "#request_usr_page_4").addClass("hidden");
+			}
+			
+			if ($.inArray("l4a", selectedProcessors) >= 0 && $.inArray("l4b", selectedProcessors) >= 0) {
+				$(".crop_mask_type", "#request_usr_page_4").removeClass("hidden");
+				if ($("input[name='crop_mask_type_mode']:checked").val() == "Supervised") {
+					$("#sum_usr_mode_insitu", "div.crop_mask_type"       ).html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_EarthSignature", "div.crop_mask_type").html('&#10007;').css({ color: "#b7b7b7" });
+					$("#sum_usr_mode_insitu_file", "div.crop_mask_type").html($("#l4SupervisedFile").val().split('\\').pop() + "&nbsp;");
+				} else {
+					$("#sum_usr_mode_EarthSignature", "div.crop_mask_type").html('&#10003;').css({ color: "" });
+					$("#sum_usr_mode_insitu", "div.crop_mask_type"        ).html('&#10007;').css({ color: "#b7b7b7" });
+				}
+				
+				if ($("#schedule_once").is(":checked")) {
+					$("#sum_usr_type_repeat", "div.crop_mask_type").html("Once on " + $("#onceFirstTimeRun").val());
+				} else if ($("#schedule_repeat").is(":checked")) {
+					$("#sum_usr_type_repeat", "div.crop_mask_type").html("Repeat on every " + $("#oneverydate").val() + " day of month, starting with " + $("#repeatFirstTimeRun").val());
+				}
+			} else {
+				$(".crop_mask_type", "#request_usr_page_4").addClass("hidden");
+			}
+			
+			// Region of interest
+			$("#sum_usr_refp").html($("#shapeFile").val().split('\\').pop() + "&nbsp;");
+			$("#sum_usr_latmin").html($("#latmin").val());
+			$("#sum_usr_latmax").html($("#latmax").val());
+			$("#sum_usr_lonmin").html($("#lonmin").val());
+			$("#sum_usr_lonmax").html($("#lonmax").val());
+			
+			// Sensing period section
+			$("#sum_usr_time_range_from").html($("#startDate").val());
+			$("#sum_usr_time_range_to").html($("#endDate").val());
+			$("#sum_usr_additional").html($("#additionalDataSpecifications").val().replace(/\n/g, "<br/>") + "&nbsp;");
+		}
+		
+		function drawRectangle(latmin, latmax, lonmin, lonmax, source) {
+		   
+			var polyCoords = [];
+			var p1 = lonmin + "," + latmin;
+			var p2 = lonmax + "," + latmin;
+			var p3 = lonmax + "," + latmax;
+			var p4 = lonmin + "," + latmax;
+			var coords = (p1 + " " + p2 + " " + p3 + " " + p4).split(' ');
+			for (var i in coords) {
+				var c = coords[i].split(',');
+				polyCoords.push(ol.proj.transform([parseFloat(c[0]), parseFloat(c[1])], 'EPSG:4326', 'EPSG:3857'));
+			}
+		   
+			var feature = new ol.Feature({
+				geometry: new ol.geom.Polygon([polyCoords])
+			});
+			feature.setProperties({"extraFeatureDescription": "preview"});
+			source.clear();
+			source.addFeature(feature);
+		   
+			return feature;
+		}
+/* END Functions */
+
+/* Validation section */
+		
+		// Custom validation for ROI selection (shape file or lat/lon)
+		$.validator.addMethod('roiSelect', function (value, element, params) {
+			if ($("#shapeFile").closest("div").find("label#roiSelect-error").length > 0) {
+				clearRegionOfInterest();
+			}
+			return $("#shapeFile").val() != ''|| $(".latlon input[type='number']").filter(function () { return this.value !== ''; }).length == 4;
+		}, 'Select either a shapefile or the geographical coordinates.');
+		
+		// Custom validation for a set of two dates
+		$.validator.addMethod('datesGroupValidation', function(value, element, params) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			var isValid = dates.length == 2 && $(dates[0]).datepicker("getDate") <= $(dates[1]).datepicker("getDate");
+			if (isValid) {
+				var middate = computeMiddate($("#startDate").val(), $("#endDate").val());
+				$("#middate").val(middate);
+			}
+			return isValid;
+		}, function (params, element) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			return dates.length < 2 ? 'Both fields above are required' : 'Start date should not be greater than end date';
+		});
+		
+		$.validator.addMethod('supervisedCropMask', function(value, element) {
+			if ((element.id === "modeSupervisedFile" && $("input[name='crop_mask_mode']:checked").val() === "Supervised")
+				|| (element.id === "insituDataFile" && $("input[name='crop_map_mode']:checked").val() === "Supervised")
+				|| (element.id === "l4SupervisedFile" && $("input[name='crop_mask_type_mode']").val() === "Supervised")) {
+				
+				return value != "";
+			}
+			return true;
+		}, function (params, element) {
+			if (element.id === "modeSupervisedFile") {
+				return 'Reference crop mask file must be selected!';
+			} else {
+				return 'In-situ Data file must be selected!';
+			}
+		});
+		
+		$.validator.addMethod('referenceCropMask', function(value) {
+			if (value === "on") {
+				if ($("#chooseCropMask").is(":checked")) {
+					return $("#referenceMapFile").val() != "";
+				} else if ($("#usePreviousCropMask").is(":checked")) {
+					return $("#useOutputCropMaskOfServiceId").val() !== null;
+				} else {
+					return false;
+				}
+			}
+			return true;
+		}, 'Reference Crop Mask file or previous generated Crop Mask must be selected!');
+		
+		$.validator.addMethod('timeRun', function(value, element) {
+			return value !== '' && value >= $("#middate").val() && value < $("#endDate").val();
+		}, function (params, element) {
+			return element.value === '' ? 'First time run is required' : element.value <= $("#middate").val()? 'First time run date should be greater than or equal to sensing period middle date' : ' First time run date should smaller than period end date';
+		});
+		
+		$.validator.addMethod('oneverydate', function(value, element) {
+			return value !== '';
+		}, function (params, element) {
+			if (element.value === '' && $(element).siblings("[name='repeatFirstTimeRun']")[0].value === '') {
+				return 'Both fields above are required';
+			} else if (element.value === '') {
+				return 'Day of month is required';
+			}
+		});
+		
+		$.validator.addMethod('usePrevSite', function(value) {
+			if (value === "usePrevSite") {
+				return $("#prevSites").val() !== null;
+			}
+			return true;
+		}, "Previous service request must be selected!");
+		
+		//Form validation
+		$("#request_usr_form").validate({
+			rules: {
+				// PAGE 1
+				processor      		: { required: true },
+				name   				: { required: true },
+				// PAGE 2
+				serviceInfo 		: { usePrevSite: true},
+				latmin  	       	: { roiSelect: true },
+				latmax      	   	: { roiSelect: true },
+				lonmin         		: { roiSelect: true },
+				lonmax        	  	: { roiSelect: true },
+				shapeFile   	    : { roiSelect: true },
+				startDate			: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				endDate  			: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				// PAGE 3
+				l4SupervisedFile	: { supervisedCropMask: true},
+				useReferenceMap 	: { referenceCropMask: true},
+				conditions      	: { required: true },
+				onceFirstTimeRun	: { timeRun: true},
+				repeatFirstTimeRun	: { timeRun: true},
+				oneverydate			: { oneverydate: true}
+			},
+			highlight: function(element, errorClass) {
+				$(element).closest(".form-group").addClass("has-error");
+			},
+			unhighlight: function(element, errorClass) {
+				$(element).closest(".form-group").removeClass("has-error");
+			},
+			groups: {
+				roiSelect    : "latmin latmax lonmin lonmax shapeFile",
+				timeRange    : "startDate endDate"
+			},
+			messages: {
+			},
+			errorPlacement: function(error, element) {
+				$(error).addClass("col-md-12");
+				if (element.closest(".roi").length > 0) {
+					error.appendTo($(element).closest(".roi").find(">div.form-group:last-child"));
+				} else if (element.hasClass("numeric-list")) {
+					error.appendTo($(element).parent());
+				} else if (element.hasClass("oneverydate") || element.hasClass("timeRun") || element.hasClass("mode_supervised_group")) {
+					error.appendTo($(element).closest("div"));
+				} else {
+					error.appendTo($(element).closest(".form-group"));
+				}
+			},
+			success: function(label) {
+				label.remove();
+			}
+		});
+		
+		function checkPageValidation() {
+			if ($("#request_usr_form").valid()) {
+				return true;
+			} else {
+				var ferror = $("label.error:visible", ".form-page:visible").first();
+				// PAGE 1
+				
+				// PAGE 2
+				if ($(ferror).attr("for") == "roiSelect") {
+					if      ($("#latmin").val() == '') { $("#latmin").first().focus(); }
+					else if ($("#latmax").val() == '') { $("#latmax").first().focus(); }
+					else if ($("#lonmin").val() == '') { $("#lonmin").first().focus(); }
+					else                               { $("#lonmax").first().focus(); }
+				} else if ($(ferror).attr("for") == "timeRange") {
+					if   ($("#startDate").val() == "") { $("#startDate").first().focus(); }
+					else      						   { $("#endDate").first().focus(); }
+				} else { $(ferror).focus(); }
+				return false;
+			}
+		}
+/* END Validation section */
+
+/* Page navigation section */
+		var processorIndex = 0;
+		$("#content").on("click", ".go-to-page, .glyphicon.glyphicon-backward:not([disabled]), .glyphicon.glyphicon-forward:not([disabled])", function (e) {
+			e.preventDefault();
+			var pageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;
+			var page3Parent = $(".go-to-page","div.form-page:not([style*='display: none'])").closest(".form-page").attr("id") === "request_usr_page_3";
+			
+			if (pageId >= 0) {
+				switch (e.currentTarget.textContent) {
+					case "Previous":
+						if (page3Parent) {
+							visibleServiceIndex = parseInt($("div.panel-body:not(.hidden)", "#request_usr_page_3").find("div.sub-service").attr("listindex"));
+							if (visibleServiceIndex === 0) {
+								set_usr_active_page(pageId - 1);
+							} else {
+								set_usr_active_page(pageId);
+							}
+						} else {
+							set_usr_active_page(pageId - 1);
+						}
+						break;
+					case "Back and edit":
+						set_usr_active_page(pageId - 1);
+						break;
+					case "Next":
+						if (page3Parent) {
+							set_usr_active_page(pageId, true);
+						} else {
+							set_usr_active_page(pageId + 1, true);
+						}
+						break;
+					case "Review and submit the request":
+						set_usr_active_page(pageId + 1, true);
+						break;
+				}
+				switch (e.currentTarget.className) {
+					case "glyphicon glyphicon-backward":
+						if (page3Parent) {
+							visibleServiceIndex = parseInt($("div.panel-body:not(.hidden)", "#request_usr_page_3").find("div.sub-service").attr("listindex"));
+							if (visibleServiceIndex === 0) {
+								set_usr_active_page(pageId - 1);
+							} else {
+								set_usr_active_page(pageId);
+							}
+						} else {
+							set_usr_active_page(pageId - 1);
+						}
+						break;
+					case "glyphicon glyphicon-forward":
+						if (page3Parent && $("#right-btn", "#request_usr_page_3").html() === "Next") {
+							set_usr_active_page(pageId, true);
+						} else {
+							set_usr_active_page(pageId + 1, true);
+						}
+						break;
+				}
+			}
+		});
+		
+		function set_usr_active_page(pageIndex, validation) {
+			if (!validation || (validation && checkPageValidation())) {
+				var prevPageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;
+				$("li:nth-child(" + pageIndex + ")>a", ".ui-tabs-nav ").trigger("click");
+				
+				$(".first-tag", "#request_usr_page" + pageIndex).focus();
+				
+				if (pageIndex == 2) {
+					processorIndex = 0;
+					if (validation && $("#request_usr_page_" + pageIndex).html().trim() === "") {
+						showFragmentHtml("request.regionOfInterest.fragment.html", $("#request_usr_page_" + pageIndex));
+					}
+					
+					if (typeof myPolygonMap !== "undefined" && typeof myPolygonMap.map !== "undefined") {
+						myPolygonMap.map.updateSize();
+					}
+				}
+				if (pageIndex == 3) {
+					var selectedProcessors = $("#processor").val();
+					
+					var usedIndexes = 0;
+					if (!validation && processorIndex > 0) {
+						processorIndex = parseInt($("div.panel-body:not(.hidden)", "#request_usr_page_3").find("div.sub-service").attr("listindex"));
+						if (prevPageId == pageIndex) {
+							processorIndex--;
+						}
+					}
+					var indexGroup = processorIndex + 1;
+					
+					if (processorIndex < selectedProcessors.length) {
+						var $processorDiv = $("#processor_config", "#processor_config_template").clone().removeAttr("id");
+						var processorDivClass = selectedProcessors[processorIndex];
+						if (selectedProcessors[processorIndex] == "l4a" && typeof selectedProcessors[indexGroup] !== "undefined" && selectedProcessors[indexGroup] == "l4b") {
+							usedIndexes = 2;
+							processorDivClass = "l4";
+							if ($("." + processorDivClass,"#request_usr_page_" + pageIndex).length === 0) {
+								showFragmentHtml("request." + processorDivClass + ".fragment.html", $processorDiv);
+							}
+						} else {
+							usedIndexes = 1;
+							if ($("." + processorDivClass,"#request_usr_page_" + pageIndex).length === 0) {
+								showFragmentHtml("request." + processorDivClass +".fragment.html", $processorDiv);
+							}
+						}
+						
+						// hide all existing services div elements
+						$("div.panel-body", "#request_usr_page_" + pageIndex).addClass("hidden");
+						
+						//set service div insert order
+						if ($processorDiv.html() !== "") {
+							var $element = $("div.panel-body", "#request_usr_page_" + pageIndex)[processorIndex];
+							if (typeof $element !== "undefined") {
+								$processorDiv.insertBefore($element);
+							} else {
+								$processorDiv.insertBefore($( ".submit-buttons", "#request_usr_page_" + pageIndex));
+							}
+						} else {
+							$("." + processorDivClass,"#request_usr_page_" + pageIndex).parent(".panel-body").removeClass("hidden");
+							$("." + processorDivClass,"#request_usr_page_" + pageIndex).trigger('classChange');
+						}
+						
+						// set processor index (used on page navigation) only on next action
+						if (validation) {
+							$("div.sub-service", "#request_usr_page_" + pageIndex).each(function () {
+								var processorClass = this.classList[1];
+								if (processorClass === "l4") {
+									$(this).attr("listindex", $("#processor").val().indexOf("l4a"));
+								} else {
+									if ($.inArray("l4a", $("#processor").val()) >= 0 && $.inArray("l4b", $("#processor").val()) >= 0) {
+										if (processorClass === "l4a" || processorClass === "l4b") {
+											$(this).attr("listindex", -1);
+										} else {
+											$(this).attr("listindex", $("#processor").val().indexOf(processorClass));
+										}
+									} else {
+										$(this).attr("listindex", $("#processor").val().indexOf(processorClass));
+									}
+								}
+							});
+						}
+						
+						// Add right button text
+						if (selectedProcessors.length - usedIndexes > processorIndex) {
+							$("#right-btn", "#request_usr_page_" + pageIndex).html("Next");
+						} else {
+							$("#right-btn", "#request_usr_page_" + pageIndex).html("Review and submit the request");
+						}
+						
+						// increment index
+						if (processorIndex < selectedProcessors.length - 1) {
+							processorIndex++;
+						}
+					}
+				}
+				if (pageIndex == 4) {
+					prettifyNumericList();
+					if ($("#request_usr_page_" + pageIndex).html().trim() === "") {
+						showFragmentHtml("request.summary.fragment.html", $("#request_usr_page_" + pageIndex));
+					}
+					populate_summary_page();
+				}
+				var lastIndexOfIdSeparator = $(".form-page", "#request_usr_form").last().attr("id").lastIndexOf("_");
+				var maxPages = parseInt($(".form-page", "#request_usr_form").last().attr("id").substr(lastIndexOfIdSeparator + 1));
+				if (pageIndex === maxPages) {
+					$("#content .glyphicon.glyphicon-forward").attr("disabled", true).addClass("hidden");
+				} else if (pageIndex === 1) {
+					$("#content .glyphicon.glyphicon-backward").attr("disabled", true).addClass("hidden");
+				} else {
+					$("#content").find(".glyphicon").attr("disabled", false).removeClass("hidden");
+				}
+			}
+		}
+	});
+/* END Page navigation section */
+
+
+//# sourceURL=request_form.js
+</script>

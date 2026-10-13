@@ -1,0 +1,57 @@
+{
+	"userRequest": [
+		{
+			"usage profiles": "",
+			"thematic area": "agriculture crop type map",
+			"project name": "test (JSON)",
+			"additional support": "",
+			"useS2": "on",
+			"userText": "POLYGON((1.508241 49.293103,25.497391 49.293103,25.497391 52.656523,1.508241 52.656523,1.508241 49.293103))",
+			"latmin": "49.29310310818704",
+			"latmax": "52.65652275284671",
+			"lonmin": "1.5082405550149993",
+			"lonmax": "25.497390533941427",
+			"time range from": "2021-03-01",
+			"time range to": "2021-03-11",
+			"additional": "",
+			"conditions": "on",
+			"status": "closed"
+		},
+		{
+			"usage profiles": "",
+			"thematic area": "agriculture dynamic crop mask",
+			"project name": "Test dynamic crop mask (JSON)",
+			"additional support": "",
+			"useS2": "on",
+			"mode": "Use EarthSignature",
+			"userText": "POLYGON((-8.932633 42.653146,9.338896 42.653146,9.338896 50.651988,-8.932633 50.651988,-8.932633 42.653146))",
+			"latmin": "42.65314634100821",
+			"latmax": "50.65198843995114",
+			"lonmin": "-8.932633010942617",
+			"lonmax": "9.338895729483212",
+			"time range from": "2021-03-28",
+			"time range to": "2021-03-30",
+			"additional": "",
+			"conditions": "on",
+			"status": "rejected"
+		},
+		{
+			"usage profiles": "",
+			"thematic area": "agriculture dynamic crop mask",
+			"project name": "Test 23 (JSON)",
+			"additional support": "",
+			"useS2": "on",
+			"mode": "Unsupervised",
+			"userText": "POLYGON((-4.706565 43.108546,10.706153 43.108546,10.706153 44.276837,-4.706565 44.276837,-4.706565 43.108546))",
+			"latmin": "43.108545654556934",
+			"latmax": "44.27683694483838",
+			"lonmin": "-4.706565139007392",
+			"lonmax": "10.70615298216814",
+			"time range from": "2021-03-28",
+			"time range to": "2021-03-31",
+			"additional": "",
+			"conditions": "on",
+			"status": "opened"
+		}
+	]
+}

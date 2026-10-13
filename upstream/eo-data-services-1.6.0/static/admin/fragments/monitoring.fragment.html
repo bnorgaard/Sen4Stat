@@ -1,0 +1,430 @@
+<div class="panel-monitoring" data-chash="#monitoring">
+	<!-- Select Site -->
+	<div class="form-group row">
+		<label class="control-label col-md-12">Site:</label>
+		<div class="col-md-3">
+			<select class="form-control" name="site_select"></select>
+		</div>
+	</div>
+	<hr/>
+	<!-- Download statistics -->
+	<div class="panel">
+		<div class="panel-heading"><h3 class="panel-title">Downloads statistics</h3></div>
+		<div class="panel-body">
+			<div class="progress" id="refresh_download_statistics">
+				<div class="progress-bar progress-bar-info"    role="progressbar" data-original-title="Downloads in progress" data-toggle="tooltip" data-placement="bottom"></div>
+				<div class="progress-bar progress-bar-success" role="progressbar" data-original-title="Successful downloads" data-toggle="tooltip" data-placement="bottom"></div>
+				<div class="progress-bar progress-bar-warning" role="progressbar" data-original-title="Canceled downloads" data-toggle="tooltip" data-placement="bottom"></div>
+				<div class="progress-bar progress-bar-danger"  role="progressbar" data-original-title="Failed downloads" data-toggle="tooltip" data-placement="bottom"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 error hidden"></div>
+			</div>
+		</div>
+	</div>
+	<hr/>
+	<!-- Current downloads details -->
+	<div class="panel">
+		<div class="panel-heading"><h3 class="panel-title">Current downloads</h3></div>
+		<div class="panel-body">
+			<table class="table table-striped" style="text-align: left">
+				<thead>
+					<tr>
+						<th>Site</th>
+						<th>Product</th>
+						<th>Product Type</th>
+						<th style="width:30%">Progress</th>
+					</tr>
+				</thead>
+				<tbody id="refresh_current_downloads">
+				</tbody>
+			</table>
+			<div class="row">
+				<div class="col-md-12 error hidden"></div>
+			</div>
+		</div>
+	</div>
+	<hr/>
+	<!-- Job history -->
+	<div class="panel">
+		<div class="panel-heading"><h3 class="panel-title">Jobs history</h3></div>
+		<div class="panel-body">
+			<div class="pagination">
+				<label class="rows_per_page" for="rows_per_page">Rows/page:
+					<select class="rows_per_page" name="rows_per_page" id="rows_per_page" onchange="pagingGo(1);">
+						<option value="2" selected>2</option>
+						<option value="10" selected>10</option>
+						<option value="20">20</option>
+						<option value="50">50</option>
+					</select>
+				</label>
+				<ul class="pages"></ul>
+				<div class="gotobox hidden" id="gotobox">
+					<div class="uparrow"></div>
+					<div class="text">Go to page:</div>
+					<input type="text" maxlength="3" name="gotobox-input" id="gotobox-input" value=""/>
+					<a href="javascript:;" class="smbutton-go smbutton-green" onclick='pagingGoTo();'>Go</a>&nbsp;
+				</div>
+			</div>
+			<table class="table table-striped" style="text-align: left" id="history_jobs">
+				<thead>
+					<tr>
+						<th>Job ID</th>
+						<th>End timestamp</th>
+						<th>Processor</th>
+						<th>Site</th>
+						<th>Status</th>
+						<th>Start type</th>
+						<th>Output</th>
+					</tr>
+				</thead>
+				<tbody id="refresh_jobs_history">
+				</tbody>
+			</table>
+			<div class="row">
+				<div class="col-md-12 error hidden"></div>
+			</div>
+		</div>
+	</div>
+	<hr/>
+	<!-- LPIS/GSAA processing details -->
+	<div class="panel">
+		<div class="panel-heading"><h3 class="panel-title">LPIS/GSAA processing</h3></div>
+		<div class="panel-body">
+			<table class="table table-striped" style="text-align: left">
+				<thead>
+					<tr>
+						<th>Files</th>
+						<th>Current Operation</th>
+						<th style="width:30%">Progress</th>
+					</tr>
+				</thead>
+				<tbody id="refresh_processing">
+				</tbody>
+			</table>
+			<div class="row">
+				<div class="col-md-12 error hidden"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+	select[name="site_select"]{font-size:14px;font-family:inherit}
+	table.table th{height:42px}
+	table.table a{font-weight:bold;}
+	
+	div.resources-manager table.table td.empty{font-size:14px;font-weight:700;font-style:italic}
+	.progress{margin:0;min-height:40px}
+	
+	.td-progress .progress{min-height:auto}
+	.td-progress .progress-bar{text-align:right;box-shadow:none}
+	.td-progress .progress span{padding:3px 5px;background-image:linear-gradient(to bottom,#5bc0de 0,#31b0d5 100%);border-bottom:1px solid #31b0d5}
+</style>
+<!-- includes for datepicker and other controls -->
+<script src="assets/libs/pager/pager.js"></script>
+<script type="text/javascript">
+/* ======================== PUBLIC USERS FUNCTIONS ======================== */
+function purgeAllDashboardDialogs() {
+	purgeUiDialog("div_jobHistory");
+}
+$(document).ready(function() {
+	var $page = $(".panel-monitoring");
+	var cHash = $(".panel-monitoring").data("chash");
+	
+	var timer2;
+	var timer4;
+	var siteList = [];
+	var refresh_statistics_interval = 200000;
+	
+	var getSites = function (userId) {
+		return $.ajax({
+			cache: false,
+			url  : baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+			type : "GET"
+		});
+	};
+	var getDownloadStatistics = function (siteId) {
+		return $.ajax({
+			cache: false,
+			type: "GET",
+			url: baseApiUrl + "downloader/count" + (siteId == "0" ? "" : "?siteId=" + siteId)
+		});
+	};
+	var getCurrentDownloads = function (siteId) {
+		return $.ajax({
+			cache: false,
+			type: "GET",
+			url: baseApiUrl + "downloader/" + (siteId == "0" ? "" : siteId)
+		});
+	};
+	var getJobsCount = function (siteId) {
+		return $.ajax({
+			cache: false,
+			type: "GET",
+			url:  baseApiUrl + "jobs/count" + (siteId == 0 ? "" : "?siteId=" + siteId)
+		});
+	};
+	var getJobsHistory = function (page_no, per_page, siteId) {
+		return $.ajax({
+			cache: false,
+			type: "GET",
+			url:  baseApiUrl + "jobs/history?page=" + page_no + "&pageSize=" + per_page + (siteId == 0 ? "" : "&siteId=" + siteId)
+		});
+	};
+	var getProcessing = function (siteId) {
+		return $.ajax({
+			cache: false,
+			type: "GET",
+			// TODO: check correct filter format for this url
+			//url:  baseApiUrl + "progress/?category=lpis.progress" + (siteId == 0 ? "" : '&filter={name:"siteId",value:"' + siteId + '"}')
+			url:  baseApiUrl + "progress/?category=lpis.progress" + (siteId == 0 ? "" : "&siteId=" + siteId)
+		});
+	};
+	
+	function getSitesHtml(sites) {
+		$("select[name='site_select']", $page).html('<option value="0" selected>Select site...</option>');
+		$.each(sites, function(index, site) {
+			siteList.push(site.id);
+			var $option = $('<option value="' + site.id + '">' + site.name + '</option>').data("dna", site);
+			$("select[name='site_select']", $page).append($option);
+		});
+	}
+	function getDownloadStatisticsHtml(refresh) {
+		if (window.location.hash != cHash) {
+			return false;
+		}
+		var id = $("select[name='site_select']", $page).val();
+		var $parent = $("#refresh_download_statistics", $page);
+		
+		hidePanelError($parent.closest(".panel"));
+		//alert(id);
+		$.when(getDownloadStatistics(id))
+		.done(function (response) {
+			if (response.status === responseStatus.success) {
+				var countAll = response.data.length;
+				//alert(countAll);
+				var countSmall = 0;
+				var sumSmall   = 0;
+				var countZero  = 0;
+				var prcMin     = ((45 / $parent.outerWidth())*100).round(2); // bar width should not be less than 45 px
+				
+				$.each(response.data, function (index, dwl) {
+					countSmall += (dwl.downloadCountPercentage < prcMin ? 1 : 0);
+					sumSmall   += (dwl.downloadCountPercentage < prcMin ? dwl.downloadCountPercentage : 0);
+					countZero  += (dwl.downloadCount == 0 ? 1 : 0);
+				});
+				
+				if (response.data.length == 0) {
+					$(".progress-bar", $parent).html("0%<br>(0)").css("width", "25%");
+				} else {
+					$.each(response.data, function (index, dwl) {
+						var cnt   = dwl.downloadCount;
+						var prc   = (countZero == countAll ? 100/countAll : dwl.downloadCountPercentage).round(2);
+						var wdt   = (dwl.downloadCountPercentage < prcMin ? prcMin : (dwl.downloadCountPercentage + sumSmall)*(100 - prcMin*countSmall)/100).round(2);
+						var title = prc + "%<br>(" + cnt + ")";
+						switch (dwl.id) {
+							case 1: $(".progress-bar-info"   , $parent).html(title).css("width", wdt + "%"); break;
+							case 2: $(".progress-bar-success", $parent).html(title).css("width", wdt + "%"); break;
+							case 3: $(".progress-bar-warning", $parent).html(title).css("width", wdt + "%"); break;
+							case 4: $(".progress-bar-danger" , $parent).html(title).css("width", wdt + "%"); break;
+						}
+					});
+				}
+				if (refresh) {
+					setTimeout(function () { getDownloadStatisticsHtml(refresh) }, refresh_statistics_interval);
+				}
+			} else {
+				$(".progress-bar", $parent).css("width", "");
+				showPanelError($parent.closest(".panel"), response.message);
+			}
+		})
+		.fail(function (jqXHR, textStatus, errorThrown) {
+			$(".progress-bar", $parent).css("width", "");
+			showPanelError($parent.closest(".panel"), jqXHR);
+		});
+	}
+	function getCurrentDownloadsHtml(refresh) {
+		if (window.location.hash != cHash) {
+			return false;
+		}
+		var id = $("select[name='site_select']", $page).val();
+		var $parent = $("#refresh_current_downloads", $page);
+		
+		hidePanelError($parent.closest(".panel"));
+		$.when(getCurrentDownloads(id))
+		.done(function (response) {
+			if (response.status === responseStatus.success) {
+				if (response.data && response.data.length > 0) {
+					$parent.html("");
+					var totalWidth = $("th:last-child", $parent.closest("table")).outerWidth();
+					var prcMin = ((45/totalWidth)*100).round(2); // bar width should not be less than 45 px
+					$.each(response.data, function (index, res) {
+						var progress = (res.progress*100).round(2);
+						var tr_current =
+							'<tr>' +
+								'<td>' + res.siteName      + '</td>' +
+								'<td>' + res.name          + '</td>' +
+								'<td>' + res.satelliteName + '</td>' +
+								'<td class="td-progress">' +
+									'<div class="progress">' +
+										'<div class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:' + progress + '%">' +
+											'<span' + (progress < prcMin ? ' class="out"' : "") + '>' + progress + '%</span>' +
+										'</div>' +
+									'</div>' +
+								'</td>' +
+							'</tr>';
+						$parent.append(tr_current);
+					});
+				} else {
+					$parent.html('<tr><td colspan="4" style="text-align:center;font-size:16px;font-weight:700;font-style:italic;padding:8px;background-color:whitesmoke">No downloads in progress</td></tr>');
+				}
+				if (refresh) {
+					setTimeout(function () { getCurrentDownloadsHtml(refresh) }, refresh_statistics_interval);
+				}
+			} else {
+				showPanelError($parent.closest(".panel"), response.message);
+			}
+		})
+		.fail(function (jqXHR, textStatus, errorThrown) {
+			showPanelError($parent.closest(".panel"), jqXHR);
+		});
+	}
+	function getJobsHistoryHtml(page_no) {
+		var id      = $("select[name='site_select']"  , $page).val();
+		var rpp     = $("select[name='rows_per_page']", $page).val();
+		var $parent = $("#refresh_jobs_history", $page);
+		
+		hidePanelError($parent.closest(".panel"));
+		$.when(getJobsCount(id), getJobsHistory(page_no, rpp, id))
+		.done(function (responseJobsCount, responseJobsHistory) {
+			var jobsCount = responseJobsCount[0];
+			var jobsHistory = responseJobsHistory[0];
+			if (jobsCount.status === responseStatus.success && jobsHistory.status === responseStatus.success) {
+				pagingRefresh(jobsCount.data, page_no);
+				if (jobsHistory.data.length > 0) {
+					$parent.html("");
+					$.each(jobsHistory.data, function (index, job) {
+						var tr_current =
+							'<tr>' +
+								'<td>' + job.id        + '</td>' +
+								'<td>' + (job.endTimestamp ? job.endTimestamp : '-') + '</td>' +
+								'<td>' + job.processor + '</td>' +
+								'<td>' + job.site      + '</td>' +
+								'<td>' + job.status    + '</td>' +
+								'<td>' + job.startType + '</td>' +
+								'<td><a href="javascript:;" onclick="get_job_output('+job.id + ')">[output]</a></td>';
+							'</tr>';
+						$parent.append(tr_current);
+					});
+				} else {
+					$parent.html('<tr><td colspan="7" style="text-align:center;font-size:16px;font-weight:700;font-style:italic;padding:8px;background-color:whitesmoke">Jobs history is empty</td></tr>');
+				}
+			} else {
+				var msg  = (jobsCount.status   === responseStatus.success ? "" : jobsCount.message);
+				    msg += (jobsHistory.status === responseStatus.success ? "" : (msg == "" ? "" : "<br>") + jobsHistory.message);
+				showPanelError($parent.closest(".panel"), msg);
+			}
+		})
+		.fail(function (jqXHR, textStatus, errorThrown) {
+			showPanelError($parent.closest(".panel"), jqXHR);
+		});
+	}
+	function getProcessingHtml(refresh) {
+		if (window.location.hash != cHash) {
+			return false;
+		}
+		var id = $("select[name='site_select']", $page).val();
+		var $parent = $("#refresh_processing", $page);
+		
+		hidePanelError($parent.closest(".panel"));
+		$.when(getProcessing(id))
+		.done(function (response) {
+			if (response.status === responseStatus.success) {
+				if (response.data && response.data.length > 0) {
+					$parent.html("");
+					var totalWidth = $("th:last-child", $parent.closest("table")).outerWidth();
+					var prcMin = ((45/totalWidth)*100).round(2); // bar width should not be less than 45 px
+					$.each(response.data, function (index, res) {
+						var operation = "-";
+						var progress  = (res.progress != 0 ? res.progress*100 : 0).round(2);
+						if (res.subTaskProgress) {
+							operation = res.subTaskProgress.key;
+							progress  = (res.subTaskProgress.value != 0) ? res.subTaskProgress.value : 0;
+						}
+						var tr_current =
+							'<tr>' +
+								'<td>' + res.name + '</td>' +
+								'<td>' + operation + '</td>' +
+								'<td class="td-progress">' +
+									'<div class="progress">' +
+										'<div class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width:' + progress + '%">' +
+											'<span' + (progress < prcMin ? ' class="out"' : "") + '>' + progress + '%</span>' +
+										'</div>' +
+									'</div>' +
+								'</td>' +
+							'</tr>';
+						$parent.append(tr_current);
+					});
+				} else {
+					$parent.html('<tr><td colspan="3" style="text-align:center;font-size:16px;font-weight:700;font-style:italic;padding:8px;background-color:whitesmoke">No active processing</td></tr>');
+				}
+				if (refresh) {
+					setTimeout(function () { getProcessingHtml(refresh) }, refresh_statistics_interval);
+				}
+			} else {
+				showPanelError($parent.closest(".panel"), response.message);
+			}
+		})
+		.fail(function (jqXHR, textStatus, errorThrown) {
+			showPanelError($parent.closest(".panel"), jqXHR);
+		});
+	}
+	// ======================== START ======================== //
+	$("select[name='site_select']").on("change", function (e) {
+		getDownloadStatisticsHtml();
+		getCurrentDownloadsHtml();
+		getJobsHistoryHtml(1);
+		if ($("#refresh_processing", $page).length > 0) {
+			getProcessingHtml();
+		}
+	});
+	
+	// Actions to be performed when page changes
+	var orig_pagingGo = window.pagingGo;
+	window.pagingGo = function(page_no) {
+		orig_pagingGo(page_no);
+		getJobsHistoryHtml(page_no);
+	}
+	//auto-refresh Jobs History table
+	var get_jobs_history_interval = 60000;
+	window.setInterval(function () { getJobsHistoryHtml(1); }, get_jobs_history_interval);//1 minute
+
+	// Remove all sen2agri
+	if (window.sen2agri) {
+		$(".not-sen2agri", $page).remove();
+	}
+	
+	// Define tooltip for progressbar controls
+	$(".progress-bar", $page).tooltip();
+	
+	$.when(getSites(window.userIsAdmin ? void 0 : window.userID))
+	.done(function (response) {
+		if (response.status === responseStatus.success) {
+			getSitesHtml(response.data);
+			getDownloadStatisticsHtml(true);
+			getCurrentDownloadsHtml(true);
+			getJobsHistoryHtml(1);
+			if ($("#refresh_processing", $page).length > 0) {
+				getProcessingHtml(true);
+			}
+		} else {
+			console.log("Unable to get resource data.");
+		}
+	})
+	.fail(function (jqXHR, textStatus, errorThrown) {
+		console.log("Unable to get resource data.");
+	});
+
+});
+//# sourceURL=monitoring.js
+</script>

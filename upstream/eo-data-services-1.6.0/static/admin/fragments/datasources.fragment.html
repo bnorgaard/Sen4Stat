@@ -1,0 +1,394 @@
+<div class="panel panel-resources">
+    <div class="panel-heading">
+        <h2 class="panel-title">Data-source manager</h2>
+    </div>
+    <div class="panel-body">
+        <div class="panel-group">
+            <div class="panel bevel" id="accordion_datasource" style="border:1px solid lightgray"></div>
+        </div>
+        <hr />
+    </div>
+</div>
+<div id="ds_template" class="panel panel-success collapse">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion_datasource" class="collapsed" href="#source_id"></a>
+        </h3>
+    </div>
+    <div id="source_id" class="panel-body panel-collapse collapse">
+        <form id="form_id" role="form" method="post">
+            <input type="hidden" name="source_date" value="">
+            <input type="hidden" name="satellite" value="">
+            <input type="hidden" name="source_name" value="">
+            <input type="hidden" name="specific_parameters" value="">
+            <div class="form-group form-group-sm row">
+                <label class="control-label col-md-2" for="scope_ID">Scope:</label>
+                <div class="col-md-4">
+                    <select class="form-control" id="scope_ID" name="scope">
+                        <option value="1">Query</option>
+                        <option value="2">Download</option>
+                        <option value="3">Query and download</option>
+                    </select>
+                </div>
+                <label class="control-label col-md-2" for="edit_enabled_ID">Enable:</label>
+                <div class="col-md-4">
+                    <input type="checkbox" name="edit_enabled" id="edit_enabled_ID" class="form-control">
+                </div>
+            </div>
+            <div class="form-group form-group-sm row">
+                <label class="control-label col-md-2" for="fetch_mode_ID">Fetch mode:</label>
+                <div class="col-md-4">
+                    <select class="form-control" id="fetch_mode_ID" name="fetch_mode">
+                        <option value="OVERWRITE">Overwrite</option>
+                        <option value="RESUME">Resume</option>
+                        <option value="COPY">Copy</option>
+                        <option value="SYMLINK">Symbolic link</option>
+                        <option value="CHECK">Direct link to product</option>
+                    </select>
+                </div>
+                <label class="control-label col-md-2" for="local_root_ID">Local root:</label>
+                <div class="col-md-4">
+                    <input type="text" id="local_root_ID" class="form-control" name="local_root" value="" />
+                </div>
+            </div>
+            <div class="form-group form-group-sm row">
+                <label class="control-label col-md-2" for="max_connections_ID">Max connections:</label>
+                <div class="col-md-4">
+                    <input type="number" id="max_connections_ID" class="form-control" name="max_connections" min="1" max="8" value="" />
+                    <span class="help-block">Connections between 1 and 8.</span>
+                </div>
+                <label class="control-label col-md-2" for="download_path_ID">Download path:</label>
+                <div class="col-md-4">
+                    <input type="text" id="download_path_ID" class="form-control" name="download_path" value="" />
+                </div>
+            </div>
+            <div class="form-group form-group-sm row">
+                <label class="control-label col-md-2" for="max_retries_ID">Max retries:</label>
+                <div class="col-md-4">
+                    <input type="number" id="max_retries_ID" class="form-control" name="max_retries" min="0" step="1" value="72" />
+                </div>
+                <label class="control-label col-md-2" for="retry_ID">Retry interval minutes:</label>
+                <div class="col-md-4">
+                    <input type="number" id="retry_ID" class="form-control" name="retry" min="0" step="1" value="60" />
+                </div>
+            </div>
+            <div class="form-group form-group-sm row">
+                <label class="control-label col-md-2" for="user_ID">User:</label>
+                <div class="col-md-4">
+                    <input type="text" id="user_ID" class="form-control" name="user" value="" autocomplete="new-user" />
+                </div>
+                <label class="control-label col-md-2" for="pwd_ID">Password:</label>
+                <div class="col-md-4 form-group has-feedback">
+                    <input type="password" id="pwd_ID" class="form-control" name="pwd" value="" autocomplete="new-password" />
+                    <i class="glyphicon glyphicon-eye-open form-control-feedback" title="show password"></i>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 error hidden">
+                </div>
+            </div>
+            <div class="row">
+                <div class="submit-buttons">
+                    <div class="col-md-6">
+                        <input type="submit" class="add-edit-btn left-btn" name="btnSave" value="Save" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="control-label">Test timeout (sec)&nbsp;<input type="number" class="form-control" name="test-timeout" min="1" max="60" value="10" style="width:60px;display:inline" /></label>
+                        <button type="button" class="add-edit-btn pending-btn" name="btnTest"><span class="glyphicon glyphicon-repeat glyphicon-spin hidden"></span>&nbsp;Test Connection</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <hr />
+    </div>
+</div>
+<style>
+	input[name="pwd"]+.glyphicon{cursor:pointer;pointer-events:all;right:15px}
+	#accordion_datasource form{margin-top:20px}
+</style>
+<!-- includes for bootstrap-switch -->
+<link href="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.js"></script>
+<!-- includes for validate form -->
+<script src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+
+<script type="text/javascript">
+    // ======================== START ======================== //
+    $(document).ready(function () {
+        var satIds = new Array();
+        satIds["Sentinel2"] = 1;
+        satIds["Landsat8"] = 2;
+        satIds["Sentinel1"] = 3;
+
+        var getDatasources = function () {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "downloader/sources/",
+                type: "GET"
+            });
+        }
+        function getDatasourcesHtml(dss) {
+            var $parent = $("#accordion_datasource");
+            $parent.html("");
+            $.each(dss, function (index, ds) {
+                var dna = ds;
+
+                // skip Sentinel datasources for sen2agri
+                if (window.sen2agri && ds.satellite == "Sentinel1") { return; }
+
+                var $template = $("#ds_template").clone(true).removeAttr("id").removeClass("collapse");
+
+                // panel-heading
+                var $tmp = $(".panel-title>a", $template);
+                $tmp.attr("href", "#source_" + ds.id).html(ds.satellite + " - " + ds.dataSourceName);
+
+                // panel-body
+                $tmp = $("#source_id", $template);
+                $tmp.attr("id", "source_" + ds.id);
+
+                // form
+                var $form = $("form", $template);
+                $form.attr("id", "form_" + ds.id);
+                $form.data("dna", dna);
+
+                // hidden fields
+                $("input[name='source_date']", $form).val(ds.id)
+                $("input[name='satellite']", $form).val(ds.satellite)
+                $("input[name='source_name']", $form).val(ds.dataSourceName)
+                $("input[name='specific_parameters']", $form).val(JSON.stringify(ds.specificParameters));
+
+                // scope
+                var $scp = $("#scope_ID", $form);
+                $scp.attr("id", "scope_" + ds.id);
+                $scp.siblings("label").attr("for", "scope_" + ds.id);
+                $.each($("option", $scp), function () { this.selected = (parseInt(this.value) == ds.scope); });
+
+                // enabled
+                var $enb = $("#edit_enabled_ID", $form);
+                $enb.attr("id", "edit_enabled_" + ds.id);
+                $enb.siblings("label").attr("for", "edit_enabled_" + ds.id);
+                $enb.prop("checked", ds.enabled)
+                    .bootstrapSwitch({
+                        size: "small",
+                        onColor: "success",
+                        offColor: "default"
+                    });
+
+                // fetch mode
+                var $ftc = $("#fetch_mode_ID", $form);
+                $ftc.attr("id", "fetch_mode_" + ds.id);
+                $ftc.siblings("label").attr("for", "fetch_mode_" + ds.id);
+                $.each($("option", $ftc), function () { this.selected = (this.value == ds.fetchMode); });
+
+                // local root
+                var $lrt = $("#local_root_ID", $form);
+                $lrt.attr("id", "local_root_" + ds.id);
+                $lrt.siblings("label").attr("for", "local_root_" + ds.id);
+                $lrt.val(ds.localArchivePath);
+
+                // max connections
+                var $mxc = $("#max_connections_ID", $form);
+                $mxc.attr("id", "max_connections_" + ds.id);
+                $mxc.siblings("label").attr("for", "max_connections_" + ds.id);
+                $mxc.val(ds.maxConnections);
+
+                // download path
+                var $dwl = $("#download_path_ID", $form);
+                $dwl.attr("id", "download_path_" + ds.id);
+                $dwl.siblings("label").attr("for", "download_path_" + ds.id);
+                $dwl.val(ds.downloadPath);
+
+                // max retries
+                var $mxr = $("#max_retries_ID", $form);
+                $mxr.attr("id", "max_retries_" + ds.id);
+                $mxr.siblings("label").attr("for", "max_retries_" + ds.id);
+                $mxr.val(ds.maxRetries);
+
+                // retry interval
+                var $rtr = $("#retry_ID", $form);
+                $rtr.attr("id", "retry_" + ds.id);
+                $rtr.siblings("label").attr("for", "retry_" + ds.id);
+                $rtr.val(ds.retryInterval);
+
+                // user
+                var $usr = $("#user_ID", $form);
+                $usr.attr("id", "user_" + ds.id);
+                $usr.siblings("label").attr("for", "user_" + ds.id);
+                $usr.val(ds.user);
+
+                // password
+                var $pwd = $("#pwd_ID", $form);
+                $pwd.attr("id", "pwd_" + ds.id);
+                $pwd.siblings("label").attr("for", "pwd_" + ds.id);
+                $pwd.val(ds.password);
+
+                $parent.append($template);
+            });
+        }
+        function saveDatasource(form) {
+            hidePanelError(form);
+
+            var formData = $.extend({}, $(form).data("dna"));
+            // update editable fields
+            formData.scope = parseInt($("select[name='scope']", form).val());
+            formData.enabled = $("input[name='edit_enabled']", form).is(":checked");
+            formData.fetchMode = $("select[name='fetch_mode']", form).val();
+            formData.localArchivePath = $("input[name='local_root']", form).val();
+            formData.maxConnections = parseInt($("input[name='max_connections']", form).val());
+            formData.downloadPath = $("input[name='download_path']", form).val();
+            formData.maxRetries = parseInt($("input[name='max_retries']", form).val());
+            formData.retryInterval = parseInt($("input[name='retry']", form).val());
+            formData.user = $("input[name='user']", form).val();
+            formData.password = $("input[name='pwd']", form).val();
+            // blank values should be set to null
+            formData.localArchivePath = (formData.localArchivePath == "" ? null : formData.localArchivePath);
+            formData.password = (formData.user == "" || formData.password == "" ? null : formData.password);
+            formData.user = (formData.user == "" ? null : formData.user);
+            $.ajax({
+                url: baseApiUrl + "downloader/sources/" + satIds[formData.satellite] + "/" + formData.dataSourceName,
+                type: "POST",
+                headers: { "content-type": "application/json" },
+                processData: false,
+                data: JSON.stringify(formData),
+                success: function (response) {
+                    if (response.status == responseStatus.success) {
+                        refreshAllDatasources();
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showPanelError(form, jqXHR);
+                }
+            });
+        }
+        function refreshAllDatasources() {
+            // Get sites
+            $.when(getDatasources())
+                .done(function (response) {
+                    if (response.status == responseStatus.success) {
+                        getDatasourcesHtml(response.data, $("table#sites>tbody"));
+				
+                        // make sure that the sum between current scope and all other scopes for the same satellite, if any, is always 3
+                        $.validator.addMethod(
+                            "scopesSumIs3",
+                            function (value, element) {
+                                var dna = $(element.form).data("dna");
+                                var enabled = $("input[name='edit_enabled']", element.form).is(":checked");
+                                var sumScopes = parseInt(element.value) * (enabled ? 1 : 0);
+                                var sumSameTypeEnabled = enabled ? 1 : 0;
+                                $.each(response.data, function (index, ds) {
+                                    if (ds.enabled && ds.satellite == dna.satellite && ds.id != dna.id) {
+                                        sumSameTypeEnabled += 1;
+                                        sumScopes += ds.scope;
+                                    }
+                                });
+                                return sumSameTypeEnabled > 1 ? (sumScopes == 3) : true;
+                            },
+                            "The same scope for this satellite already exists."
+                        );
+                        // validate datasource forms for update
+                        $.each($("form", "#accordion_datasource"), function (index, form) {
+                            $(form).validate({
+                                rules: {
+                                    local_root: {
+                                        required: function (element) {
+                                            // required only when fetch_mode is either "Symbolic Link" or "Direct link to product"
+                                            var $fetch_mode = $('select[name="fetch_mode"]', element.form);
+                                            return ($fetch_mode.val() == "SYMLINK" || $fetch_mode.val() == "DIRECT_LINK");
+                                        }
+                                    },
+                                    scope: { scopesSumIs3: true }
+                                },
+                                messages: {
+                                    scope: { scopesSumIs3: "The same scope for this satellite already exists." }
+                                },
+                                highlight: function (element, errorClass) {
+                                    $(element).parent().addClass("has-error");
+                                },
+                                unhighlight: function (element, errorClass) {
+                                    $(element).parent().removeClass("has-error");
+                                },
+                                errorPlacement: function (error, element) {
+                                    error.appendTo(element.parent());
+                                },
+                                submitHandler: function (form) {
+                                    saveDatasource(form);
+                                },
+                                success: function (label) {
+                                    label.remove();
+                                }
+                            });
+                        });
+                    } else {
+                        alert(response.message);
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus);
+                });
+        }
+
+        // ======================== START ======================== //
+        refreshAllDatasources();
+        $("button[name='btnTest']").on("click", function (e) {
+            var _this = this;
+            var form = this.form;
+            hidePanelError(form);
+            $(_this).prop("disabled", true);
+            $(".glyphicon-repeat", _this).removeClass("hidden");
+
+            var formData = $.extend({}, $(form).data("dna"));
+            formData.user = $("input[name='user']", form).val();
+            formData.password = $("input[name='pwd']", form).val();
+            formData.user = (formData.user == "" ? null : formData.user);
+            formData.password = (formData.user == "" ? null : formData.password);
+            formData.timeout = $("input[name='test-timeout']", form).val();
+            formData.timeout = (formData.timeout == "" ? 10 : parseInt(formData.timeout));
+            $.ajax({
+                url: baseApiUrl + "downloader/test?" +
+                    "satellite=" + formData.satellite + "&" +
+                    "dataSource=" + formData.dataSourceName +
+                    (formData.user ? "&user=" + formData.user : "") +
+                    (formData.password ? "&password=" + formData.password : ""),
+                type: "GET",
+                timeout: 1000 * formData.timeout,
+                headers: { "content-type": "application/json" },
+                success: function (response) {
+                    $(_this).prop("disabled", false);
+                    $(".glyphicon-repeat", _this).addClass("hidden");
+
+                    if (response.status == responseStatus.success) {
+                        alert(response.message);
+                    } else {
+                        showPanelError(form, response.message);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $(_this).prop("disabled", false);
+                    $(".glyphicon-repeat", _this).addClass("hidden");
+
+                    showPanelError(form, jqXHR);
+                }
+            });
+        });
+
+        // show/hide password field
+        $('input[name="pwd"]+.glyphicon').on('click', function (elem) {
+            if ($(this).hasClass('glyphicon-eye-open')) {
+                $("#" + this.previousElementSibling.id).attr('type', 'text');
+                $(this).removeClass('glyphicon-eye-open');
+                $(this).addClass('glyphicon-eye-close');
+                $(this).attr('title', 'hide password');
+            } else {
+                $("#" + this.previousElementSibling.id).attr('type', 'password');
+                $(this).removeClass('glyphicon-eye-close');
+                $(this).addClass('glyphicon-eye-open');
+                $(this).attr('title', 'show password');
+            }
+        });
+    });
+//# sourceURL=datasources.js
+</script>
+

@@ -1,0 +1,244 @@
+<style>
+.request-form .summary-chapter .form-group .chapter-subgroup label.category>span{font-weight:700}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label.sub-category>*{padding:0.3rem 3rem}
+.request-form .summary-chapter .form-group label.sub-category>p{width:55%}
+.request-form .summary-chapter .form-group label>p.usedFile{width:32.5%}
+.request-form .summary-chapter .form-group label>p.usesFile{width:22.5%}
+.request-form .request-summary{margin-top:3rem}
+</style><h3 class="panel-title">Summary information on your service request</h3>
+<p style="font-style:italic">This is a collection of information that you have selected.</p>
+<div class="request-summary">
+	<!-- FROM PAGE 1 -->
+	<div class="panel-body summary-chapter">
+		<h4 class="panel-title">About your service request</h4>
+		<div class="form-group row">
+			<label class="col-md-12"><span>Requested service</span><p id="sum_usr_processor"></p></label>
+			<label class="col-md-12"><span>Request name</span><p id="sum_usr_project_name"></p></label>
+			<label class="col-md-12"><span>Additional support</span><p id="sum_usr_additional_support"></p></label>
+		</div>
+	</div>
+	<!-- FROM PAGE 2 -->
+	<div class="panel-body summary-chapter">
+		<h4 class="panel-title">Parameters</h4>
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Earth Observation Data</label>
+			<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Sentinel-2</span><p id="sum_usr_useS2"></p></label></div>
+			<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Landsat-8</span><p id="sum_usr_useL8"></p></label></div>
+		</div>
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Service Data</label>
+			<div class="chapter-subgroup s-content sub-service vegetation hidden">
+				<label class="col-md-12 highlight"><span>Vegetation Status Indicators</span><p></p></label>
+				<label class="col-md-12"><span>Pheno NDVI metrics</span><p id="sum_usr_includeNDVI"></p></label>
+				<label class="col-md-12"><span>Leaf Area Index</span><p id="sum_usr_includeLAI"></p></label>
+			</div>
+			<div class="chapter-subgroup s-content sub-service dynamic_crop_mask hidden">
+				<label class="col-md-12 highlight"><span>Dynamic Crop Mask</span><p></p></label>
+				<label class="col-md-12 category"><span>Mode</span></label>
+				<label class="col-md-12 sub-category"><span>Unsupervised</span><p id="sum_usr_mode_unsupervised"></p></label>
+				<label class="col-md-12 sub-category"><span>Supervised</span><p id="sum_usr_mode_supervised" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_dynamic_crop_mask_file"></p></label>
+				<label class="col-md-12 sub-category"><span>EarthSignature</span><p id="sum_usr_mode_use_EarthSignature"></p></label>
+				
+				<label class="col-md-12 category"><span>Schedule Type</span></label>
+				<label class="col-md-12 sub-category"><span id="sum_usr_type_repeat"></span></label>
+			</div>
+			<div class="chapter-subgroup s-content sub-service crop_type_map hidden">
+				<label class="col-md-12 highlight"><span>Crop Type Map</span><p></p></label>
+				
+				<label class="col-md-12 category"><span>Mode</span></label>
+				<label class="col-md-12 sub-category"><span>In-situ Data</span><p id="sum_usr_mode_insitu" class="usesFile"></p><p class="usedFile" id="sum_usr_mode_insitu_file"></p></label>
+				<label class="col-md-12 sub-category"><span>EarthSignature</span><p id="sum_usr_mode_EarthSignature"></p></label>
+				
+				<label class="col-md-12 category"><span>Use your own reference crop mask</span></label>
+				<label class="col-md-12 sub-category"><span>File</span><p id="sum_usr_useReferenceMap_file" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_useReferenceMap_selected_file"></p></label>
+				<label class="col-md-12 sub-category"><span>Project</span><p id="sum_usr_useReferenceMap_project" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_useReferenceMap_selected_project"></p></label>
+			</div>
+			<div class="chapter-subgroup s-content sub-service crop_mask_type hidden">
+				<label class="col-md-12 highlight"><span>Dynamic Crop Mask & Crop Type Map</span><p></p></label>
+				
+				<label class="col-md-12 category"><span>Mode</span></label>
+				<label class="col-md-12 sub-category"><span>In-situ Data</span><p id="sum_usr_mode_insitu" class="usesFile"></p><p class="usedFile" id="sum_usr_mode_insitu_file"></p></label>
+				<label class="col-md-12 sub-category"><span>EarthSignature</span><p id="sum_usr_mode_EarthSignature"></p></label>
+				
+				<label class="col-md-12 category"><span>Schedule Type</span></label>
+				<label class="col-md-12 sub-category"><span id="sum_usr_type_repeat"></span></label>
+			</div>
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Region of interest</label>
+			<div class="chapter-subgroup">
+				<label class="col-md-12"><span>Reference polygons</span><p id="sum_usr_refp"></p></label>
+				<label class="col-md-12"><span>Min Latitude</span><p id="sum_usr_latmin"></p></label>
+				<label class="col-md-12"><span>Max Latitude</span><p id="sum_usr_latmax"></p></label>
+				<label class="col-md-12"><span>Min Longitude</span><p id="sum_usr_lonmin"></p></label>
+				<label class="col-md-12"><span>Max Longitude</span><p id="sum_usr_lonmax"></p></label>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body summary-chapter">
+		<div class="form-group row">
+			<label class="col-md-12 highlight">Sensing period</label>
+			<div class="chapter-subgroup">
+				<label class="col-md-12"><span>From</span><p id="sum_usr_time_range_from"></p></label>
+				<label class="col-md-12"><span>To</span><p id="sum_usr_time_range_to"></p></label>
+				<label class="col-md-12"><span>Additional data specifications</span><p id="sum_usr_additional"></p></label>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="panel-body">
+	<div class="form-group row terms-conditions">
+		<label class="col-md-12" for="conditions" style="color:#666666">
+			<input type="checkbox" name="conditions" id="conditions" class="first-tag" />
+			I have read and agree to the <label id="conditions_link" class="highlight">Terms and conditions</label>.
+		</label>
+	</div>
+</div>
+<div class="submit-buttons">
+	<button class="go-to-page request-btn blue-btn left-btn">Back and edit</button>
+	<button class="go-to-page request-btn blue-btn" id="request_usr_submit" disabled>Submit the request</button>
+</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#conditions").change(function() {
+			$("#request_usr_submit").attr("disabled", !$(this).is(":checked"));
+		});
+		
+		$("#request_usr_submit").click( function (event) {
+			if ($("#request_usr_form").valid()) {
+				event.preventDefault();
+				var selectedProcessors = $("#processor").val();
+				var subServicesClasses = [];
+				$(".sub-service","#request_usr_page_3").toArray().forEach(function (currentValue) {
+					subServicesClasses.push(currentValue.classList[1]);
+				});
+				$.each(subServicesClasses, function (index, value) {
+					if ($.inArray(value, selectedProcessors) < 0) {
+						if (value === "l4") {
+							// do nothing
+						} else {
+							$("." + value, "#request_usr_page_3").remove();
+						}
+					}
+				});
+				saveRequest();
+			}
+		});
+		
+		/* Functions */
+	
+		// Save the user service request into a JSON file
+		function createRequestObject (formData, data) {
+			var processorJSON = {};
+			var observationArray = [];
+			//remove processor key
+			formData.delete("processor");
+			
+			$.each (data, function () {
+				//create processor element
+				if (this.name === "processor") {
+					if (this.value === "l3b") {
+						processorJSON[this.value] = {"include": formData.getAll("include")};
+					}else if (this.value === "l4a") {
+						processorJSON[this.value] = {"mode": formData.get("crop_mask_mode")};
+						formData.delete("crop_mask_mode");
+					}else {
+						processorJSON[this.value] = {"mode": formData.get("crop_map_mode")};
+						formData.delete("crop_map_mode");
+						if (formData.get("useOutputCropMaskOfServiceId") !== null) {
+							processorJSON[this.value].useOutputCropMaskOfServiceId = parseInt(formData.get("useOutputCropMaskOfServiceId"));
+							formData.delete("useOutputCropMaskOfServiceId");
+						}
+					}
+				} else if (this.name === "crop_mask_type_mode") {
+					processorJSON["l4a"] = {"mode": formData.get("crop_mask_type_mode")};
+					processorJSON["l4b"] = {"mode": formData.get("crop_mask_type_mode")};
+					formData.delete("crop_mask_type_mode");
+				} else if (this.name === "useS2" || this.name === "useL8") {
+					observationArray.push(this.value);
+					formData.delete(this.name);
+				} else if (this.name === "userText" && formData.get("footprintFile") === null && (formData.get("shapeFile") === null || formData.get("shapeFile").size == 0)) {
+					formData.append("footprint", this.value);
+					formData.delete("userText");
+				} else if (this.name === "shapeFile" && formData.get("shapeFile") !== null && formData.get("shapeFile").size > 0) {
+					formData.append("footprintFile", formData.get("shapeFile"));
+					formData.delete("shapeFile");
+				} else if (this.name === "onceFirstTimeRun") {
+					formData.append("firstRunDate", this.value);
+				} else if (this.name === "oneverydate") {
+					formData.append("repeatOnMonthDay", this.value);
+				}
+			});
+			
+			//add processor objects, observation data and user id to request
+			$.each (processorJSON, function (key, val) {
+				formData.append(key,JSON.stringify(val));
+			});
+			
+			formData.append("observationData",JSON.stringify(observationArray));
+			formData.append("userId", window.userID);
+		}
+		
+		function saveRequest() {
+			var formData = new FormData($('#request_usr_form').get(0));
+			//enable the filds that needs to be send on the request
+			if ($("#useS2").is(":disabled")) {
+				$("#useS2").prop("disabled",  false);
+			}
+			if ($("#useL8").is(":disabled")) {
+				$("#useL8").prop("disabled",  false);
+			}
+			if ($("#startDate").is(":disabled")) {
+				formData.append("startDate" , $("#startDate").val());
+			}
+			if ($("#endDate").is(":disabled")) {
+				formData.append("endDate" , $("#endDate").val());
+			}
+			if ($("#usePreviousCropMask").is(":checked") && $("#useOutputCropMaskOfServiceId").val() !== null) {
+				formData.append("useOutputCropMaskOfServiceId" , $("#useOutputCropMaskOfServiceId").val());
+			}
+			
+			$("form#request_usr_form div.hidden").find("input").attr('disabled','disabled');
+			$("form#request_usr_form .div.hidden").find("input").attr('disabled','disabled');
+			$("form#request_usr_form div.latlon").find("input").attr('disabled','disabled');
+			$("form#request_usr_form div.terms-conditions").find("input").attr('disabled','disabled');
+			
+			$.each($("form#request_usr_form").find("input[type='file']"), function () {
+				var value = $(this).val();
+				if ($(this).val() != "") {
+					value = value.split('\\').pop() + "&nbsp;";
+				}
+				$(this).attr("type","text").val(value);
+			});
+			
+			var dataForm = $("form#request_usr_form").serializeArray();
+			
+			createRequestObject (formData, dataForm);
+			
+			$.ajax({
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				url  : baseApiUrl + "services/save",
+				type : "POST",
+				data : formData,
+				success: function (response) {
+					if (response.status === responseStatus.success) {
+						console.log(response.status + ": " + response.message);
+					}else {
+						console.log(response.status + ": " + response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("Error: " + errorThrown);
+				}
+			});
+			
+			window.location.href='sap.html#dashboard';
+		}
+	});
+
+//# sourceURL=request_summary.js
+</script>
+

@@ -1,0 +1,495 @@
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<section class="dialogs">
+	<div id="cancel_processor" style="display:none">
+		<!--  form cancel request -->
+		<form id="processorform_cancel" class="tspace vspace">
+			<input type="hidden" class="form-control" name="processorKey" value="">
+			<div class="form-group row">
+				<p id="info_message">The cancelled processors will no longer run, but you can still download or reuse any existing products.</p>
+			</div>
+
+			<div class="form-group form-group-sm row">
+				<label class="control-label col-md-12" id="processor_name">Are you sure you want to finalize the <span></span> processor ?</label>
+			</div>
+			
+			<div class="form-group form-group-sm row" id="processor_cost">
+				<label class="control-label col-md-6">Current Cost:</label>
+				<label class="col-md-6">0</label>
+			</div>
+			
+			<div class="form-group form-group-sm row">
+				<div class="col-md-12 error hidden">
+				</div>
+			</div>
+			
+			<div class="submit-buttons">
+				<input class="add-edit-btn delete-btn left-btn" type="submit" value="Confirm Cancel Processor" style="float:left" />
+				<input class="add-edit-btn cancel-btn" type="button" value="Abort" />
+			</div>
+		</form>
+	</div>
+</section>
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="content" class="clearfix">
+			<div class="request">
+				<h3 class="panel-title detail-page-title"></h3>
+				<h4 class="request-status">Status</h4>
+				<div id="request_details" class="form-page panel ui-tabs-panel ui-corner-bottom ui-widget-content" style="display: block;">
+					<div class="request-summary">
+						<div class="panel-body summary-chapter datasets">
+							<h4 class="panel-title">Earth Observation Data</h4>
+							<div class="form-group row">
+							
+							</div>
+						</div>
+						<div class="panel-body summary-chapter">
+							<h4 class="panel-title">About your service request</h4>
+							<div class="form-group row">
+								<label class="col-md-12"><span>Requested service</span><p id="sum_usr_thematic_area">agriculture_vegetation</p></label>
+								<label class="col-md-12"><span>Additional support</span><p id="sum_usr_additional_support"></p></label>
+							</div>
+						</div>
+						<div class="panel-body summary-chapter service-data-parameters">
+							<h4 class="panel-title">Parameters</h4>
+							
+							<div class="form-group row service-data">
+								<label class="col-md-12 highlight">Service Data</label>
+								
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Region of interest</label>
+								<div class="chapter-subgroup polygon">
+									<label class="col-md-12"><span>Reference polygons</span><p id="sum_usr_refp">&nbsp;</p></label>
+									<label class="col-md-12"><span>Min Latitude</span><p id="sum_usr_latmin">46.885969217353335</p></label>
+									<label class="col-md-12"><span>Max Latitude</span><p id="sum_usr_latmax">48.96777745898615</p></label>
+									<label class="col-md-12"><span>Min Longitude</span><p id="sum_usr_lonmin">-11.66714751631247</p></label>
+									<label class="col-md-12"><span>Max Longitude</span><p id="sum_usr_lonmax">9.71178407112455</p></label>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body summary-chapter">
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Sensing period</label>
+								<div class="chapter-subgroup">
+									<label class="col-md-12"><span>From</span><p id="sum_usr_time_range_from">2021-03-28</p></label>
+									<label class="col-md-12"><span>To</span><p id="sum_usr_time_range_to">2021-03-30</p></label>
+									<label class="col-md-12"><span>Except</span><p id="sum_usr_time_except"></p></label>
+									<label class="col-md-12"><span>Additional data specifications</span><p id="sum_usr_additional">&nbsp;</p></label>
+								</div>
+							</div>
+						</div>
+						
+						<div class="panel-body summary-chapter">
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Request Cost</label>
+								
+								<div class="chapter-subgroup">
+									<label class="col-md-12">
+										<span>Current cost</span>
+										<p id="sum_usr_request_cost">0</p>
+									</label>
+									<label class="col-md-12 estimated_cost">
+										<span>Estimated cost</span>
+										<div class="col-md-2" style="display:none">
+											<div class="loading_img"></div>
+										</div>
+										<p id="sum_usr_estimated_request_cost" style="display:none"></p>
+									</label>
+								</div>
+								<span id="details_info_message">The displayed estimated cost is approximated.</span>
+							</div>
+						</div>
+					</div>
+					<div class="details-buttons">
+						<button class="request-btn blue-btn center-btn" id="close_detail" disabled>Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Template -->
+<div style="display:none" id="processor_param_template">
+	<div class="chapter-subgroup s-content sub-service">
+		<input type="hidden" class="form-control" name="processorId" value="">
+		<label class="col-md-12 highlight">
+			<span></span>
+			<span class="glyphicon glyphicon-remove glyphicon-cancel request-btn" title="Cancel"></span>
+		</label>
+		<div class="params"></div>
+		<div class='col-md-12 category underline'><span class="col-md-10">Status</span><p class="status col-md-2"></p></div>
+		<div class='col-md-12 category underline cost'>
+			<span class="col-md-10">Cost</span>
+			<div class="col-md-2" style="display:none">
+				<div class="loading_img"></div>
+			</div>
+			<p class="cost col-md-2" style="display:none"></p>
+		</div>
+	</div>
+</div>
+<style>
+#content h3.panel-title{text-align:center; padding:2% 0}
+#content h4.request-status{text-align:center}
+#content .request{
+	width: 70%;
+    margin: 5rem auto 0 auto;
+    font-size: 14px;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 0 1.1rem 0.1rem rgb(0 0 0 / 37%);
+    border-left: 0px solid #d1e2ab;
+    background: whitesmoke;
+    color: #555
+}
+#content .detail-page-title,#content h4,#request_details #sum_usr_thematic_area,#request_details p.status{text-transform:capitalize}
+
+#request_details{margin:0 auto;font-size:14px}
+#request_details .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgba(0,0,0,0.1);padding:15px}
+#request_details h4.panel-title{color:#3a6ba0;padding:10px;margin:-15px -15px 15px -15px;border-bottom:1px dashed #e2e2e2}
+
+#request_details .form-group{margin-bottom:10px}
+#request_details .panel-body .form-group:last-child{margin-bottom:0}
+#request_details .form-group span,#request_details .form-group table tr{font-weight:400;color:gray;font-style:italic;min-height:5px;text-align:justify}
+#request_details .form-group span{display:block}
+#request_details .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+#request_details .form-group label       span.title{display:inline;font-style:normal;color:#555}
+#request_details .form-group label:hover span.title{font-weight:700}
+#request_details .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+#request_details .form-group label:hover span.extra-info{color:gray}
+#request_details .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+#request_details .form-group label :checked~span.extra-info{color:#3a6ba0}
+#request_details .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+#request_details .sentinel-group a{height:28px;color:#555;padding:2px 5px;font-style:normal;font-weight:400}
+#request_details .sentinel-group .options-title{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#request_details .sentinel-group>div>label .extra-info,
+#request_details .sentinel-group .options-title~label.error{font-size:0.8em;margin-bottom:2px;line-height:1.3em;padding:0}
+
+#request_details label.highlight{font-style:italic}
+#request_details label.highlight span{font-weight:700}
+
+#request_details .summary-chapter .form-group label{margin:0;display:table;float:left;width:100%}
+#request_details .summary-chapter .form-group label.highlight:not(:nth-child(2)){margin-bottom:5px}
+#request_details .summary-chapter .form-group label>*{margin:0;display:table-cell;line-height:1.2em;padding:3px 10px;font-size:14px;font-weight:400;font-style:normal;vertical-align:top;text-align:left}
+#request_details .summary-chapter .form-group label>span{width:35%;padding-left:0}
+#request_details .summary-chapter .form-group div>p:not([class*="status-text-"]),#request_details .summary-chapter .form-group label>p:not([class*="status-text-"]),#request_details table>tbody>tr>td {color:#1e6aa2!important}
+#request_details table>tbody>tr>td {border-top:1px solid #eaeaea;}
+#request_details table>tbody>tr>td:first-child{max-width:15rem;}
+#request_details .summary-chapter .form-group label:nth-child(odd) p{background-color:#f7f7f7}
+
+#request_details .summary-chapter .form-group .chapter-subgroup{margin-bottom:10px;float:left;margin-left:4%;width:96%}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content div.underline>*{background-color:#f7f7f7;margin:0;}
+#request_details .summary-chapter .form-group .chapter-subgroup div.category>span{font-weight:700}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.sub-category>*{padding:3px 32px;}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>*{background-color:#eaeaea;border-bottom:1px solid lightgray;font-style:normal;font-weight:700;line-height:1.4em}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label:nth-child(2){margin-top:-5px}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label:not(.highlight):last-child>*{border-bottom:5px solid #f0f0f0;margin-bottom:5px}
+
+#request_details .details-buttons {text-align:center;padding:2% 0}
+
+#request_details .chapter-subgroup.s-content.sub-service p{font-weight:700}
+
+#request_details .summary-chapter .form-group label>p.usesFile{width:0%}
+#request_details .summary-chapter .form-group label>p.usedFile{width:50%}
+
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>span.glyphicon-cancel{color:#d11610;text-align:end;top:0px}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>span.glyphicon-cancel.button-disabled{color:#c3bebe}
+
+#details_info_message{padding-right:15px;padding-left:15px;}
+
+#processor_name>span{text-transform:capitalize;color:#3a6ba0}
+#processor_name{text-align:center;font-size:large;padding-bottom:3rem}
+#processorform_cancel .control-label{font-weight:700}
+p#sum_usr_optical_usePeriod, p#sum_usr_sar_usePeriod {padding:3px 10px !important;}
+
+#request_details div.underline>*{border-bottom:1px solid #e8e8e8;}
+#request_details div.scheduleType{border-bottom:1px solid #e8e8e8;}
+#request_details table.leftline{border-left:5px solid #e8e8e8;}
+#request_details .scheduleType{background-color:#f7f7f7;padding:0;}
+
+#request_details .loading_img{vertical-align:top;}
+</style>
+<script type="text/javascript">
+	var  months = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("cancel_processor");
+	}
+	
+	$(document).ready(function () {
+		$(".estimated_cost div", "#request_details").show();
+		function defineFormDialogs() {
+			// Clear all previously defined dialogs
+			purgeAllProductsDialogs();
+			
+			// create dialog for cancel processor form
+			$("#cancel_processor").dialog({
+				title: "Cancel Processor",
+				width: '700px',
+				autoOpen: false,
+				modal: true,
+				resizable: false,
+				beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+			}).on("click", ".cancel-btn", function (e) {
+				e.preventDefault();
+				closeDialog(this);
+			});
+		};
+		
+		var getDataFrom = function (requestId) {
+			return $.ajax({
+				async: false,
+				url: baseApiUrl + "request/get/" + requestId,
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Content-Type", "application/json");
+				}
+			});
+		};
+		
+		var getCost = function (id,datasets) {
+			var urlData = {serviceId:id,satellites:JSON.stringify(datasets)};
+			return $.ajax({
+				async: false,
+				url: baseApiUrl + "cost/estimate",
+				data: urlData,
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Content-Type", "application/json");
+				}
+			});
+		};
+		
+		var getService = function (serviceId) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				url  : baseApiUrl + "services/get/" + serviceId,
+				type : "GET"
+			});
+		};
+		
+		var requestId = getUrlParameter("id");
+		var requestDataSets;
+		
+		function repeatTypeEnum(val){
+			switch (val) {
+				case 0: return "Once";break;
+				case 1: return "Cycle";break;
+				case 2: return "Repeat";break;
+			}
+		}
+		
+		function displayCost(id,datasets) {
+			$.when(getCost(id,datasets)).done(function(response) {
+				if (response.status === responseStatus.success) {
+					$(".estimated_cost p","#request_details").html(response.data.total.toFixed(2) + " &#8364;");
+					$(".estimated_cost p","#request_details").show();
+					$(".estimated_cost div","#request_details").hide();
+					$.each($("p.cost","#request_details"), function (idx,elem) {
+						var processorId = $(elem.closest(".sub-service")).find("input[type='hidden']").val();
+						if (typeof response.data.processors[processorId] !== "undefined") {
+							$(elem).html(response.data.processors[processorId].toFixed(2)+" &#8364;");
+						} else {
+							$(elem).html("Unavailable");
+						}
+						$(elem).show();
+						$(elem).closest("div.cost").find(".loading_img").parent().hide();
+					});
+				} else {
+					console.log(response.status + ": " + response.message);
+				}
+				$("#close_detail").prop("disabled",false);
+				// enable menu buttons
+				$("li","#header").removeClass("inactive")
+				$("#logo").removeClass("inactive");
+			});
+		}
+		
+		function displayResponse (data) {
+			if (data !== null) {
+				var serviceName = [];
+				var processorsStatusArray = [];
+				var observationData = data.processorsConfig.map(item=>item.supportedSatellites);
+				var uniqueObsData = Array.from(new Set(Array.prototype.concat(...observationData)));
+				// add datasets and check the selected ones
+				$.each(uniqueObsData , function (idx,value) {
+					var content = "<p style='color:#b7b7b7'>&#10007;</p>";
+					if ($.inArray(value,data.datasets) >= 0) {
+						content = "<p>&#10003;</p>";
+					}
+					$(".datasets>div", "#request_details").append("<label class='col-md-12'><span>"+value+"</span>"+content+"</label>");
+				});
+				
+				//add processor and its parameters
+				$.each(data.processorsConfig, function (key, value) {
+					var status = data.processors.filter(item=>item.id===value.id)[0].status
+					var statusName = jobStatusEnum(status);
+					serviceName.push(value.name.toUpperCase());
+					var processorName = value.name;
+					var $template = $("div.sub-service","#processor_param_template").clone();
+					$("div.cost", $template).find(".loading_img").parent().show();
+					$("input[name='processorId']", $template).val(value.id);
+					$("span:first",$template).html(value.name);
+					var html = "";
+					var uiVisibleParams = value.parameters.filter(obj=> obj.serviceUiVisible);
+					$.each(uiVisibleParams, function (index, param) {
+						switch (param.dataType) {
+							case "bool":
+								html += "<div class='col-md-12 underline'><span class='col-md-10'>"+param.label+"</span>";
+								if (stringToBoolean(param.value)) {
+									html += "<p class='col-md-2'>&#10003;</p>";
+								} else {
+									html += "<p style='color:#b7b7b7' class='col-md-2'>&#10007;</p>";
+								}
+								html += "</div>";
+								break;
+							case "file":
+								html += "<div class='col-md-12 underline'><span class='col-md-4'>"+param.label+"</span><p class='col-md-8' style='overflow-wrap:break-word;'>"+param.value+"</p></div>";
+								break;
+							case "string":
+								//if the string represents a file path (contains at least one "/" or  "\") make the paragraph greater than label
+								if (param.value.match(/(\\|\/)/g) !== null) {
+									html += "<div class='col-md-12 underline'><span class='col-md-4'>"+param.label+"</span><p class='col-md-8' style='overflow-wrap:break-word;'>"+param.value+"</p></div>";
+								} else {
+									html += "<div class='col-md-12 underline'><span class='col-md-10'>"+param.label+"</span><p class='col-md-2' style='overflow-wrap:break-word;'>"+param.value+"</p></div>";
+								}
+								break;
+							default:
+								html += "<div class='col-md-12 underline'><span class='col-md-10'>"+param.label+"</span><p class='col-md-2' style='overflow-wrap:break-word;'>"+param.value+"</p></div>";
+								break;
+						}
+					});
+					//schedule task
+					var scheduleTaskArray = data.scheduledTasks.filter(obj => obj.processorId === value.id);
+					if (scheduleTaskArray.length > 0) {
+						html += "<div class='col-md-12'><div class='col-md-12 scheduleType'><span class='col-md-2'>Schedule type</span>";
+						html +="<table class='leftline col-md-10'><thead><tr><td>Season name</td><td>Repeat Type</td><td>First time run</td><td>Repeat</td></tr></thead>";
+						$.each(scheduleTaskArray, function(idx,task) {
+							var seasonName = task.name;
+							var repeatType = repeatTypeEnum(task.repeatType);
+							var firstTimeRun = task.firstRun;
+							var repeat;
+							switch (task.repeatType) {
+								case 0: repeat = "Never";break;
+								case 1: repeat = "After "+task.repeatAfterDays+" days";break;
+								case 2: repeat = "Every "+task.repeatOnMonthDay+" day of month";break;
+							}
+							html+="<tbody><tr><td style='word-break:break-word;'>"+seasonName+"</td><td>"+repeatType+"</td><td>"+firstTimeRun+"</td><td>"+repeat+"</td></tr></tbody>";
+						});
+						html+="</table></div></div>";
+					}
+					$("div.params",$template).append(html);
+					$("p.status",$template).html(statusName).addClass("status-text-" + statusName);
+					$(".service-data","#request_details").append($template);
+					// disable cancel for status rejected, completed, cancelled and error
+					if (status == 3 || status == 6 || status == 7 || status == 8) {
+						$("span.request-btn", $template).addClass("button-disabled");
+					}	
+				});
+			
+				// title
+				$(".detail-page-title").html(data.name);
+				//general status
+				$(".request-status").html(data.serviceStatus).addClass("status-text-" + data.serviceStatus);
+				
+				// about your service request
+				$("#sum_usr_thematic_area").html(serviceName.toString().replaceAll(",", ", "));
+				$("#sum_usr_additional_support").html(data.additionalSupport);
+				
+				// region of interest
+				if (data.footprintFilename !== null) {
+					$("#sum_usr_refp").html(data.footprintFilename);
+				}
+				var readFlatCoordinates = (new ol.format.WKT()).readGeometry(data.footprint).flatCoordinates;
+				
+				$("#sum_usr_latmin").html(readFlatCoordinates[1]);
+				$("#sum_usr_latmax").html(readFlatCoordinates[5]);
+				$("#sum_usr_lonmin").html(readFlatCoordinates[0]);
+				$("#sum_usr_lonmax").html(readFlatCoordinates[4]);
+				
+				// sensing period
+				$("#sum_usr_time_range_from").html(data.startDate);
+				$("#sum_usr_time_range_to").html(data.endDate);
+				$.each(data.exceptMonths, function(idx,value) {
+					if ($("#sum_usr_time_except").html() === "") {
+						$("#sum_usr_time_except").html(months[parseInt(value)]);
+					} else {
+						$("#sum_usr_time_except").append(", " + months[parseInt(value)]);
+					}
+				});
+				if (data.additionalDataSpecifications !== "") {
+					$("#sum_usr_additional").html(data.additionalDataSpecifications);
+				}
+				
+				//general parameters
+				$.each(data.general_config, function(idx,param){
+					if (param.serviceUiVisible) {
+						if ($("div#sum_usr_"+param.categoryId,"#request_details").length === 0) {
+							var categoryTemplate = "<div class='panel-body summary-chapter' id='sum_usr_"+param.categoryId+"'><div class='form-group row'><label class='col-md-12 highlight'>"+param.category+"</label><div class='chapter-subgroup'></div></div></div>";
+							var $sibling = $(".summary-chapter","#request_details").last();
+							$sibling.before(categoryTemplate);
+						}
+						var $template = $("div#sum_usr_"+param.categoryId,"#request_details");
+						$(".chapter-subgroup",$template).append("<label class='col-md-12'><span>"+param.label+"</span><p id='sum_usr_"+param.key+"'>"+param.value+"</p></label>");
+					}
+				});
+			}
+		}
+		
+		$.when(getDataFrom(requestId)).done(function (response) {
+			if (response.status === responseStatus.success) {
+				displayResponse(response.data);
+				requestDataSets = response.data.datasets;
+				// disable menu buttons, exit from page must be allowed only when loading cost is finished
+				$("li","#header").addClass("inactive")
+				$("#logo").addClass("inactive");
+			}else {
+				console.log(response.status + ": " + response.message);
+			}
+		});
+		
+		 $("#request_details").ready(function (){
+			setTimeout(function() {
+				displayCost(requestId,requestDataSets);
+			}, 1);
+		});
+				
+		$("#close_detail").on("click", function (e) {
+			e.preventDefault();
+			window.location.href='sap.html#dashboard';
+		});
+		
+		$("span.request-btn:not(.button-disabled)").on("click", function (e) {
+			e.preventDefault();
+			var processorKey = $(this).closest("div.sub-service").find("input[name='processorId']").val();
+			var requestName = $(this).closest("label.highlight").children(":first").text();
+			
+			$("#processor_name>span", "#cancel_processor").html(requestName);
+			$("input[name='processorKey']", "#cancel_processor").val(processorKey);
+			
+			// open cancel dialog
+			$("#cancel_processor").dialog("open");
+		});
+		
+		// validate Cancel request form
+		$("#processorform_cancel").on("submit", function (e) {
+			e.preventDefault();
+			var processorKeyArray = [$("input[name='processorKey']", "#processorform_cancel").val()];
+			var cancelObject = {};
+			cancelObject["serviceId"] = requestId;
+			cancelObject["processorIds"] = processorKeyArray;
+			cancelRequest(cancelObject);
+		});
+		
+		$("#wp-custom-header h1.header-post-title-class").html("View request");
+		
+		defineFormDialogs();
+	});
+	
+//# sourceURL=details.js
+</script>

@@ -1,0 +1,442 @@
+﻿<section class="dialogs">
+	<div id="edit_request" style="display:none">
+	
+	</div>
+	
+	<div id="cancel_request" style="display:none">
+		<!--  form cancel request -->
+		<form id="requestform_cancel" class="tspace vspace">
+			<input type="hidden" class="form-control" name="requestId" value="">
+
+			<div class="form-group row">
+				<h3 class="control-label col-md-12" id="cancel_requestname">Name:</h3>
+				<p id="info_message">The cancelled processors will no longer run, but you can still download or reuse any existing products.</p>
+			</div>
+			
+			<div class="form-group form-group-sm row" id="processors_list">
+				
+			</div>
+
+			<div class="form-group form-group-sm row">
+				<div class="col-md-12 error hidden">
+				</div>
+			</div>
+			
+			<div class="submit-buttons">
+				<input class="add-edit-btn delete-btn left-btn" type="submit" value="Confirm Cancel Processor" style="float:left" disabled />
+				<input class="add-edit-btn cancel-btn" type="button" value="Abort" />
+			</div>
+		</form>
+	</div>
+
+	<div id="finalize_request" style="display:none">
+		<!--  form finalize request -->
+		<form id="requestform_finalize" class="tspace vspace">
+			<input type="hidden" class="form-control" name="requestId" value="">
+
+			<div class="form-group row">
+				<h3 class="control-label col-md-12" id="finalize_requestname">Name:</h3>
+				<p id="info_message">Any pending processing will be stopped and the products associated with the request will be removed.</p>
+			</div>
+			<div class="form-group form-group-sm row">
+				<label class="control-label col-md-12" id="request_question">Are you sure you want to finalize the <span></span> request ?</label>
+				<!--<label class="control-label col-md-12" style="color:#ee9d2b;text-align:center">Any pending processing will be stopped and the products associated with the request will be removed.</label>-->
+			</div>
+
+			<div class="form-group form-group-sm row">
+				<div class="col-md-12 error hidden">
+				</div>
+			</div>
+			<div class="submit-buttons">
+				<input class="add-edit-btn delete-btn left-btn" type="submit" value="Confirm" style="float:left" />
+				<input class="add-edit-btn cancel-btn" type="button" value="Abort" />
+			</div>
+		</form>
+	</div>
+</section>
+
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="content" class="clearfix">
+			<article id="post-16" class="post-16 page type-page status-publish entry">
+				<div class="entry-content clearfix">
+					<button class="request-btn blue-btn" id="service_request" onclick="window.location.href='sap.html#requestUsrForm'"><span class="glyphicon glyphicon-tasks"></span> &nbsp;Service user request</button>
+					<hr>
+					<div id="item_content" class="dash-row panel-body">
+						
+					</div>
+					<hr>
+				</div>
+				<footer class="entry-meta-bar clearfix">
+					<div class="entry-meta clearfix">
+					</div>
+				</footer>
+			</article>
+		</div><!-- #content -->
+	</div><!-- #primary -->
+</div>
+
+<!-- Templates -->
+<!-- Dashbord item -->
+<div id="item_template" class="panel dash-panel" style="display:none">
+	<div class="panel-heading"><h3 class="panel-title">Crop Type over Oltenia</h3></div>
+	<div class="panel-body">
+		<input type="hidden" name="service_user_request" value="" />
+		
+		<div class="hidden" id="processors_status_list">
+		</div>
+		<table class="table table-striped default_panel_style">
+			<tbody>
+				
+			</tbody>
+		</table>
+		<div class="submit-buttons tspace">
+			<button class="follow-request request-btn blue-btn btn-xs"><span class="glyphicon glyphicon-list-alt"></span> &nbsp;Details</button>
+			<button class="edit-request request-btn green-btn btn-xs"><span class="glyphicon glyphicon-pencil"></span> &nbsp;Edit</button>
+			<button class="cancel-request request-btn cancel-btn btn-xs"><span class="glyphicon glyphicon-remove"></span> &nbsp;Cancel processors</button>
+			<button class="finalize-service request-btn finalize-btn red-btn btn-xs disabled"><span class="glyphicon glyphicon-remove"></span> &nbsp;Finalize request</button>
+			<button name="get-support" class="get-support request-btn blue-btn btn-xs"><span class="glyphicon glyphicon-envelope"></span> &nbsp;Get support</button>
+			<button name="report-incident" class="report-incident request-btn orange-btn btn-xs"><span class="glyphicon glyphicon-alert"></span> &nbsp;Report incident</button>
+			<!--<button class="rate-service request-btn green-btn btn-xs"><span class="glyphicon glyphicon-star"></span> &nbsp;Rate service</button> TODO: uncomment when it will be available-->
+		</div>
+	</div>
+</div>
+<!-- Table body content -->
+<table style="display:none">
+	<tbody>
+		<tr id="table_row_template">
+			<th></th>
+			<td></td>
+		</tr>
+	</tbody>
+</table>
+
+<div style="display:none" id="processor_status_template">
+	<input type="hidden" class="processor_status" name="" value="" data-service-id="" />
+</div>
+
+<!-- Processor checkbox content -->
+<div style="display:none" id="processors_status_list_template" class="col-md-12">
+	<div class="col-md-6">
+		<label class="control-label col-md-12"><input type="checkbox" name="" value="1"/></label>
+	</div>
+	<div class="col-md-6">
+		<label class="col-md-12" id="cancel_requeststatus"><span>Status: </span><p></p></label>
+	</div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="assets/dist/css/styles-dashboard.css"/>
+<style>
+
+	#service_request{text-align:left;width:12.2em;padding-left:1em}
+	#chat{text-align:left;width:250px;float:right}
+	
+	#item_content{display: block!important;}
+	#item_content th,#item_content td, #item_content h3.panel-title,#requestform_cancel h3.control-label,#requestform_finalize h3.control-label{text-transform:capitalize}
+	#requestform_cancel h3.control-label,#requestform_finalize h3.control-label{text-align:center;padding-bottom:2% 0;}
+	#requestform_cancel .control-label,#requestform_finalize .control-label{font-weight:700}
+	#cancel_requeststatus,#finalize_requeststatus{text-transform:capitalize;}
+	#cancel_requeststatus{display:inline-flex}
+	#cancel_requeststatus>p{padding-left:1rem}
+	
+	#request_question>span{text-transform:capitalize;color:#3a6ba0}
+	#request_question{text-align:center;font-size:large;padding-bottom:3rem}
+	
+	#processors_list input[type="checkbox"]{margin-right:1rem}
+
+	.panel-group{margin:0}
+	.panel-group .panel-bevel{padding:2.5rem;background-color:whitesmoke;box-shadow:0rem 0.2rem 0.8rem 0rem rgba(0,0,0,0.1);border:0.1rem solid lightgray}
+	.panel-group .panel-body{background-color:white;padding:1.5rem 1.5rem;border-radius:0.4rem;border:0.1rem solid lightgray;box-shadow:0.3rem 0.3rem 0.8rem -0.2rem rgba(0,0,0,0.1)}
+
+	.dash-row{font-size:1.2rem;padding:0}
+	.dash-panel{position:relative;overflow:hidden;margin:0;border:1px solid lightgray;box-shadow:0.3rem 0.3rem 0.6rem -0.2rem rgba(0,0,0,0.3);border-radius:1rem}
+	.dash-panel{float:left;width:48%;margin:0 1% 2.5rem 1%;border:0.1rem solid #dadada}
+	.dash-panel .panel-heading{height:4rem;background-color:white}
+	.dash-panel .panel-title,.dash-panel .panel-subtitle{color:#30749c;font-size:2rem}
+	.dash-panel .panel-title .glyphicon{font-size:1.8rem;display:none;position:absolute;right:0.9rem;top:0.9rem}
+	.dash-panel .panel-body{position:relative;background-color:white;padding:1rem}
+
+	.dash-panel.status-rejected .panel-heading{border-left-color:crimson;background-color:rgba(255,0,0,0.1)}
+	.dash-panel.status-completed .panel-heading,.dash-panel.status-cancelled .panel-heading{border-left-color:gray;background-color:rgba(16,16,16,0.1)}
+	.dash-panel.status-new .panel-heading,.dash-panel.status-submitted .panel-heading{border-left-color:green;background-color:rgba(36,150,36,0.1)}
+	.dash-panel.status-success .panel-heading{border-left-color:green;background-color:#00800033}
+	.dash-panel.status-pending .panel-heading,.dash-panel.status-paused .panel-heading{border-left-color:orange;background-color:rgb(234,140,10,0.19)}
+	.dash-panel.status-running .panel-heading{border-left-color:blue;background-color:rgb(3,150,239,0.1)}
+	.dash-panel.status-error .panel-heading{border-left-color:blue;background-color:rgb(209,22,16,0.1)}
+	.dash-panel.status-warning .panel-heading{border-left-color:blue;background-color:rgb(238,157,43,0.2)}
+	.dash-panel.status-unknown .panel-heading{border-left-color:blue;background-color:rgb(30,130,200,0.1)}
+
+	.dash-panel ul{margin:0;list-style:none;padding:0}
+
+	.dash-panel:nth-child(2n+1){clear:both}
+
+	@media (max-width: 992px) {
+		.dash-panel{width:48%}
+		.dash-panel:nth-child(1n+1){clear:none}
+		.dash-panel:nth-child(2n+1){clear:both}
+	}
+	@media (max-width: 768px) {
+		.dash-panel{width:98%}
+		.dash-panel:nth-child(2n+1){clear:none}
+		.dash-panel:nth-child(1n+1){clear:none}
+		#service_request,#chat{float:none;margin-bottom:1rem}
+	}
+</style>
+<script type="text/javascript">
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("cancel_request");
+		purgeUiDialog("finalize_request");
+	}
+	
+	$(document).ready(function () {
+		$(window).scrollTop(0);
+		function defineFormDialogs() {
+			// Clear all previously defined dialogs
+			purgeAllProductsDialogs();
+			
+			// create dialog for cancel request form
+			$("#cancel_request").dialog({
+				title: "Cancel Request",
+				width: '700px',
+				autoOpen: false,
+				modal: true,
+				resizable: false,
+				beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+			}).on("click", ".cancel-btn", function (e) {
+				e.preventDefault();
+				closeDialog(this);
+			});
+			
+			// create dialog for finalize request form
+			$("#finalize_request").dialog({
+				title: "Finalize Request",
+				width: '700px',
+				autoOpen: false,
+				modal: true,
+				resizable: false,
+				beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+			}).on("click", ".cancel-btn", function (e) {
+				e.preventDefault();
+				closeDialog(this);
+			});
+		};
+		
+		//set the page title
+		var pageTitle = $("#menu").find("ul.primary-menu>li.selected>a").text().trim();
+		$("#wp-custom-header h1.header-post-title-class").html(pageTitle);
+		
+		/* Item buttons*/
+		
+		$("#item_content").on("click", ".follow-request", function (event) {
+			event.preventDefault();
+			var $parent = $(this).parents(".panel.dash-panel");
+			var requestID = $("input[name='service_user_request']",$parent).val();
+			window.location.href="sap.html#details?id=" + requestID;
+		});
+		
+		$("#item_content").on("click", ".edit-request", function (event) {
+			event.preventDefault();
+			var $parent = $(this).parents(".panel.dash-panel");
+			var requestID = $("input[name='service_user_request']",$parent).val();
+			window.location.href="sap.html#additionalConfig?id=" + requestID + "&action=edit";
+		});
+		
+		$("#item_content").on("click", ".cancel-btn", function (event) {
+			event.preventDefault();
+			$("#processors_list").html("");
+			var requestId = $(this).closest(".panel-body").find("input[name='service_user_request']").val();
+			var requestName = $(this).closest(".panel-body").siblings(".panel-heading").text();
+			
+			$('input[name="requestId"]', "#cancel_request").val(requestId);
+			$("#cancel_requestname", "#cancel_request").html(requestName);
+			
+			var processor_status_list = $(this).closest(".panel-body").find("input[class='processor_status']");
+			$.each(processor_status_list, function(index, elem){
+				var $processorTemplate = $("#processors_status_list_template").clone().removeAttr("style id");
+				$("input[type='checkbox']", $processorTemplate).attr({"name":elem.name, "value":$(this).closest(".panel-body").find("input[name='" + elem.name + "']").attr("data-service-id")});
+				$("input[type='checkbox']", $processorTemplate).parent().append(elem.name);
+				$("#cancel_requeststatus", $processorTemplate).children("p").html(elem.value).addClass("status-text-" + elem.value);
+				if (elem.value === "cancelled") {// if the processor is already cancelled, it will be disabled
+					$processorTemplate.addClass("disabled");
+					$("input[type='checkbox']", $processorTemplate).prop("disabled", true);
+				}
+				$("#processors_list").append($processorTemplate);
+			});
+			
+			
+			// TODO add cost information for a service request that whants to be cancelled
+			
+			// open delete dialog
+			$("#cancel_request").dialog("open");
+		});
+		
+		$("#item_content").on("click", ".finalize-btn", function (event) {
+			event.preventDefault();
+			var requestId = $(this).closest(".panel-body").find("input[name='service_user_request']").val();
+			var requestName = $(this).closest(".panel-body").siblings(".panel-heading").text();
+			var requestStatus = $(this).closest(".panel-body").find("th:contains('Status')").siblings("td").html();
+			
+			$('input[name="requestId"]', "#finalize_request").val(requestId);
+			$("#finalize_requestname", "#finalize_request").html(requestName);
+			
+			$("#request_question>span", "#finalize_request").html(requestName);
+			$("#finalize_requeststatus", "#finalize_request").children("p").html(requestStatus).addClass("status-text-" + requestStatus);
+			
+			// open delete dialog
+			$("#finalize_request").dialog("open");
+		});
+		
+		$("#item_content").on("click", ".rate-service", function (event) {
+			event.preventDefault();
+			var $parent = $(this).parents(".panel.dash-panel");
+			var requestName = $(".panel-title",$parent).html();
+			window.location.href="sap.html#rate?name=" + requestName;
+		});
+		
+		$("#item_content").on("click", ".report-incident,.get-support", function (event) {
+			event.preventDefault();
+			var $parent = $(this).parents(".panel.dash-panel");
+			var requestName = $(".panel-title",$parent).html();
+			window.location.href = "sap.html#contactForm?type=" + this.name + "&name=" + requestName;
+		});
+		
+		// validate Cancel request form
+		$("#requestform_cancel").on("submit", function (e) {
+			e.preventDefault();
+			var cancelObject = {};
+			cancelObject["serviceId"] = $(this).find("input[name='requestId']", "#requestform_cancel").val();
+			cancelObject["processorIds"] = $(this).find("input[type='checkbox']:checked", "#requestform_cancel").map(function () { return this.value; }).get();
+			cancelRequest(cancelObject);
+		});
+		
+		// enable confirm button for Cancel request
+		$("#cancel_request").on("change", "input[type='checkbox']", function (e){
+			e.preventDefault();
+			if ($(this).closest("#processors_list").find("input[type='checkbox']:checked").length > 0) {
+				$(this).closest("#requestform_cancel").find("input[type='submit']").prop("disabled", false);
+			} else {
+				$(this).closest("#requestform_cancel").find("input[type='submit']").prop("disabled", true);
+			}
+		});
+		
+		// validate Finalize request form
+		$("#requestform_finalize").on("submit", function (e) {
+			e.preventDefault();
+			var serviceRequestId = $("input[name='requestId']", "#requestform_finalize").val();
+			var finalizeObject = {"id" : serviceRequestId, "userId" : window.userID};
+			$.ajax({
+				url: "/request/delete",
+				type: "DELETE",
+				data: JSON.stringify(finalizeObject),
+				headers: { "content-type": "application/json" },
+				async: false,
+				success: function(response) {
+					if (response.status === responseStatus.success) {
+						window.location.reload();
+					}else {
+						console.log(response.status + ": " + response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("ERROR: " + textStatus);
+					if (jqXHR.status == 401) { // unauthorized
+						logout();
+					}
+				}
+			});
+		});
+		
+		function createItem (data) {
+			$.each(data, function(key, item) {
+				if ($("input[name='service_user_request'][value='"+item.id+"']").length > 0) {
+					var $period = $("input[name='service_user_request'][value='"+item.id+"']").parent().find("th:contains('Period')").siblings("td");
+					$period.append("<div>"+item.startDate + " / " + item.endDate+"</div>");
+				} else {
+					var $template = $("#item_template").clone();
+					var period = [];
+					$template.removeAttr("id style");
+					var requestStatus = item.serviceStatus.toLowerCase();
+					$.each(item, function(name, value) {
+						var $rowTemplate = $("#table_row_template").clone();
+						$rowTemplate.removeAttr("id");
+						if (name === "id") {
+							$("input[name='service_user_request']", $template).val(value);
+						}
+						if (name === "name") {
+							$("h3.panel-title", $template).html(value);
+							existingServicesArray.push(value.toLowerCase());
+						}
+						
+						if (name === "processors") {
+							$("th",$rowTemplate).html("Services ");
+							$.each (value, function (key, val) {
+								if ($("td",$rowTemplate).html() !== "") {
+									$("td",$rowTemplate).append(", ");
+								}
+								
+								var processorStatusInput = $("input", "#processor_status_template").clone();
+								processorStatusInput.attr({"value":jobStatusEnum(val.status),"name":val.name, "data-service-id":val.id});
+								
+								$("#processors_status_list", $template).append(processorStatusInput);
+								//$("td", $rowTemplate).append(processorEnum(val.shortName));
+								$("td", $rowTemplate).append(val.name);
+							});
+						}
+						if (name == "endDate") {
+							period[1] = value;
+						}else if (name == "startDate") {
+							period[0] = value;
+						}
+						
+						if (period.length == 2 && $template.find("th:contains('Period')").length == 0) {
+							$("th",$rowTemplate).html("Period");
+							$("td",$rowTemplate).html("<div>"+period[0] + " / " + period[1]+"</div>");
+						}
+						// do not add the empty rows
+						if ($('th', $rowTemplate).html() !== "") {
+							$("tbody", $template).append($rowTemplate);
+						}
+					});
+					var $rowStatusTemplate = $("#table_row_template").clone();
+					$rowStatusTemplate.removeAttr("id");
+					$("th",$rowStatusTemplate).html("Status");
+					$("td",$rowStatusTemplate).html(requestStatus).addClass("status-text-" + requestStatus);
+					$("tbody", $template).append($rowStatusTemplate);
+					$template.addClass("status-" + requestStatus);
+							
+					// disable cancel button
+					if (requestStatus === "cancelled") {
+						$(".cancel-request", $template).prop("disabled", true);
+					}
+					
+					// enable finalize button
+					if (requestStatus === "completed") {
+						$(".finalize-service", $template).prop("disabled", false);
+					}
+					
+					// workaround: edit button must be visible only for EarthAgriculture
+					if (siteTitle.replace(" ","").toLowerCase().indexOf("earthagriculture") < 0) {
+						$(".edit-request", $template).remove();
+					}
+			
+					// add job id on cancel and finalize buttons
+					$(".cancel-request", $template).attr("id", item.id);
+					$(".finalize-service", $template).attr("id", item.id);
+					$("#item_content").append($template);
+				}
+			});
+		}
+		
+		$.when(getAllRequests()).done(function (response) {
+			if (response.status === responseStatus.success) {
+				createItem(response.data);
+			}else {
+				console.log(response.status + ": " + response.message);
+			}
+		});
+		
+		
+		defineFormDialogs();
+	});
+	//# sourceURL=dashboard.js
+</script>

@@ -1,0 +1,512 @@
+<div class="panel panel-resources">
+	<div class="panel-heading">
+		<h2 class="panel-title">User manager</h2>
+	</div>
+	<div class="panel-body">
+		<input type="button" name="adduser" class="add-edit-btn vspace" value="Add new user">
+		<div class="panel-group">
+			<div class="panel bevel" style="border:1px solid lightgray">
+				<div id="div_edituser" style="display:none">
+					<!--  form add/edit user -->
+					<form id="userform_add_edit" class="tspace vspace" method="post">
+						<input type="hidden" name="user_id" id="user_id">
+						<div class="form-group form-group-sm row">
+							<label class="control-label col-md-4">Login:</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" name="login" id="login">
+							</div>
+						</div>
+						<div class="form-group form-group-sm row">
+							<label class="control-label col-md-4">Email:</label>
+							<div class="col-md-8">
+								<input type="text" class="form-control" id="email" name="email">
+							</div>
+						</div>
+						<div class="form-group form-group-sm row">
+							<label class="control-label col-md-4">Role:</label>
+							<div class="col-md-8">
+								<select class="form-control" name="role" id="role">
+									<option value="1">admin</option>
+									<option value="2" selected>user</option>
+                                    <option value="3">service user</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group form-group-sm row">
+							<label class="control-label col-md-4">Sites:</label>
+							<div class="col-md-8">
+								<select class="form-control" multiple="multiple" name="site[]" id="site">
+									<option value="0"></option>
+								</select>
+							</div>
+							<label class="control-label col-md-8 col-md-offset-4" for="checkbox"><input type="checkbox" id="checkbox">Select all sites</label>
+						</div>
+						<div class="form-group form-group-sm row">
+							<div class="col-md-12 error hidden">
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<input class="add-edit-btn" name="add_edit_user" type="submit" value="Save" />
+							<input class="add-edit-btn cancel-btn lspace" name="abort_add" type="button" value="Abort" />
+						</div>
+					</form>
+				</div>
+				<div id="div_deleteuser" style="display:none">
+					<!-- form delete user -->
+					<form id="userform_delete" method="delete">
+						<span>Are you sure you want to remove the selected user?</span>
+						<hr/>
+						<div class="form-group form-group-sm row">
+							<div class="col-md-12 error hidden"></div>
+						</div>
+						<div class="submit-buttons">
+							<input class="add-edit-btn delete-btn" name="delete_user_yes" type="submit" value="Yes">
+							<input class="add-edit-btn cancel-btn lspace" name="delete_user_no" type="button" value="No">
+						</div>
+					</form>
+				</div>
+				<!-- list of users -->
+				<div class="panel">
+					<div class="panel-heading"><h3 class="panel-title">Users list</h3></div>
+					<div class="panel-body">
+						<table id="users" class="table table-striped users-table" style="font-weight:normal"></table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<hr/>
+	</div>
+</div>
+<style>
+	input[name='adduser']{text-align:left;width:220px}
+	
+	.form-group .select2-container--default .select2-selection--multiple{outline:0;border:1px solid #ccc;-webkit-box-shadow:none;box-shadow:none}
+	.form-group .select2-container--default.select2-container--focus .select2-selection--multiple{border:1px solid #ccc}
+	.form-group .has-error .select2-container--default .select2-selection--multiple{border-color:#a94442}
+	
+	table#users{border-bottom-color:var(--table-border-color)}
+	table#users  th{height:42px}
+	
+	/* Action buttons */
+	table#users .icon[name="edit"  ]{color:orange}
+	table#users .icon[name="remove"]{color:red}
+	table#users tr.current-user{color:var(--color-default);font-weight:700}
+	table#users td:first-child{line-height:27px;font-size:14px;font-weight:700}
+	
+	table#users th.sorting,
+	table#users th.sorting_asc,
+	table#users th.sorting_desc{position:relative;background-image:none;padding-left:20px}
+	table#users th.sorting::after,
+	table#users th.sorting_asc::after,
+	table#users th.sorting_desc::after{content:'\f0dc';position:absolute;left:5px;font-family:'FontAwesome';color:var(--color-default-light)}
+	table#users th.sorting_desc::after{content:'\f0dd';color:var(--color-default)}
+	table#users th.sorting_asc::after{content:'\f0de';color:var(--color-default)}
+	
+	/* Datatables */
+	.dataTables_wrapper div.dataTables_info{color:#aaa}
+</style>
+<!-- includes dataTables -->
+<link  href="assets/libs/datatables/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/datatables/1.10.16/js/jquery.dataTables.min.js"></script>
+<!-- includes for validate form -->
+<script src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+<!-- includes multiselect library -->
+<link  href="assets/libs/select2/4.0.5/select2.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/select2/4.0.5/select2.min.js"></script>
+
+<script type="text/javascript">
+// ======================== EXTENSIONS ======================== //
+$.fn.clearValidation = function(){var v=$(this).validate();$('[name]',this).each(function(){v.successList.push(this);v.showErrors();});v.resetForm();v.reset();};
+/* ======================== PUBLIC USERS FUNCTIONS ======================== */
+function purgeAllUsersDialogs() {
+	purgeUiDialog("div_edituser");
+	purgeUiDialog("div_deleteuser");
+}
+// ======================== DOCUMENT READY ======================== //
+$(document).ready(function () {
+	var roles = new Array();
+	var sites = new Array();
+	var getSites = function (userId) {
+		return $.ajax({
+			cache: false,
+			url  : baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+			type : 'GET'
+		});
+	}
+	function defineFormDialogs() {
+		// clear all previous dialogs
+		purgeAllUsersDialogs();
+		
+		// create dialog for add/edit user form
+		$("#div_edituser").dialog({
+			title: "Add New User",
+			width: '560px',
+			autoOpen: false,
+			modal: true,
+			resizable: false,
+			beforeClose: function (event, ui)  { resetFormDialog($("form", this)); }
+		}).on("click", ".cancel-btn", function (e) {
+			e.preventDefault();
+			closeDialog(this);
+		});
+		// create dialog for delete user form
+		$("#div_deleteuser").dialog({
+			title: "Delete User",
+			width: '560px',
+			autoOpen: false,
+			modal: true,
+			resizable: false,
+			beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+		}).on("click", ".cancel-btn", function (e) {
+			e.preventDefault();
+			closeDialog(this);
+		});
+	}
+	function resetFormDialog($forms) {
+		$.each($forms, function (index, form) {
+			if (form.id) {
+				if (form.id == "userform_add_edit") {
+					$('#site', form).val('').trigger('change'); //reset multiselect selected options
+					form.reset();
+					$(form).clearValidation();
+					hidePanelError(form);
+				} else if (form.id == "userform_delete") {
+					hidePanelError(form);
+					form.reset();
+				}
+			}
+		});
+	}
+	function refreshAllUsers() {
+		$('#users').DataTable().ajax.reload();
+	}
+	function openAddNewUserDialog() {
+        $("#user_id").val(""); 
+		$("#site").prop("disabled", false);
+	    $("input[type='checkbox']").prop("disabled", false);
+		$("#login").data("originalValue", "-");
+		
+        $("#div_edituser").dialog({ "title": "Add new user" });
+        $("#div_edituser").dialog("open");
+    }
+	function openEditUserDialog(dna) {
+        // The current user can't edit its own profile
+        if (typeof dna !== "undefined") {
+			if (dna.id == window.userID) {
+				alert ("You can not edit your own account.");
+				return;
+			} else {
+				$("#user_id").val(dna.id);
+				$("#login").val(dna.login);
+				$("#email").val(dna.emailAddress);
+				$.each($("#role option"), function () {
+					this.selected = (parseInt(this.value) == dna.roleId);
+				});
+				$("#login").data("originalValue", dna.login);
+				
+				// If not Admin or service user
+				if (dna.roleId == 2) {
+					$("#site").prop("disabled", false);
+					$("input[type='checkbox']").prop("disabled", false);
+					$("#site").val(dna.siteIds).trigger("change");
+				} else {
+					$("#site").prop("disabled", true);
+					$("input[type='checkbox']").prop("disabled", true);
+				}
+				$("#div_edituser").dialog({ "title": "Edit User" });
+				$("#div_edituser").dialog("open");
+			}
+		}
+	}
+	function openDeleteUserDialog(dna) {
+		// The current user can't delete its own account
+        if (typeof dna !== "undefined") {
+			if (dna.id == window.userID) {
+				alert ("You can not delete your own account.");
+				return;
+			} else {
+				$("#div_deleteuser").dialog({ title: "Delete User <" + dna.login + ">" });
+				$("#div_deleteuser").dialog("open");
+				$("#userform_delete").data("userId", dna.id);
+			}
+		}
+	}
+	function deleteUser(form) {
+		hidePanelError(form);
+		$.ajax({
+			url: baseApiUrl + "users/" + $(form).data("userId"),
+			type: "DELETE",
+		    success: function (response) {
+				if (response.status == responseStatus.success) {
+					refreshAllUsers();
+					closeDialog(form);
+				} else {
+					showPanelError(form, response.message);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				showPanelError(form, jqXHR);
+			}
+		});
+	}
+	
+	// ======================== START ======================== //
+	if (!window.userIsAdmin) {
+		$("input[name='adduser']").remove();
+	}
+	defineFormDialogs();
+	
+	// get all sites for select2 options
+	$.when(getSites())
+	.done(function (response) {
+		if (response.status == responseStatus.success) {
+        	// define sites list
+			$('#site').html("");
+			$.each(response.data, function(index, site) {
+				$('#site').append('<option value="' + site.id + '">' + site.name + '</option>');
+				sites[site.id] = site.name;
+			});
+			// initialize site multiselect field
+			$('#site').select2({
+				tags: true,
+				placeholder: 'Select sites',
+				width: '100%'
+			});
+			
+			// define roles list // HARDCODED
+			roles["1"] = "admin";
+			roles["2"] = "user";
+            roles["3"] = "service_ui";
+			
+			// initialize and populate users DataTable
+			var usersTable = $('#users').DataTable({
+					width: '100%',
+					ajax: {
+						method: "GET",
+						url: baseApiUrl + "users/",
+						dataSrc: function (json) {
+							var rows = [];
+							// filter users list depending on user type
+							$.each(json.data, function (index, user) {
+								if (window.userIsAdmin || user.id == window.userID) {
+									rows.push(user);
+								}
+							});
+							return rows;
+						}
+					},
+					paging: false, //window.userIsAdmin,
+					searching: false, //window.userIsAdmin,
+					columns: [
+						{	data  : 'login'       , name: 'login'       , title: 'Login', width: '25%' } ,
+						{	data  : 'emailAddress', name: 'emailAddress', title: 'Email', width: '20%' },
+						{	data  : 'roleId',
+							name  : 'roleId',
+							title : 'Role',
+							width : '10%',
+							render: function(element) { return roles[element]; }
+						},
+						{	data  : 'siteIds',
+							name  : 'siteIds',
+							title : 'Sites',
+							width : '35%',
+							render: function (element) {
+								arr=$.map(element, function (id, idx) { return sites[id] });
+								return arr.join(", ");
+							}
+						},
+						{	data     : null,
+							title    : 'Actions',
+							className: 'center',
+							width    : '10%',
+							orderable: false,
+							render   : function (data) {
+								return 	'<button name="edit" title="Edit user" class="icon editor_edit"><span class="glyphicon glyphicon-pencil"></span></button>' +
+										'<button name="remove" title="Remove user" class="icon editor_remove"><span class="glyphicon glyphicon-trash"></span></button>'
+							}
+						}
+					],
+					createdRow: function (row, data, dataIndex) {
+						$(".editor_edit"  , row).data("dna", data);
+						$(".editor_remove", row).data("dna", data);
+						if (data.id == window.userID) {
+							$(".editor_edit"  , row).remove();
+							$(".editor_remove", row).remove();
+							if (window.userIsAdmin) {
+								$(row).addClass("current-user");
+								$("td", row).css({ "font-size": "14px" });
+							}
+						}
+					},
+					drawCallback: function(settings) {
+						if (!window.userIsAdmin && $(".table tbody tr td").length > 1) {
+							$("th:last-child", settings.ntable).addClass("hidden");
+							$("td:last-child", settings.ntable).addClass("hidden");
+						}
+					}
+				});
+		} else {
+			alert(response.message);
+		}
+	})
+	.fail(function (jqXHR, textStatus, errorThrown) {
+		alert(textStatus);
+	});
+	// ======================== Events ======================== //
+	// disable sites options when selected user is Admin
+	$("#role").on("change", function (e) {
+		if (roles[this.value] == 'admin' || roles[this.value] == 'service_ui') {
+			$("#site").prop('disabled', true);
+			$("input[type='checkbox']").prop('disabled', true);
+		} else {
+			$("#site").prop('disabled', false);	        	
+			$("input[type='checkbox']").prop('disabled', false);
+		}
+	});
+ 	// multiselect events
+    $('#site').on("change", function (e) {
+		$(this).valid();
+	});
+	$('#site').on("select2:open", function (e) {
+		// correct validation classes (has=*)
+		if ($(this).parents("[class*='has-']").length) {
+			// copies the classes
+			var classNames = $(this).parents("[class*='has-']")[0].className.split(/\s+/);
+			for (var i = 0; i < classNames.length; ++i) {
+				if (classNames[i].match("has-")) {
+					$("body>.select2-container").addClass(classNames[i]);
+				}
+			}
+		} else {
+			// removes any existing classes
+			$("body>.select2-container").removeClass(function (index, css) {
+				return (css.match(/(^|\s)has-\S+/g) || []).join(' ');
+			});
+		}
+	});
+	// event on checkbox 'Select all sites'
+    $("#checkbox").click(function (e) {
+        if ($("#checkbox").is(':checked')) {
+            $("#site>option").prop("selected", "selected");
+            $("#site").trigger("change");
+        } else {
+            $("#site>option").removeAttr("selected");
+             $("#site").trigger("change");
+         }
+    });
+	
+	// ======================== Actions ======================== //
+    // validate add user form
+    var validator = $("#userform_add_edit").validate({
+        rules: {
+           	login: {
+               	required: true, 
+               	pattern: "[a-z]{1}[\\w ]*",
+               	minlength: 3,
+               	remote: function (element) {
+					var oldVal = $(element).data("originalValue");
+					return {
+						url: baseApiUrl + "users?userName=" + element.value,
+						type: "GET",
+						processData: true,
+						dataFilter: function (response) {
+							var json = JSON.parse(response);
+							if (json.status == responseStatus.success) {
+								return ((json.data && json.data.login != oldVal) ? false : '"true"');
+							} else {
+								return '"User database inaccessible. Can not check username availability."';
+							}
+						}
+					}
+               	}
+            },
+        	email: {
+            	required: true,
+            	pattern: /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ 
+			},
+            "site[]": { required: true }
+        },
+        messages: {
+        	login: {
+            	pattern: "Invalid username.",
+            	minlength: $.validator.format("Please, at least {0} characters are necessary."),
+            	remote: "This username already exists."
+			},
+        	email: { pattern: "Please enter a valid email address." }
+        },
+        highlight: function (element, errorClass) {
+            $(element).parent().addClass("has-error");
+        },
+        unhighlight: function (element, errorClass) {
+            $(element).parent().removeClass("has-error");
+        },
+        errorPlacement: function (error, element) {
+			error.appendTo(element.parent());
+        },
+        submitHandler: function (form) {          
+			var user_id = $("#user_id").val();
+			var formData = {
+				login       : $('input[name="login"]', form).val(),
+				emailAddress: $('input[name="email"]', form).val(),
+				roleId      : $('select[name="role"]', form).val()
+			};
+			if (user_id != "") {
+				formData.id = user_id;
+			}
+			if (formData.roleId == "2") {
+				formData.siteIds = $.map($('#site').val(), function (siteId, idx) {
+					return parseInt(siteId);
+				});
+			}
+			hidePanelError(form);
+			$.ajax({
+				url: baseApiUrl + "users/",
+				type: "POST",
+				headers: { "content-type": "application/json" },
+				processData: false,
+				data: JSON.stringify(formData),
+				success: function (response) {
+					if (response.status == responseStatus.success) {
+						refreshAllUsers();
+						closeDialog(form);
+					} else {
+						showPanelError(form, response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					showPanelError(form, jqXHR);
+				}
+			});
+		},
+		success: function (label) {
+			label.remove();
+		}
+    });
+	
+    // open dialog 'Add new user'
+    $("input[name='adduser']").on("click", function (e) {
+        openAddNewUserDialog();
+	});
+	
+    $("table#users")
+	// open dialog 'Edit user'
+	.on("click", ".editor_edit", function (e) {
+        var dna = $(this).data("dna");
+		openEditUserDialog(dna);
+    })
+	// open dialog 'Delete user'
+	.on("click", ".editor_remove", function (e) {
+		var dna = $(this).data("dna");
+		openDeleteUserDialog(dna);
+	});
+	
+	// delete user action
+	$("#userform_delete").on("submit", function (e) {
+		e.preventDefault();
+		deleteUser(this);
+	});
+});
+
+//# sourceURL=users.js
+</script>

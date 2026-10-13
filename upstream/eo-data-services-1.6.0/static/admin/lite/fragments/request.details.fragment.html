@@ -1,0 +1,474 @@
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<section class="dialogs">
+	<div id="cancel_processor" style="display:none">
+		<!--  form cancel request -->
+		<form id="processorform_cancel" class="tspace vspace">
+			<input type="hidden" class="form-control" name="processorKey" value="">
+			<div class="form-group row">
+				<p id="info_message">The cancelled processors will no longer run, but you can still download or reuse any existing products.</p>
+			</div>
+
+			<div class="form-group form-group-sm row">
+				<label class="control-label col-md-12" id="processor_name">Are you sure you want to finalize the <span></span> processor ?</label>
+			</div>
+			
+			<div class="form-group form-group-sm row" id="processor_cost">
+				<label class="control-label col-md-6">Current Cost:</label>
+				<label class="col-md-6">0</label>
+			</div>
+			
+			<div class="form-group form-group-sm row">
+				<div class="col-md-12 error hidden">
+				</div>
+			</div>
+			
+			<div class="submit-buttons">
+				<input class="add-edit-btn delete-btn left-btn" type="submit" value="Confirm Cancel Processor" style="float:left" />
+				<input class="add-edit-btn cancel-btn" type="button" value="Abort" />
+			</div>
+		</form>
+	</div>
+</section>
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="content" class="clearfix">
+			<div class="request">
+				<h3 class="panel-title detail-page-title"></h3>
+				<h4 class="request-status">Status</h4>
+				<div id="request_details" class="form-page panel ui-tabs-panel ui-corner-bottom ui-widget-content" style="display: block;">
+					<div class="request-summary">
+						<div class="panel-body summary-chapter">
+							<h4 class="panel-title">About your service request</h4>
+							<div class="form-group row">
+								<label class="col-md-12"><span>Requested service</span><p id="sum_usr_thematic_area">agriculture_vegetation</p></label>
+								<label class="col-md-12"><span>Additional support</span><p id="sum_usr_additional_support"></p></label>
+							</div>
+						</div>
+						<div class="panel-body summary-chapter">
+							<h4 class="panel-title">Parameters</h4>
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Earth Observation Data</label>
+								<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Sentinel-2</span><p id="sum_usr_useS2">✓</p></label></div>
+								<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Landsat-8</span><p id="sum_usr_useL8" style="color: rgb(183, 183, 183);">✗</p></label></div>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Service Data</label>
+								<div class="chapter-subgroup s-content sub-service vegetation hidden">
+									<input type="hidden" class="form-control" name="processorId" value="">
+									<label class="col-md-12 highlight">
+										<span>Vegetation Status Indicators</span>
+										<span class="glyphicon glyphicon-remove glyphicon-cancel request-btn" title="Cancel"></span>
+									</label>
+									
+									<label class="col-md-12 sub-category"><span>Pheno NDVI metrics</span><p id="sum_usr_includeNDVI">✓</p></label>
+									<label class="col-md-12 sub-category"><span>Leaf Area Index</span><p id="sum_usr_includeLAI">✓</p></label>
+									<label class="col-md-12 category"><span>Status</span><p class="status"></p></label>
+									<label class="col-md-12 category"><span>Cost</span><p class="cost">0</p></label>
+								</div>
+								<div class="chapter-subgroup s-content sub-service dynamic_crop_mask hidden">
+									<input type="hidden" class="form-control" name="processorId" value="">
+									<label class="col-md-12 highlight">
+										<span>Dynamic Crop Mask</span>
+										<span class="glyphicon glyphicon-remove glyphicon-cancel request-btn" title="Cancel"></span>
+									</label>
+									
+									<label class="col-md-12 category"><span>Mode</span></label>
+									<label class="col-md-12 sub-category"><span>Unsupervised</span><p id="sum_usr_mode_unsupervised">✓</p></label>
+									<label class="col-md-12 sub-category"><span>Supervised</span><p id="sum_usr_mode_supervised" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_dynamic_crop_mask_file"></p></label>
+									<label class="col-md-12 sub-category"><span>EarthSignature</span><p id="sum_usr_mode_use_EarthSignature" style="color: rgb(183, 183, 183);">✗</p></label>
+									
+									<label class="col-md-12 category"><span>Schedule Type</span></label>
+									<label class="col-md-12 sub-category"><span id="sum_usr_type_repeat"></span></label>
+									
+									<label class="col-md-12 category"><span>Status</span><p class="status"></p></label>
+									<label class="col-md-12 category"><span>Cost</span><p class="cost">0</p></label>
+								</div>
+								<div class="chapter-subgroup s-content sub-service crop_type_map hidden">
+									<input type="hidden" class="form-control" name="processorId" value="">
+									<label class="col-md-12 highlight">
+										<span>Crop Type Map</span>
+										<span class="glyphicon glyphicon-remove glyphicon-cancel request-btn" title="Cancel"></span>
+									</label>
+									
+									<label class="col-md-12 category"><span>Mode</span></label>
+									<label class="col-md-12 sub-category"><span>In-situ Data</span><p class="usesFile" id="sum_usr_mode_insitu"></p><p class="usedFile" id="sum_usr_crop_type_map_insitu_file"></p></label>
+									<label class="col-md-12 sub-category"><span>EarthSignature</span><p id="sum_usr_mode_EarthSignature"></p></label>
+									
+									<label class="col-md-12 category"><span>Use your own reference crop mask</span></label>
+									<label class="col-md-12 sub-category"><span>File</span><p id="sum_usr_useReferenceMap_file" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_useReferenceMap_selected_file"></p></label>
+									<label class="col-md-12 sub-category"><span>Project</span><p id="sum_usr_useReferenceMap_project" class="usesFile" style="color: rgb(183, 183, 183);">✗</p><p class="usedFile" id="sum_usr_useReferenceMap_selected_project"></p></label>
+									
+									<label class="col-md-12 category"><span>Status</span><p class="status"></p></label>
+									<label class="col-md-12 category"><span>Cost</span><p class="cost">0</p></label>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Region of interest</label>
+								<div class="chapter-subgroup">
+									<label class="col-md-12"><span>Reference polygons</span><p id="sum_usr_refp">&nbsp;</p></label>
+									<label class="col-md-12"><span>Min Latitude</span><p id="sum_usr_latmin">46.885969217353335</p></label>
+									<label class="col-md-12"><span>Max Latitude</span><p id="sum_usr_latmax">48.96777745898615</p></label>
+									<label class="col-md-12"><span>Min Longitude</span><p id="sum_usr_lonmin">-11.66714751631247</p></label>
+									<label class="col-md-12"><span>Max Longitude</span><p id="sum_usr_lonmax">9.71178407112455</p></label>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body summary-chapter">
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Sensing period</label>
+								<div class="chapter-subgroup">
+									<label class="col-md-12"><span>From</span><p id="sum_usr_time_range_from">2021-03-28</p></label>
+									<label class="col-md-12"><span>To</span><p id="sum_usr_time_range_to">2021-03-30</p></label>
+									<label class="col-md-12"><span>Additional data specifications</span><p id="sum_usr_additional">&nbsp;</p></label>
+								</div>
+							</div>
+						</div>
+						
+						<div class="panel-body summary-chapter">
+							<div class="form-group row">
+								<label class="col-md-12 highlight">Request Cost</label>
+								
+								<div class="chapter-subgroup">
+									<label class="col-md-12">
+										<span>Current cost</span>
+										<p id="sum_usr_request_cost">0</p>
+									</label>
+									<label class="col-md-12">
+										<span>Estimated cost</span>
+										<p id="sum_usr_estimated_request_cost">0</p>
+									</label>
+								</div>
+								<span id="details_info_message">The displayed estimated cost is approximated.</span>
+							</div>
+						</div>
+					</div>
+					<div class="details-buttons">
+						<button class="request-btn blue-btn center-btn" id="close_detail">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+#content h3.panel-title{text-align:center; padding:2% 0}
+#content h4.request-status{text-align:center}
+#content .request{
+	width: 70%;
+    margin: 5rem auto 0 auto;
+    font-size: 14px;
+    padding: 25px;
+    position: relative;
+    box-shadow: 0 0 1.1rem 0.1rem rgb(0 0 0 / 37%);
+    border-left: 0px solid #d1e2ab;
+    background: whitesmoke;
+    color: #555
+}
+#content .detail-page-title,#content h4,#request_details #sum_usr_thematic_area,#request_details p.status{text-transform:capitalize}
+
+#request_details{margin:0 auto;font-size:14px}
+#request_details .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgba(0,0,0,0.1);padding:15px}
+#request_details h4.panel-title{color:#3a6ba0;padding:10px;margin:-15px -15px 15px -15px;border-bottom:1px dashed #e2e2e2}
+
+#request_details .form-group{margin-bottom:10px}
+#request_details .panel-body .form-group:last-child{margin-bottom:0}
+#request_details .form-group span{font-weight:400;color:gray;display:block;font-style:italic;min-height:5px;text-align:justify}
+#request_details .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+#request_details .form-group label       span.title{display:inline;font-style:normal;color:#555}
+#request_details .form-group label:hover span.title{font-weight:700}
+#request_details .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+#request_details .form-group label:hover span.extra-info{color:gray}
+#request_details .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+#request_details .form-group label :checked~span.extra-info{color:#3a6ba0}
+#request_details .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+#request_details .sentinel-group a{height:28px;color:#555;padding:2px 5px;font-style:normal;font-weight:400}
+#request_details .sentinel-group .options-title{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#request_details .sentinel-group>div>label .extra-info,
+#request_details .sentinel-group .options-title~label.error{font-size:0.8em;margin-bottom:2px;line-height:1.3em;padding:0}
+
+#request_details label.highlight{font-style:italic}
+#request_details label.highlight span{font-weight:700}
+
+#request_details .summary-chapter .form-group label{margin:0;display:table;float:left;width:100%}
+#request_details .summary-chapter .form-group label.highlight:not(:nth-child(2)){margin-bottom:5px}
+#request_details .summary-chapter .form-group label>*{margin:0;display:table-cell;line-height:1.2em;padding:3px 10px;font-size:14px;font-weight:400;font-style:normal;vertical-align:top;text-align:left}
+#request_details .summary-chapter .form-group label>span{width:35%;padding-left:0}
+#request_details .summary-chapter .form-group label>p:not([class*="status-text-"]){width:65%;border-top:1px solid #eaeaea;color:#1e6aa2}
+#request_details .summary-chapter .form-group label:nth-child(odd) p{background-color:#f7f7f7}
+
+#request_details .summary-chapter .form-group .chapter-subgroup{margin-bottom:10px;float:left;margin-left:4%;width:96%}
+#request_details .summary-chapter .form-group .chapter-subgroup label>span{margin-left:4%;width:31%}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label>*{background-color:#f7f7f7;border:0;padding:3px 10px}
+#request_details .summary-chapter .form-group .chapter-subgroup label.category>span{font-weight:700}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.sub-category>*{padding:3px 32px;}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>*{background-color:#eaeaea;border-bottom:1px solid lightgray;font-style:normal;font-weight:700;line-height:1.4em}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label:nth-child(2){margin-top:-5px}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label:not(.highlight):last-child>*{border-bottom:5px solid #f0f0f0;margin-bottom:5px}
+
+#request_details .details-buttons {text-align:center;padding:2% 0}
+
+#request_details .chapter-subgroup.s-content.sub-service p{font-weight:700}
+
+#request_details .summary-chapter .form-group label>p.usesFile{width:0%}
+#request_details .summary-chapter .form-group label>p.usedFile{width:50%}
+
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>span.glyphicon-cancel{color:#d11610;text-align:end;top:0px}
+#request_details .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>span.glyphicon-cancel.button-disabled{color:#c3bebe}
+
+#details_info_message{padding-right:15px;padding-left:15px;}
+
+#processor_name>span{text-transform:capitalize;color:#3a6ba0}
+#processor_name{text-align:center;font-size:large;padding-bottom:3rem}
+#processorform_cancel .control-label{font-weight:700}
+</style>
+<script type="text/javascript">
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("cancel_processor");
+	}
+	
+	$(document).ready(function () {
+		function defineFormDialogs() {
+			// Clear all previously defined dialogs
+			purgeAllProductsDialogs();
+			
+			// create dialog for cancel processor form
+			$("#cancel_processor").dialog({
+				title: "Cancel Processor",
+				width: '700px',
+				autoOpen: false,
+				modal: true,
+				resizable: false,
+				beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+			}).on("click", ".cancel-btn", function (e) {
+				e.preventDefault();
+				closeDialog(this);
+			});
+		};
+		
+		var getDataFrom = function (requestId) {
+			return $.ajax({
+				async: false,
+				url: baseApiUrl + "services/get/" + requestId,
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Content-Type", "application/json");
+				}
+			});
+		};
+		
+		var getService = function (serviceId) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				url  : baseApiUrl + "services/get/" + serviceId,
+				type : "GET"
+			});
+		};
+		
+		function displayResponse (data) {
+			if (data !== null) {
+				var serviceName = [];
+				var processorsStatusArray = [];
+				if (typeof data["processors"] !== "undefined") {
+					var bothL4 = typeof data["processors"]["l4a"] !== "undefined" && typeof data["processors"]["l4b"] !== "undefined";
+					//service data
+					$.each(data["processors"], function (key, value) {
+						var statusName = jobStatusEnum(value["status"]);
+						serviceName.push(processorEnum(key));
+						processorsStatusArray.push(value["status"]);
+						switch (key) {
+							case "l3b":
+								$("p.status",".vegetation").html(statusName).addClass("status-text-" + statusName);
+								$(".sub-service.vegetation").removeClass("hidden");
+								$("input[name='processorId']", ".vegetation").val(value["id"]);
+								if (value["status"] == 3 || value["status"] == 7 || value["status"] == 8) {
+									$("span.request-btn", ".vegetation").addClass("button-disabled");
+								}
+								var vegetationIndicators = value["include"];
+								if (typeof vegetationIndicators !== "undefined") {
+									if (vegetationIndicators.includes("NDVI")) {
+										$("#sum_usr_includeNDVI").html('&#10003;').css({ color: "" });
+									} else {
+										$("#sum_usr_includeNDVI").html('&#10007;').css({ color: "#b7b7b7" });
+									}
+									if (vegetationIndicators.includes("LAI")) {
+										$("#sum_usr_includeLAI").html('&#10003;').css({ color: "" });
+									} else {
+										$("#sum_usr_includeLAI").html('&#10007;').css({ color: "#b7b7b7" });
+									}
+								}
+								break;
+							case "l4a":
+								$("p.status",".dynamic_crop_mask").html(statusName).addClass("status-text-" + statusName);
+								$(".sub-service.dynamic_crop_mask").removeClass("hidden");
+								$("input[name='processorId']",".dynamic_crop_mask").val(value["id"]);
+								if (value["status"] == 3 || value["status"] == 7 || value["status"] == 8) {
+									$("span.request-btn", ".dynamic_crop_mask").addClass("button-disabled");
+								}
+								if (value["mode"] === "Unsupervised") {
+									$("#sum_usr_mode_unsupervised").html('').parent("label").removeClass("hidden");
+									$("#sum_usr_mode_supervised").parent("label").addClass("hidden");
+									$("#sum_usr_mode_use_EarthSignature").parent("label").addClass("hidden");
+								} else if(value["mode"] === "EarthSignature") {
+									$("#sum_usr_mode_unsupervised").parent("label").addClass("hidden");
+									$("#sum_usr_mode_supervised").parent("label").addClass("hidden");
+									$("#sum_usr_mode_use_EarthSignature").html('').parent("label").removeClass("hidden");
+								} else {
+									$("#sum_usr_mode_unsupervised").parent("label").addClass("hidden");
+									$("#sum_usr_mode_supervised").html('').parent("label").removeClass("hidden");
+									$("#sum_usr_mode_use_EarthSignature").parent("label").addClass("hidden");
+									
+									$(".sub-service.used_file").removeClass("hidden");
+									$("#sum_usr_dynamic_crop_mask_file").html(value["fileName"]);
+									$("#sum_usr_dynamic_crop_mask_file").parent("label").removeClass("hidden");
+								}
+								
+								if (typeof value["firstRunDate"] !== "undefined" && typeof value["repeatOnMonthDay"] !== "undefined") {
+									$("#sum_usr_type_repeat").html("Repeat on every " + value["repeatOnMonthDay"] + " day of month, starting with " + value["firstRunDate"]);
+								} else if (typeof value["firstRunDate"] !== "undefined") {
+									$("#sum_usr_type_repeat").html("Once on " + value["firstRunDate"]);
+								} else {
+									$("#sum_usr_type_repeat").html("");
+								}
+								break;
+							case "l4b":
+								$("p.status",".crop_type_map").html(statusName).addClass("status-text-" + statusName);
+								$(".sub-service.crop_type_map").removeClass("hidden");
+								$("input[name='processorId']",".crop_type_map").val(value["id"]);
+								if (value["status"] == 3 || value["status"] == 7 || value["status"] == 8) {
+									$("span.request-btn", ".crop_type_map").addClass("button-disabled");
+								}
+								if (value["mode"] === "Supervised") {
+									$("#sum_usr_mode_insitu"        ).html('').parent("label").removeClass("hidden");
+									$("#sum_usr_mode_EarthSignature").parent("label").addClass("hidden");
+									
+									$(".sub-service.used_file").removeClass("hidden");
+									$("#sum_usr_crop_type_map_insitu_file").html(value["fileName"]);
+									$("#sum_usr_crop_type_map_insitu_file").parent("label").removeClass("hidden");								
+								} else {
+									$("#sum_usr_mode_insitu"        ).parent("label").addClass("hidden");
+									$("#sum_usr_mode_EarthSignature").html('').parent("label").removeClass("hidden");
+								}
+								if (typeof value["referenceCropMaskFileName"] !== "undefined") {
+									$("#sum_usr_useReferenceMap_file", "div.crop_type_map").html("").parent("label").removeClass("hidden");
+									$("#sum_usr_useReferenceMap_project", "div.crop_type_map").parent("label").addClass("hidden");
+									$("#sum_usr_useReferenceMap_selected_file", "div.crop_type_map").html(value["referenceCropMaskFileName"]).css({ color: "" });
+								} else if (typeof value["useOutputCropMaskOfServiceId"] !== "undefined") {
+									$("#sum_usr_useReferenceMap_project", "div.crop_type_map").html("").parent("label").removeClass("hidden");
+									$("#sum_usr_useReferenceMap_file", "div.crop_type_map").parent("label").addClass("hidden");
+									$.when(getService(value["useOutputCropMaskOfServiceId"])).done(function (response) {
+										if (response.status === responseStatus.success) {
+											$("#sum_usr_useReferenceMap_selected_project", "div.crop_type_map").html(response.data.name).css({ color: "" });
+										} else {
+											console.log(response.status + ": " + response.message);
+										}
+									});
+								} else if (bothL4) {
+									$("#sum_usr_useReferenceMap_file", "div.crop_type_map").parent("label").addClass("hidden");
+									$("#sum_usr_useReferenceMap_file", "div.crop_type_map").parent("label").prev("label.category").addClass("hidden");
+									$("#sum_usr_useReferenceMap_project", "div.crop_type_map").parent("label").addClass("hidden");
+								} else {
+									$("#sum_usr_useReferenceMap_file", "div.crop_type_map").parent("label").addClass("hidden");
+									$("#sum_usr_useReferenceMap_selected_file", "div.crop_type_map").html("").parent("label").removeClass("hidden");
+									$("#sum_usr_useReferenceMap_project", "div.crop_type_map").parent("label").addClass("hidden");
+									$("#sum_usr_useReferenceMap_selected_project", "div.crop_type_map").html("").parent("label").removeClass("hidden");
+								}
+								break;
+						}
+					});
+				}
+			
+				// title
+				$(".detail-page-title").html(data["name"]);
+				//general status
+				var generalStatus = getRequestGeneralStatus(processorsStatusArray);
+				$(".request-status").html(generalStatus).addClass("status-text-" + generalStatus);
+				
+				// about your service request
+				$("#sum_usr_thematic_area").html(serviceName.toString().replaceAll(",", ", "));
+				$("#sum_usr_additional_support").html(data["additionalSupport"]);
+				
+				// earth Observation Data
+				$("#sum_usr_useS2").html('&#10007;').css({ color: "#b7b7b7" });
+				$("#sum_usr_useL8").html('&#10007;').css({ color: "#b7b7b7" });
+				if (typeof data["datasets"] !== "undefined") {
+					if (typeof data["datasets"] !== "undefined") {
+							if (data["datasets"].includes("Sentinel-2")){
+								$("#sum_usr_useS2").html('&#10003;').css({ color: "" });
+							}else {
+								$("#sum_usr_useS2").html('&#10007;').css({ color: "#b7b7b7" });
+							}
+							if (data["datasets"].includes("Landsat-8")) {
+								$("#sum_usr_useL8").html('&#10003;').css({ color: "" });
+							}else {
+								$("#sum_usr_useL8").html('&#10007;').css({ color: "#b7b7b7" });
+							}
+						}
+				}
+				
+				// region of interest
+				if (data["footprintFilename"] !== null) {
+					$("#sum_usr_refp").html(data["footprintFilename"]);
+				}
+				var readFlatCoordinates = (new ol.format.WKT()).readGeometry(data["footprint"]).flatCoordinates;
+				
+				$("#sum_usr_latmin").html(readFlatCoordinates[1]);
+				$("#sum_usr_latmax").html(readFlatCoordinates[5]);
+				$("#sum_usr_lonmin").html(readFlatCoordinates[0]);
+				$("#sum_usr_lonmax").html(readFlatCoordinates[4]);
+				
+				// sensing period
+				$("#sum_usr_time_range_from").html(data["startDate"]);
+				$("#sum_usr_time_range_to").html(data["endDate"]);
+				if (data["additionalDataSpecifications"] !== "") {
+					$("#sum_usr_additional").html(data["additionalDataSpecifications"]);
+				}
+			}
+		}
+
+		var requestId = getUrlParameter("id");
+		$.when(getDataFrom(requestId)).done(function (response) {
+			if (response.status === responseStatus.success) {
+				displayResponse(response.data);
+			}else {
+				console.log(response.status + ": " + response.message);
+			}
+		});
+		
+		$("#close_detail").on("click", function (e) {
+			e.preventDefault();
+			window.location.href='sap.html#dashboard';
+		});
+		
+		$("span.request-btn:not(.button-disabled)").on("click", function (e) {
+			e.preventDefault();
+			var processorKey = $(this).closest("div.sub-service").find("input[name='processorId']").val();
+			var requestName = $(this).closest("label.highlight").children(":first").text();
+			
+			$("#processor_name>span", "#cancel_processor").html(requestName);
+			$("input[name='processorKey']", "#cancel_processor").val(processorKey);
+			
+			// open cancel dialog
+			$("#cancel_processor").dialog("open");
+		});
+		
+		// validate Cancel request form
+		$("#processorform_cancel").on("submit", function (e) {
+			e.preventDefault();
+			var processorKeyArray = [$("input[name='processorKey']", "#processorform_cancel").val()];
+			var cancelObject = {};
+			cancelObject["serviceId"] = requestId;
+			cancelObject["processorIds"] = processorKeyArray;
+			cancelRequest(cancelObject);
+		});
+		
+		$("#wp-custom-header h1.header-post-title-class").html("View request");
+		
+		defineFormDialogs();
+	});
+	
+//# sourceURL=details.js
+</script>

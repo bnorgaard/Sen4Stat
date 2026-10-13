@@ -1,0 +1,129 @@
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="content" class="clearfix">
+			<form id="contact_form" enctype="text/plain" method="POST" action="">
+				<div class="contact-form-body panel ui-tabs-panel ui-corner-bottom ui-widget-content">
+					<h3 class="panel-title"></h3>
+					<p id="info_message">Please fill this form with your </p>
+					<div class="panel-body">
+						<!--<div class="form-group row">
+							<label for="fullname">Full Name</label>
+							<input type="text" id="fullname" name="fullname" placeholder="Your name...">
+						</div>
+						<div class="form-group row has-error">
+							<label for="email">E-mail</label>
+							<input type="text" id="email" name="email" placeholder="Your email...">
+						</div>-->
+						<div class="form-group row has-error">
+							<label for="email">Subject</label>
+							<input type="text" id="subject" name="subject" placeholder=""/>
+						</div>
+						<div class="form-group row has-error">
+							<label for="message">Message</label>
+							<textarea id="message" name="message" placeholder=""></textarea>
+						</div>
+					</div>
+					<div class="submit-buttons">
+						<button class="request-btn cancel-btn left-btn" id="cancel_contact">Cancel</button>
+						<!--<button class="request-btn blue-btn" id="send_contact">Send</button>-->
+						<button class="request-btn blue-btn" id="create_email">Create Email</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- include validation plugin -->
+<script type="text/javascript" src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<style>
+#contact_form{width:70%;margin:0 auto;font-size:1.4rem}
+#contact_form h3.panel-title{text-align:center; padding:2% 0;text-transform: capitalize;}
+#contact_form .panel .panel-body{background-color:white;border-radius:4px;border:0.1rem solid lightgray;margin-bottom:1.5rem;box-shadow:0.3rem 0.3rem 0.8rem -0.2rem rgba(0,0,0,0.1);padding:1.5rem}
+#contact_form h4.panel-title{color:#3a6ba0;padding:1rem;margin:-1.5rem -1.5rem 1.5rem -1.5rem;border-bottom:0.1rem dashed #e2e2e2}
+#contact_form .contact-form-body{width:70%;margin:5rem auto 0 auto;font-size:14px;padding:25px;position:relative;box-shadow:0 0 1.1rem 0.1rem rgb(0 0 0 / 37%);border-left:0px solid #d1e2ab;background:whitesmoke;color:#555}
+#contact_form input[type=text],#contact_form textarea{width:100%;padding:1rem;border:0.1rem solid #ccc;border-radius:0.4rem;box-sizing:border-box;margin-top:0.6rem;margin-bottom:1.6rem;resize:vertical}
+#contact_form input[type=text]:focus,#contact_form textarea:focus{border-color:#66afe9;outline:0;box-shadow:inset 0 0.1rem 0.1rem rgb(0 0 0 / 8%), 0 0 0.8rem rgb(102 175 233 / 60%)}
+#contact_form textarea{height:15rem;resize:none}
+
+#contact_form .form-group{margin:1rem}
+#contact_form .panel-body .form-group:last-child{margin-bottom:0}
+#contact_form .form-group span{font-weight:400;color:gray;display:block;font-style:italic;min-height:5px;text-align:justify}
+#contact_form .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+#contact_form .form-group label       span.title{display:inline;font-style:normal;color:#555}
+#contact_form .form-group label:hover span.title{font-weight:700}
+#contact_form .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+#contact_form .form-group label:hover span.extra-info{color:gray}
+#contact_form .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+#contact_form .form-group label :checked~span.extra-info{color:#3a6ba0}
+#contact_form .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+
+#contact_form label.highlight{font-style:italic}
+#contact_form label.highlight span{font-weight:700}
+#fullname::placeholder,#email::placeholder,#message::placeholder,#subject::placeholder{color:#d8d8d8}
+</style>
+<script>
+	$(document).ready(function () {
+		var formType = getUrlParameter("type");
+		var requestName = getUrlParameter("name");
+		var pageTitle = formType.replace("-"," ");
+		$("#contact_form h3.panel-title").html(requestName);
+		$("#wp-custom-header h1.header-post-title-class").html(pageTitle);
+		if (formType === "report-incident") {
+			$("#info_message").append("incident description");
+			$("#message").attr("placeholder", "Write incident description...");
+			$("#subject").attr("placeholder", "Write incident title...");
+		} else if (formType === "get-support") {
+			$("#info_message").append("support request");
+			$("#message").attr("placeholder", "Write request description...");
+			$("#subject").attr("placeholder", "Write requst title...");
+		}
+		
+		/* Buttons action */
+		$("#cancel_contact").click( function(event) {
+			event.preventDefault();
+			window.location.href = "sap.html#dashboard";
+		});
+		
+		$("#create_email").click( function(event) {
+			event.preventDefault();
+			if ($("#contact_form").valid()) {
+				var email = "denysa.stefanescu@gmail.com"; // TODO: replace email address
+				var subject = $("#subject").val();
+				var message = $("#message").val();
+				window.location.href = "mailto:" + email + "?Subject=" + pageTitle.toUpperCase() + ": " + requestName + " - " + subject + "&Body=" + message;
+				window.location.href = "sap.html#dashboard";
+			}
+		});
+		
+		/* Validation section */		
+		$.validator.addMethod('fullnameValidation', function (value) {
+			var pattern = /^[A-Z][a-z]+(\s|-)([A-Z][a-z]+\s?){1,}/;			
+			return pattern.test(value);
+		}, 'Invalid full name');
+		
+		//Form validation
+		$("#contact_form").validate({
+			rules: {
+				//email	: { required: true, email: true},
+				//fullname: { required: true,fullnameValidation:true},
+				message : { required: true},
+				subject	: { required: true}
+			},
+			highlight: function(element) {
+				$(element).closest(".form-group").addClass("has-error");
+			},
+			unhighlight: function(element) {
+				$(element).closest(".form-group").removeClass("has-error");
+			},
+			messages: {
+			},
+			errorPlacement: function(error, element) {				
+				error.appendTo($(element).closest(".form-group"));				
+			},
+			success: function(label) {
+				label.remove();
+			}
+		});
+	});
+	//# sourceURL=contact.js
+</script>

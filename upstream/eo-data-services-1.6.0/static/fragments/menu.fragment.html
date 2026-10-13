@@ -1,0 +1,65 @@
+<ul class="primary-menu">
+	<li class="dashboard"><a href="#dashboard"     >Dashboard      </a></li>
+	<li class="products" ><a href="#products"      >Products       </a></li>	
+</ul>
+<ul class="secondary-menu">
+	<li class="logout"><span class="glyphicon glyphicon-log-out"></span> logout</li>
+</ul>
+<ul class="tiny">
+	<li class="dashboard"><a href="#dashboard"     >Dashboard      </a></li>
+	<li class="products" ><a href="#products"      >Products       </a></li>
+	<li class=""         ><span>-</span></li>
+	<li class="logout"><span class="glyphicon glyphicon-log-out"></span> logout</li>
+</ul>
+<style>
+	/* General */
+	#menu ul{line-height:1.21em;margin:0}
+	#menu ul li{display:inline-block;font:1.3em/1.3em "Roboto Condensed",Arial,Helvetica,sans-serif;color:#999;margin:0.21em 0 0 1.78em;padding-bottom:0.21em;cursor:pointer}
+	#menu ul li.selected{color:var(--color-default);text-shadow:0 0 0.071em #4c9ac8;cursor:default;border-bottom:0.21em solid var(--color-default)}
+	#menu ul li.inactive {color:#e4e4e4;cursor:default}
+	#menu ul li:not(.selected):not(.inactive):hover{color:#333}
+	#menu ul li a{color:inherit;cursor:inherit}
+	/* Specific */
+	#menu ul.primary-menu{position:absolute;bottom:0;right:0;width:80%;width:calc(100% - 14.2em);text-align:right}
+	#menu ul.secondary-menu{position:absolute;bottom:-2.71em;right:0;z-index:99}
+	#menu ul.secondary-menu	li.logout{font-size:1.07em}
+	#menu ul.tiny{display:none;position:absolute;right:0.71em;top:0.71em;background-color:white;border:0.071em solid var(--table-header-bg-color);z-index:999}
+	#menu ul.tiny::before{content:"\f0c9";padding:0.71em;text-align:right;display:block;background-color:var(--table-header-bg-color);font-family:FontAwesome}
+	#menu ul.tiny li{display:none;margin:0;float:right;clear:both;padding:0.357em 0.71em;margin-bottom:0.357em}
+	#menu ul.tiny li.selected{margin-right:1.4em}
+	#menu ul.tiny:hover{width:14.2em}
+	#menu ul.tiny:hover::before{content:"Menu";font:1.21em/1.21em "Roboto Condensed",Arial,Helvetica,sans-serif}
+	#menu ul.tiny:hover li{display:inline-block}
+	/* Small body layout */
+	body.layout-sm #menu ul.tiny{top:-0.357em}
+	
+	/* Responsive */
+	@media (max-width:1210px) { #menu ul li{letter-spacing:-0.071em;} }
+	@media (max-width:1110px) { #menu ul li{margin-left:0.71em} }
+	@media (max-width:970px) {
+		#menu ul.primary-menu,#menu ul.secondary-menu{display:none}
+		#menu ul.tiny{display:block}
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready( function() {
+		// set admin pages
+		$(".primary-menu>li.datasources").addClass("for-admins");
+		$(".primary-menu>li.configurations").addClass("for-admins");
+		
+		$("ul.primary-menu").on("click", "a", function (e) {
+			if ($(this).parent().hasClass("inactive")) {
+				e.preventDefault();
+			}
+		});
+		
+		if (typeof window.tokenKey === "undefined") {
+			$(".primary-menu>li").addClass("inactive");
+		} else if (!window.userIsAdmin) {
+			$(".primary-menu>li.for-admins").addClass("inactive");
+		} else {
+			$(".primary-menu>li").removeClass("inactive");
+		}
+	});
+//# sourceURL=menu.js
+</script>

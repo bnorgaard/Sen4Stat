@@ -1,0 +1,12 @@
+:root {
+	--color-default-dark       : #00833c;
+	--color-default            : #007cba;
+	--color-default-light      : #5db685;
+	--table-header-bg-color    : #c6ebd3;
+	--accordion-header-bg-color: #e5f6eb;
+	--panel-thick-border       : #cfe8d8;
+	--table-hover-bg-color     : rgba(93,182,133,0.1);
+	--table-hover-bg-color-dark: rgba(93,182,133,0.2);
+	--table-border-color       : #e2e2e2;
+	--disabled-input-gb-color  : #eeeeee;
+}

@@ -1,0 +1,1344 @@
+<link rel="stylesheet" type="text/css" href="assets/dist/css/styles-dashboard.css"/>
+<style>
+.request-form{width:80%;margin:0 auto;font-size:14px;background-color:whitesmoke}
+.request-form h3.panel-title{text-align:center; padding-bottom:2%}
+.request-form .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgba(0,0,0,0.1);padding:15px}
+.request-form h4.panel-title{color:#3a6ba0;padding:10px;margin:-15px -15px 15px -15px;border-bottom:1px dashed #e2e2e2}
+
+.request-form [name]{padding:2px 5px;border-radius:0;font-weight:400}
+.request-form [name]:disabled{background-color:#F2F2F2}
+.request-form input:read-only{color:#aaa}
+.request-form [type="radio"],
+.request-form [type="checkbox"]{width:auto;height:auto;margin-right:10px;display:inline;box-shadow:none}
+
+.request-form .form-group{margin-bottom:10px}
+.request-form .panel-body .form-group:last-child{margin-bottom:0}
+.request-form .form-group span,.request-form .form-group table td{font-weight:400;color:gray;font-style:italic;min-height:5px;text-align:justify}
+.request-form .form-group span{display:block}
+.request-form .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+.request-form .form-group label       span.title{display:inline;font-style:normal;color:#555}
+.request-form .form-group label:hover span.title{font-weight:700}
+.request-form .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+.request-form .form-group label:hover span.extra-info{color:gray}
+.request-form .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+.request-form .form-group label :checked~span.extra-info{color:#3a6ba0}
+.request-form .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+
+.request-form .horizontal span{text-align:left}
+.request-form .horizontal.has-error .error{width:100%}
+.request-form .form-group.has-error .show-no-error{border-color:#ccc !important;box-shadow:none !important}
+
+.request-form label.highlight{font-style:italic}
+.request-form label.highlight span{font-weight:700}
+
+.request-form .summary-chapter .form-group label{margin:0;display:table;float:left;width:100%}
+.request-form .summary-chapter .form-group label.highlight{margin-bottom:5px}
+.request-form .summary-chapter .form-group label>*{margin:0;display:table-cell;line-height:1.2em;padding:3px 10px;font-size:14px;font-weight:400;font-style:normal;vertical-align:top;text-align:left}
+.request-form .summary-chapter .form-group label>span{width:35%;padding-left:0}
+.request-form .summary-chapter .form-group label>p   {width:65%;border-top:1px solid #eaeaea;color:#1e6aa2}
+.request-form .summary-chapter .form-group label:nth-child(odd) p{background-color:#f7f7f7}
+
+.request-form .summary-chapter .form-group .chapter-subgroup{margin-bottom:10px;float:left;margin-left:4%;width:96%}
+.request-form .summary-chapter .form-group .chapter-subgroup label>span{margin-left:4%;width:30%}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label>*{background-color:#f7f7f7;border:0;padding:3px 10px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>*{background-color:#eaeaea;border-bottom:1px solid lightgray;font-style:normal;font-weight:700;line-height:1.4em}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:nth-child(2){margin-top:-5px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:not(.highlight):last-child>*{border-bottom:5px solid #f0f0f0;margin-bottom:5px}
+
+.request-form .terms-conditions>label       >label{color:#3a6ba0;font-style:normal}
+.request-form .terms-conditions>label:hover>label{text-decoration:underline}
+.request-form label.title{font-weight:normal}
+
+.request-form div.underline{border-bottom:1px solid #e8e8e8;}
+.request-form div.scheduleType{border-bottom:1px solid #e8e8e8;}
+.request-form table.leftline{border-left:5px solid #e8e8e8;}
+.request-form .summary-chapter .form-group div>p,.request-form .summary-chapter .form-group table>tbody>tr>td{color:#1e6aa2!important;min-height:1.5em;text-align:justify;}
+.request-form .summary-chapter .form-group table>tbody>tr>td:first-child{max-width:15rem;}
+
+#mapExtent{height:480px;border:1px solid #c5c5c5;margin-bottom:10px}
+#myFlatMap .poly-actions-panel.drawer-panel .drawer-content{width:auto}
+
+#request_usr_page_2 input[type="file"]:disabled{color:lightgray}
+
+.glyphicon.glyphicon-backward,.glyphicon.glyphicon-forward{top:1rem;font-size:2rem;color:#c5c5c5;background-color:whitesmoke;position:absolute;z-index:10}
+.glyphicon-backward:not([disabled]):hover,.glyphicon.glyphicon-forward:not([disabled]):hover{color:#4c9ac8}
+
+.glyphicon.glyphicon-backward{left:0.5rem}
+.glyphicon.glyphicon-forward{right:0.5rem}
+
+#request_usr_page_3 .schedule-row input[type="number"]{padding:2px;width:40px;text-align:center;}
+#request_usr_page_3 .schedule-row label{font-weight:400;width:35px;margin:0;}
+#request_usr_page_3 td>.nowrap{display:inline-flex;}
+#request_usr_page_3 td.task_name{font-weight:700;}
+#request_usr_page_3 td .form-control {width:auto;line-height:normal;height:auto;}
+
+<!-- loading modal-->
+#myModalLoading div{background:transparent;box-shadow:none !important;}
+#myModalLoading .modal-content{margin-top:25%;text-align:center;color:#65b2c2;font-weight:bold;}
+svg.cog-svg{margin: 0;-webkit-animation: pop 0.4s ease-in;}
+svg .cog-group{animation:spin 4s linear infinite;transform-origin:50% 50%;animation-delay:0.4s;}
+svg .large-cog{animation:spin 8s linear infinite;transform-origin:29.3px 40.3px;animation-delay:0.4s;}
+svg .small-cog{animation:spinback 3s linear infinite;transform-origin:41.8px 20.8px;animation-delay:0.4s;}
+</style>
+<!-- include validation plugin -->
+<script type="text/javascript" src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+<!-- include map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+<!-- include moment js -->
+<script type="text/javascript" src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+<script type="text/javascript" src="assets/libs/underscore-min.js"></script>
+
+<!-- includes for datepicker -->
+<link href="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.js"></script>
+
+<div class="inner-wrap">
+	<div id="primary">
+		<div id="myModalLoading">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<svg class="cog-svg" width="67" height="67" xmlns="http://www.w3.org/2000/svg">
+						<g class="cog-group">
+							<circle fill="#65B2C2" cx="33.521" cy="33.574" r="33.26"></circle>
+							<path fill="#FFFFFF" class="large-cog" d="m26.154,25.215c-1.152,0.296 -2.248,0.712 -3.285,1.126c0.865,4.027 -2.535,5.329 -4.955,3.612c-0.922,0.652 -1.614,1.541 -1.902,2.785c2.535,1.716 1.268,6.275 -2.189,5.861c0,1.303 0,2.604 0,3.91c3.688,-0.357 4.494,4.204 2.189,6.157c0.635,0.947 0.922,2.252 2.189,2.547c2.189,-1.835 5.531,-0.178 4.667,3.613c1.038,0.414 2.132,0.83 3.284,1.124c0.463,-3.198 5.244,-3.198 5.763,0c1.153,-0.294 2.247,-0.71 3.286,-1.124c-0.864,-4.027 2.533,-5.332 4.955,-3.613c0.922,-0.65 1.61,-1.541 1.9,-2.784c-2.535,-1.716 -1.267,-6.275 2.19,-5.862c0,-1.302 0,-2.605 0,-3.908c-3.687,0.298 -4.495,-4.203 -2.19,-6.159c-0.635,-0.948 -0.865,-2.251 -2.189,-2.487c-2.191,1.836 -5.53,0.178 -4.666,-3.614c-1.039,-0.413 -2.133,-0.829 -3.286,-1.124c-0.806,3.256 -4.954,3.256 -5.761,-0.06zm8.586,15.398c0,3.196 -2.536,5.804 -5.705,5.804c-3.17,0 -5.705,-2.607 -5.705,-5.804c0,-3.197 2.535,-5.805 5.705,-5.805c3.17,-0.057 5.705,2.548 5.705,5.805z"></path>
+							<path fill="#FFFFFF" class="small-cog" d="m40.646,11.596c-0.627,0.114 -1.199,0.23 -1.769,0.404c0.227,2.135 -1.655,2.596 -2.795,1.559c-0.514,0.288 -0.914,0.692 -1.199,1.327c1.199,1.038 0.285,3.29 -1.484,2.886c-0.057,0.691 -0.17,1.326 -0.229,2.019c1.94,0.058 2.111,2.481 0.801,3.29c0.284,0.52 0.342,1.213 0.969,1.442c1.256,-0.806 2.91,0.232 2.225,2.136c0.514,0.287 1.083,0.577 1.654,0.75c0.457,-1.615 2.969,-1.327 3.025,0.346c0.629,-0.115 1.199,-0.23 1.77,-0.403c-0.228,-2.135 1.654,-2.598 2.795,-1.558c0.514,-0.29 0.914,-0.693 1.199,-1.328c-1.199,-1.038 -0.285,-3.29 1.484,-2.886c0.057,-0.692 0.173,-1.327 0.228,-2.02c-1.939,-0.057 -2.111,-2.48 -0.799,-3.29c-0.284,-0.519 -0.343,-1.212 -0.97,-1.442c-1.254,0.807 -2.91,-0.231 -2.225,-2.135c-0.514,-0.289 -1.084,-0.52 -1.655,-0.75c-0.628,1.673 -2.795,1.442 -3.025,-0.347zm3.596,8.482c-0.172,1.674 -1.713,2.827 -3.366,2.655c-1.655,-0.173 -2.853,-1.674 -2.626,-3.348c0.171,-1.673 1.712,-2.827 3.367,-2.654c1.597,0.174 2.796,1.674 2.625,3.347z"></path>
+						</g>
+					</svg>
+					<p>LOADING</p>
+				</div>
+			</div>
+		</div>
+		<div id="content" class="clearfix" style="display:none">
+			<form id="request_usr_form" enctype="multipart/form-data" method="POST" action="">
+				<div class="request-form">	
+					<i class="glyphicon glyphicon-backward hidden" disabled></i>
+					<i class="glyphicon glyphicon-forward"></i>
+					<ul>
+						<li><a href="#request_usr_page_1">Page 1</a></li>
+						<li><a href="#request_usr_page_2">Page 2</a></li>
+						<li><a href="#request_usr_page_3">Page 3</a></li>
+						<li><a href="#request_usr_page_4">Page 4</a></li>
+					</ul>
+					
+					<!--<h3 class="panel-title">Define your service request</h3>-->
+					<!-- PAGE 1: Select service list, add project name and additional support-->
+					<div id="request_usr_page_1" class="form-page panel" style="display: none;">
+						<h3 class="panel-title">Define your service request</h3>
+						<div class="panel-body">
+							<h4 class="panel-title">Services list</h4>
+							<div class="form-group row">
+								<label class="col-md-12 first-tag" for="processor">
+									<span class="info">Select a service form list</span>
+									<select multiple="multiple" class="form-control" size="7" name="processor" id="processor">
+										<!--<option value="optical" data-description="Optical: The sensors function in the optical part of wavelength spectrum, and include visible, near infrared and short-wave infrared wavelengths. These wavelengths are useful for distinguishing between forest types and other vegetation classes. Satellite sensors commonly used for detailed mapping include SPOT, Landsat, and Sentinel-2 with moderate resolution (pixel size 10 to 30 m).">Optical Composite</option>
+										<option value="sar" data-description="SAR: Synthetic aperture radar (SAR) bounces a microwave radar signal off the Earth’s surface to detect physical properties. Synthetic aperture radar (SAR) can “see” through darkness, clouds, and rain, detecting changes in habitat, levels of water and moisture, effects of natural or human disturbance, and changes in the Earth’s surface after events such as earthquakes or sinkhole openings.">SAR Composite</option>-->
+									</select>
+									<span class="extra-info">&nbsp;</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Please enter a name to your request</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="name">
+									<input type="text" class="form-control" maxlength="30" name="name" id="name" placeholder="Request name..." autocomplete="off" value="" />
+									<span class="extra-info">30 characters max</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Your foreseen activities and support needs</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="ask_for_support">
+									<span>Before specifying the parametrs for your service, please describe your request, its context and objectives, and the foreseen work and processing to be performed.</span>
+									<input type="checkbox" class="form-control has-group-toggle" name="ask_for_support" id="ask_for_support" /><label>Request additional support</label>
+								</label>
+							</div>
+							<div class="form-group row group-toggle hidden">
+								<label class="col-md-12" for="additionalSupport">
+									<textarea class="form-control" rows="5" maxlength="2000" name="additionalSupport" id="additionalSupport" placeholder="Free text (2000 words max.)"></textarea>
+									<span class="extra-info">Free text (2000 words max.)</span>
+								</label>
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn cancel-btn left-btn" onclick="window.location.href='sap.html#dashboard'">Cancel</button>
+							<button class="go-to-page request-btn blue-btn">Next</button>
+						</div>
+					</div>
+					
+					<!-- PAGE 2: Select observation data, region of interest and sensing period-->
+					<div id="request_usr_page_2" class="form-page panel" style="display: none;">
+						
+					</div>
+					
+					<!-- PAGE 3: Config selected services-->
+					<div id="request_usr_page_3" class="form-page panel" style="display: none;">
+						<h3 class="panel-title">Parameterize the selected services</h3>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn blue-btn left-btn">Previous</button>
+							<button class="go-to-page request-btn blue-btn" id="right-btn">Review and submit the request</button>
+						</div>
+					</div>
+					
+					<!-- PAGE 4: Summary-->
+					<div id="request_usr_page_4" class="form-page" style="display: none;">
+						
+					</div>
+					
+				</div>
+			</form>
+			<div id="additional_config_page" class="request-form" style="display: none;"></div>
+		</div>
+	</div>
+</div>
+<!-- Template -->
+<div id="processor_category_template" style="display:none">
+	<div class="panel-body col-md-12">
+		<h4 class="panel-title"></h4>
+	</div>
+</div>
+<div id="scheduled_type_category_template" style="display:none">
+	<div class="panel-body col-md-12">
+		<h4 class="panel-title"></h4>
+		<table class="table table-striped schedule-table">
+		   <thead>
+				<tr>
+					<th>Season name</th>
+					<th>Schedule type</th>
+					<th>First run time</th>
+					<th>Repeat</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+</div>
+<div id="scheduled_type_template" style="display:none">
+	<table>
+		<tbody>
+			<tr class="schedule-row">
+				<td class="task_name"></td>
+				<td class="schedule_type">
+					<select class="schedule_format form-control" name="schedule">
+						<option value="0">Once</option>
+						<option value="1">Cycle</option>
+						<option value="2">Repeat</option>
+					</select>
+				</td>
+				<td><input type="text" class="startdate schedule_format form-control" name="startdate" /></td>
+				<td>
+					<span class="div_repeatnever nowrap hidden"><label>Never</label></span>
+					<span class="div_repeatafter nowrap hidden"><label>After</label><input type="number" class="schedule_format form-control" name="repeatafter" value="1" min="0" /> <label>days</label></span>
+					<span class="div_oneverydate nowrap hidden"><label>Every</label><input type="number" class="schedule_format form-control" name="oneverydate" value="1" min="0" max="31" step="1" /> <label>day of month</label></span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<div id="processor_config_template" style="display:none">
+	<div id="processor_config" class="panel-body service"></div>
+</div>
+<div id="sub_service_template" style="display:none">
+	<div class="sub-service">
+		<h4 class="panel-title"></h4>
+		<div class="important_info" style="display:none">
+			<label>
+				<i class="fa fa-warning"></i><span></span>
+			</label>
+		</div>
+		<div class="form-group row">
+			<label>
+				<span></span>
+			</label>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("request_submit");
+	}
+
+	function createProcessorList(data) {
+		$.each(data, function(index,value){
+			$("#processor").append("<option value='" + value.id + "' data-shortName='" + value.shortName + "' data-description='" + value.description + "'>" + siteTitle.replaceAll(" ","") + " - " + value.name + "</option>");
+		});
+	}
+	
+	function getServiceList() {
+		$.ajax({
+			url: baseApiUrl + "request/",
+			type: "GET",
+			async: false,
+			dataType: 'json',
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+			},
+			success: function(response) {
+				if (response.status === responseStatus.success) {
+					var uiVisibleData = response.data.filter(obj=> obj.serviceUIVisible);
+					createProcessorList(uiVisibleData);
+					$("#content").data("serviceList",uiVisibleData);
+				}else {
+					console.log(response.status + ": " + response.message);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				console.log("ERROR: " + textStatus);
+				if (jqXHR.status == 401) { // unauthorized
+					logout();
+				}
+			}
+		});
+	}
+	
+	$(document).ready(function() {
+		getServiceList();
+		var previousServiceList = [];
+		var formData = new FormData();
+		
+		$("#wp-custom-header h1.header-post-title-class").html("User service request");
+		$("ul", ".request-form").addClass("hidden");
+		$(".request-form").tabs({
+			activate: function (event, ui) {
+				var currentServiceList = $("#processor").val();
+				var currentSelectedService = $("#prevSites").val();
+				switch (ui.newPanel.get(0).id) {
+					case "tab_usr_page1":
+						break;
+					case "request_usr_page_1":
+						if (JSON.stringify(currentServiceList) != JSON.stringify(previousServiceList)) {
+							previousServiceList = $("#processor").val();
+						}
+						break;
+					case "request_usr_page_2":
+						if (JSON.stringify(currentServiceList) != JSON.stringify(previousServiceList)) {
+							existingServices();
+							refreshAreaOfInterest();
+							if (previousServiceList.length > 0 && $("#usePrevSite").is(":checked")) {								
+								$("#defineNew").prop("checked", true).trigger("change");
+							}
+						}
+						if (typeof $("#content").data("retrivedRegions") === "undefined") {
+							retrivedRegions();
+						}
+						if (typeof $("#content").data("generalParams") === "undefined") {
+							getGeneralParams();
+						}
+						if (currentSelectedService !== $("#content").data("prevSelectedService")) {
+							$("#content").data("prevSelectedService", currentSelectedService);
+						}
+						break;
+					case "request_usr_page_4":
+						if (currentSelectedService !== $("#content").data("prevSelectedService")) {
+							$("#content").data("prevSelectedService", currentSelectedService);
+						}
+						break;
+				}
+			}
+		});
+		
+		$("#processor").on("change", function (e) {
+			$(this).siblings(".extra-info").html("");
+			$.each ($(this).children("option:selected"), function (index, option) {
+				if ($(this).parent().siblings(".extra-info").html() !== "") {
+					$(this).parent().siblings(".extra-info").append("<br/><br/>");
+				}
+				$(this).parent().siblings(".extra-info").append($(option).data("description"));
+			});
+		});
+
+		$("body").on("change", ".has-group-toggle", function (e) {
+			if ($(this).is(':checked')) {
+				$(this).closest(".form-group").next().removeClass("hidden");
+			} else {
+				$(this).closest(".form-group").next().addClass("hidden");
+			}
+		});
+		
+		$("#request_usr_page_1").on("change","#name", function (){
+			$("#content").removeData("defaultScheduledType");
+		});
+		
+		/* Functions */
+			/*START Get general parameters*/
+				function getGeneralParams () {
+					$.ajax({
+						url: baseApiUrl + "request/get_general_config",
+						type: "GET",
+						async: false,
+						dataType: 'json',
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("Accept", "application/json");
+							xhr.setRequestHeader("Content-Type", "application/json");
+						},
+						success: function(response) {
+							if (response.status === responseStatus.success) {
+								$("#content").data("generalParams",response.data);
+							}else {
+								console.log(response.status + ": " + response.message);
+							}
+						},
+						error: function (jqXHR, textStatus, errorThrown) {
+							console.log("ERROR: " + textStatus);
+							if (jqXHR.status == 401) { // unauthorized
+								logout();
+							}
+						}
+					});
+				}
+			/*END Get general parameters*/
+			
+			/*START Get continent, country and region.*/
+				var getRegions = function (){
+					return $.ajax({
+						beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+						cache: false,
+						async: false,
+						url  : baseApiUrl + "rois/regions",
+						type : "GET"
+					});
+				}
+				
+				function retrivedRegions() {
+					$.when(getRegions()).done(function (response) {
+						if (response.status === responseStatus.success) {
+							$("#content").data("retrivedRegions", response.data);
+						} else {
+							console.log(response.status + ": " + response.message);
+						}
+					});
+				}
+			/*END Get continent, country and region*/
+			
+			/* START Get existing projects and populate the fileds*/
+			var getExistingServices = function () {
+				return $.ajax({
+					beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+					cache: false,
+					async: false,
+					url  : baseApiUrl + "request/all-reuse?userId="+window.userID,
+					type : "GET"
+				});
+			};
+		
+			function existingServices() {
+				$.when(getExistingServices()).done(function (response) {
+					if (response.status === responseStatus.success){
+						if (response.data.length > 0) {
+							var existingMatchServices = [];
+							$.each(response.data, function (index,object) {
+								// all selected processors are found in the previous created request
+								//var match = object.processors.every(element => $("#processor").val().includes(element.id.toString()));
+								// at least one of the selected processors can be found in the previous created request
+								var match = object.processors.some(element => $("#processor").val().includes(element.id.toString()));
+								if (match) {
+									existingMatchServices.push(object);
+								}
+							});
+							if (existingMatchServices.length > 0) {
+								$("#content").data("existingServices", existingMatchServices);
+							} else {
+								$("#content").removeData("existingServices");
+							}
+						}
+					} else {
+						console.log(response.status + ": " + response.message);
+					}
+				});
+			}
+			/* END Get existing projects and populate the fileds*/
+
+		// Get Regex pattern for a comma separated list of numbers between 1 and maxValue
+		// (only works when maxValue is between 100 and 999)
+		function getListOfNumbersRegex(maxValue) {
+			var hundreds = parseInt(maxValue/100);
+			if (hundreds > 0) {
+				var decimals = parseInt((maxValue - hundreds*100)/10);
+				var units    = parseInt(maxValue - hundreds*100 - decimals*10);
+				
+				var number = "[1-9]|[1-9][0-9]|";
+				number += hundreds > 1 ? "[1-" + (hundreds-1) + "][0-9][0-9]|" : "";
+				number += decimals > 0 ? hundreds + "[0-" + (decimals-1) + "][0-9]|" : "";
+				number += (hundreds*10+decimals) + "[0-" + units + "]";
+				return "^ *(" + number + ")( *, *(" + number + "))* *$";
+			} else {
+				return "^.*$";
+			}
+		}
+
+		// Clean list format to match the following example: n1, n2, n3, ...
+		function prettifyNumericList() {
+			$.each($(".numeric-list"), function () {
+				// Trim value
+				var list = $(this);
+				var value = list.val().replace(/^ *| *$/g, "");
+				value = value.replace(/ *, */g, ", ");
+				list.val(value);
+			});
+		}
+		
+		// Populate summary page;
+		function populate_summary_page() {
+			// PAGE 1: About the service request
+			var selectedProcessors = $("#processor").val();
+			var selectedProcessorsText = [];
+			$("option:checked","#processor").toArray().forEach(function (currentValue) {
+				selectedProcessorsText.push(currentValue.outerHTML);
+			});
+			
+			$("#sum_usr_processor"         ).html(selectedProcessorsText);
+			$("#sum_usr_project_name"      ).html($("#name").val());
+			$("#sum_usr_additional_support").html($("#additionalSupport").val().replace(/\n/g, "<br/>"));
+			
+			// needs LPIS/LUT file or additional configuration
+			var needLPIS = $("#content").data("serviceList").filter(obj => $.inArray(obj.id.toString(),selectedProcessors) >= 0 && obj.lpisRequired).length > 0;
+			var needAdditionalConfig = $("#content").data("serviceList").filter(obj => $.inArray(obj.id.toString(),selectedProcessors) >= 0 && obj.additionalConfigRequired).length > 0;
+			if (needLPIS || needAdditionalConfig) {
+				$(".important_info","#request_usr_page_4").show();
+			} else {
+				$(".important_info","#request_usr_page_4").hide();
+			}
+			
+			// PAGE 2
+			// Observation data
+			$(".observationData","#request_usr_page_4").find("div").remove();
+			$.each($("input[type='checkbox']","#earthObsData"), function (idx, elem) {
+				var html = "<div class='chapter-subgroup s-content'><label class='col-md-12 highlight'><span>"+elem.value+"</span>";
+				if (elem.checked) {
+					html += "<p>&#10003;</p>";
+				} else {
+					html += "<p style='color:#b7b7b7'>&#10007;</p>";
+				}
+				html += "</label></div>";
+				$(".observationData","#request_usr_page_4").append(html);
+			});
+			// Region of interest
+			if ($("#roiContinent option:selected").val() !== "" || $("#roiCountry option:selected").val() !== "") {
+				// show and populate region info
+				$(".regions", "#request_usr_page_4").removeClass("hidden");
+				$("#sum_usr_continent").html($("#roiContinent option:selected[value!='']").text());
+				$("#sum_usr_country").html($("#roiCountry option:selected[value!='']").text());
+				// hide lat/lon, polygon info
+				$(".polygon", "#request_usr_page_4").addClass("hidden");
+			} else {
+				// show and populate lat/lon, polygon info
+				$(".polygon", "#request_usr_page_4").removeClass("hidden");
+				if ($("#shapeFile").val() === "") {
+					$("#sum_usr_refp").parent().addClass("hidden");
+				} else {
+					$("#sum_usr_refp").parent().removeClass("hidden");
+					$("#sum_usr_refp").html($("#shapeFile").val().split('\\').pop() + "&nbsp;");
+				}
+				$("#sum_usr_latmin").html($("#latmin").val());
+				$("#sum_usr_latmax").html($("#latmax").val());
+				$("#sum_usr_lonmin").html($("#lonmin").val());
+				$("#sum_usr_lonmax").html($("#lonmax").val());
+				// hide region info
+				$(".regions", "#request_usr_page_4").addClass("hidden");
+			}
+			// General parameters
+			$.each($("#content").data("generalParams"), function(idx,param){
+				//needed in order to find the element with key (the key contains dot and this is translate as class in JS)
+				var key = param.key;
+				if (key.indexOf(".") >= 0) {
+					key = key.replaceAll(".","\\.");
+				}
+				if ($("#"+key,"#request_usr_page_2").length > 0) {
+					if ($("div#sum_usr_"+param.categoryId,"#request_usr_page_4").length === 0) {
+						var categoryTemplate = "<div class='panel-body summary-chapter' id='sum_usr_"+param.categoryId+"'><div class='form-group row'><label class='col-md-12 highlight'>"+param.category+"</label><div class='chapter-subgroup'></div></div></div>";
+						var $parent = $(".request-summary","#request_usr_page_4");
+						$parent.append(categoryTemplate);
+					} else { //remove added parameters in order to repopulate with the new values
+						$("#sum_usr_"+key,$("div#sum_usr_"+param.categoryId,"#request_usr_page_4")).closest(".chapter-subgroup").empty();
+					}
+					var $template = $("div#sum_usr_"+param.categoryId,"#request_usr_page_4");
+					if ($("#sum_usr_"+key,$template).length == 0) {
+						var paramKey = param.key.replaceAll(".","\\.");
+						$(".chapter-subgroup",$template).append("<label class='col-md-12'><span>"+param.label+"</span><p id='sum_usr_"+param.key+"'>"+$("#"+paramKey,"#request_usr_page_2").val()+"</p></label>");
+					}
+				}
+			});
+			// Sensing period section
+			$("#sum_usr_time_range_from").html($("#startDate").val());
+			$("#sum_usr_time_range_to").html($("#endDate").val());
+			$.each($("#exceptMonth").val(), function (idx, val) {
+				if ($("#sum_usr_time_except").html() !== "") {
+					$("#sum_usr_time_except").append(", " + months[parseInt(val)]);
+				} else {
+					$("#sum_usr_time_except").html(months[parseInt(val)]);
+				}
+			});
+			
+			$("#sum_usr_additional").html($("#additionalDataSpecifications").val().replace(/\n/g, "<br/>") + "&nbsp;");
+			// PAGE 3:
+			// Show selected services summary (dynamically)
+			$(".serviceData","#request_usr_page_4").find("div.sub-service").remove();
+			$.each(selectedProcessors, function(idx,processorId) {
+				var $content = $("div", "#procesor_summary_template").clone();
+				var data = $("#content").data("serviceList").find(obj=> obj.id === parseInt(processorId));
+				html = "<div class='chapter-subgroup s-content sub-service'>";
+				html += "<label class='col-md-12 highlight'><span>"+data.name+"</span></label>";
+				var uiVisibleParams = data.parameters.filter(obj=> obj.serviceUiVisible);
+				var sortedParams = _.sortBy(uiVisibleParams,"dataType");
+				$.each(sortedParams, function(index, param){
+					switch (param.dataType) {
+						case "string": case "int": case"float":
+							if ($("*[name='"+param.key+"']").val().indexOf("/") > -1) {
+								html += "<div class='col-md-12 underline'><span class='col-md-4'>"+param.label+"</span><p class='col-md-8' style='overflow-wrap:break-word;'>"+$("*[name='"+param.key+"']").val()+"</p></div>";
+							} else {
+								html += "<div class='col-md-12 underline'><span class='col-md-10'>"+param.label+"</span><p class='col-md-2' style='overflow-wrap:break-word;'>"+$("*[name='"+param.key+"']").val()+"</p></div>";
+							}
+							break;
+						case "file":
+							html += "<div class='col-md-12 underline'><span class='col-md-4'>"+param.label+"</span><p class='col-md-8' style='overflow-wrap:break-word;'>"+$("*[name='"+param.key+"']").val()+"</p></div>";
+							break;
+						case "string[]":case "bool":
+							$.each($("*[name='"+param.key+"']"), function (idx,elem) {
+								var label = $(elem).parent().find("label").html();
+								html += "<div class='col-md-12 underline'><span class='col-md-10'>"+label+"</span>";
+								if (elem.checked) {
+									html += "<p class='col-md-2'>&#10003;</p>";
+								} else {
+									html += "<p style='color:#b7b7b7' class='col-md-2'>&#10007;</p>";
+								}
+								html += "</div>";
+							});
+							break;
+						default:
+							console.log("WARN: "+ param.dataType + " is not displayed");
+							break;
+					}
+				});
+				
+				// add schedule type
+				if ($("#scheduled_task_"+processorId).length > 0) {
+					html += "<div class='col-md-12'><div class='col-md-12 scheduleType'><span class='col-md-2' style='padding:0'>Schedule type</span>";
+					html+="<table class='leftline col-md-10'><thead><tr><td>Season name</td><td>Repeat Type</td><td>First time run</td><td>Repeat</td></tr></thead>"
+					$.each($("tbody>tr",$("#scheduled_task_"+processorId)), function(index,elem){
+						var seasonName = $(".task_name",elem).html();
+						var repeatType = $("[name='schedule']",elem).val();
+						var firstTimeRun = $("[name='startdate']").val();
+						var $repeatSpan = $(".nowrap:not(.hidden)",elem);
+						var repeat = "";
+						$.each($repeatSpan.children(),function(i,child){
+							if (child.localName === "label") {
+								repeat += child.innerHTML + " ";
+							} else {
+								repeat += child.value + " ";
+							}
+						});
+						html+="<tbody><tr><td style='word-break:break-word;'>"+seasonName+"</td><td>"+repeatType+"</td><td>"+firstTimeRun+"</td><td>"+repeat.trim()+"</td></tr></tbody>";
+
+					});
+					html+="</table></div></div>";
+				}
+				html += "</div>";
+				$(".serviceData","#request_usr_page_4").append(html);
+			});
+		}
+		
+		function drawRectangle(latmin, latmax, lonmin, lonmax, source) {
+		   
+			var polyCoords = [];
+			var p1 = lonmin + "," + latmin;
+			var p2 = lonmax + "," + latmin;
+			var p3 = lonmax + "," + latmax;
+			var p4 = lonmin + "," + latmax;
+			var coords = (p1 + " " + p2 + " " + p3 + " " + p4).split(' ');
+			for (var i in coords) {
+				var c = coords[i].split(',');
+				polyCoords.push(ol.proj.transform([parseFloat(c[0]), parseFloat(c[1])], 'EPSG:4326', 'EPSG:3857'));
+			}
+		   
+			var feature = new ol.Feature({
+				geometry: new ol.geom.Polygon([polyCoords])
+			});
+			feature.setProperties({"extraFeatureDescription": "preview"});
+			source.clear();
+			source.addFeature(feature);
+		   
+			return feature;
+		}
+/* END Functions */
+
+/* Validation section */
+		
+		// Custom validation for ROI selection (shape file or lat/lon)
+		$.validator.addMethod('roiSelect', function (value, element, params) {
+			if ($("#shapeFile").closest("div").find("label#roiSelect-error").length > 0) {
+				clearRegionOfInterest();
+			}
+			return $("#shapeFile").val() != ''|| $(".latlon input[type='number']").filter(function () { return this.value !== ''; }).length == 4;
+		}, 'Select either a shapefile or the geographical coordinates.');
+		
+		// Custom validation for a set of two dates
+		$.validator.addMethod('datesGroupValidation', function(value, element, params) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			var isValid = dates.length == 2 && $(dates[0]).datepicker("getDate") <= $(dates[1]).datepicker("getDate") && validPeriod($("#startDate").val(),$("#endDate").val());
+			if (isValid) {
+				var startYear = parseInt($("#startDate").val().substring(0,$("#startDate").val().indexOf("-")));
+				var endYear = parseInt($("#endDate").val().substring(0,$("#endDate").val().indexOf("-")));
+				if (startYear === endYear) {
+					var startMonthIndex = $("#startDate").val().indexOf("-") + 1;
+					var endMonthIndex = $("#startDate").val().lastIndexOf("-");
+					var startMonth = parseInt($("#startDate").val().substring(startMonthIndex,endMonthIndex));
+					var endMonth = parseInt($("#endDate").val().substring(startMonthIndex,endMonthIndex));
+					if (endMonth - startMonth > 1) {
+						$("#exceptMonth").prop("disabled", false);
+					} else {
+						$("#exceptMonth").prop("disabled", true);
+					}
+				} else {
+					$("#exceptMonth").prop("disabled", false);
+				}
+			}
+			return isValid;
+		}, function (params, element) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			/*START //used to keep the seson period to one year */
+			if (dates.length === 2 && !validPeriod($("#startDate").val(),$("#endDate").val()) && $(dates[0]).datepicker("getDate") <= $(dates[1]).datepicker("getDate")) {
+				//$(".hasDatepicker[id!='"+element.id+"']",".sensing_period").val("");
+				return "Maximum period must be one year!";
+			}
+			/* END //used to keep the seson period to one year*/
+			return dates.length < 2 ? 'Both fields above are required' : 'Start date should not be greater than end date';
+		});
+		
+		// Custom validation for request name
+		$.validator.addMethod('nameValidation', function(value, element, params) {
+			if (typeof existingServicesArray === "undefined" || existingServicesArray.length === 0) {
+				$.when(getAllRequests()).done(function (response) {
+					if (response.status === responseStatus.success) {
+						$.each(response.data, function(key, item) {
+							$.each(item, function(name, value) {
+								existingServicesArray.push(item.name.toLowerCase());
+							});
+						});
+					}else {
+						console.log(response.status + ": " + response.message);
+					}
+				});
+			}
+			var isValid = value.trim() !== "" && existingServicesArray.indexOf(value.toLowerCase()) === -1;			
+			return isValid;
+		}, function (params, element) {
+			return element.value.trim() !== "" ?  "Request name already exist!" : "This field is required.";
+		});
+		
+		$.validator.addMethod('usePrevSite', function(value) {
+			if (value === "usePrevSite") {
+				return $("#prevSites").val() !== null;
+			}
+			return true;
+		}, "Previous service request must be selected!");
+		
+		$.validator.addMethod('observationDataValid', function(value, element) {
+			var isValid = true;
+			if ($(element).closest("div[id]").find("input[type='checkbox']:checked").length === 0) {
+				isValid = false;
+			} else {
+				var selectedObservationData = $(element).closest("div[id]").find("input[type='checkbox']:checked").map(function() {
+					return $(this).val();
+				}).get();
+				$.each($("#processor").val(), function (index, processorId) {
+					var supportedSatellites = $("#content").data("serviceList").filter(i => i.id === parseInt(processorId))[0].supportedSatellites;
+					if (supportedSatellites.filter(x => selectedObservationData.includes(x)).length === 0) {
+						isValid = false;
+						return false;
+					}
+				});
+			}
+			return isValid;
+		}, function (params, element) { 
+			var observationDataValidMessage;
+			if ($(element).closest("div[id]").find("input[type='checkbox']:checked").length === 0) {
+				observationDataValidMessage = "At least one observation data must be selected!";
+			} else {
+				var selectedObservationData = $(element).closest("div[id]").find("input[type='checkbox']:checked").map(function() {
+					return $(this).val();
+				}).get();
+				$.each($("#processor").val(), function (index, processorId) {
+					var supportedSatellites = $("#content").data("serviceList").filter(i => i.id === parseInt(processorId))[0].supportedSatellites;
+					if (supportedSatellites.filter(x => selectedObservationData.includes(x)).length === 0) {
+						observationDataValidMessage = supportedSatellites.toString().replaceAll(","," or ") + " must be selected!";
+						return false;
+					}
+				});
+			}
+			return observationDataValidMessage;
+		});
+		
+		//Form validation
+		$("#request_usr_form").validate({
+			rules: {
+				// PAGE 1
+				processor      			: { required: true },
+				name   					: { nameValidation: true },
+				// PAGE 2
+				serviceInfo 			: { usePrevSite: true},
+				observationData			: { observationDataValid: true },
+				latmin  	       		: { roiSelect: true },
+				latmax      	   		: { roiSelect: true },
+				lonmin         			: { roiSelect: true },
+				lonmax        	  		: { roiSelect: true },
+				shapeFile   	   		: { roiSelect: true },
+				startDate				: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				endDate  				: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				// PAGE 3
+				// PAGE 4
+				conditions      		: { required: true }
+			},
+			highlight: function(element, errorClass) {
+				$(element).closest(".form-group").addClass("has-error");
+			},
+			unhighlight: function(element, errorClass) {
+				$(element).closest(".form-group").removeClass("has-error");
+			},
+			groups: {
+				roiSelect    	: "latmin latmax lonmin lonmax shapeFile",
+				timeRange    	: "startDate endDate",
+				compositePeriod : "selected_period_optical selected_number_optical selected_period_sar selected_number_sar"
+			},
+			messages: {
+			},
+			errorPlacement: function(error, element) {
+				
+					$(error).addClass("col-md-12");
+					if (element.closest(".roi").length > 0) {
+						error.appendTo($(element).closest(".roi").find(">div.form-group:last-child"));
+					} else if (element.hasClass("numeric-list")) {
+						error.appendTo($(element).parent());
+					} else if (element.hasClass("timeRun") || element.attr("name") === "polarization") {
+						error.appendTo($(element).closest("div"));
+					} else if (element.attr("type") === "checkbox") {
+						error.appendTo($(element).closest("div[id]"));
+					} else {
+						error.appendTo($(element).closest(".form-group"));
+					}
+				
+			},
+			success: function(label) {
+				label.remove();
+			}
+		});
+		
+		function checkPageValidation() {
+			if ($("#request_usr_form").valid() && validateFileInputs()) {
+				return true;
+			} else {
+				var ferror = $("label.error:visible", ".form-page:visible").first();
+				
+				if ($(ferror).attr("for") == "roiSelect") {// PAGE 2
+					if      ($("#latmin").val() == '') { $("#latmin").first().focus(); }
+					else if ($("#latmax").val() == '') { $("#latmax").first().focus(); }
+					else if ($("#lonmin").val() == '') { $("#lonmin").first().focus(); }
+					else                               { $("#lonmax").first().focus(); }
+				} else if ($("#"+$(ferror).attr("for")).is("input") || $("#"+$(ferror).attr("for")).is("select")) {
+					$(ferror).focus();
+				} else { $(ferror).closest("div").attr("tabindex",-1).focus(); }
+				return false;
+			}
+		}
+/* END Validation section */
+		function createProcessorHtml(param, hidden){
+			switch (param.dataType) {
+				case "bool":
+					html = "<div class='form-group col-md-6"+(hidden?" hidden":"")+"'>";
+					break;
+				default:
+					html = "<div class='form-group row"+(hidden?" hidden":"")+"'>";
+					break;
+			}
+			switch (param.dataType) {
+					case "string":
+						html += "<label class='col-md-7'><span>"+param.label+"</span></label><div class='col-md-5'>";
+						if (typeof param.allowedValues !== "undefined" && param.allowedValues !== null) {
+							var allowedValues = param.allowedValues;
+							if (allowedValues.allowed_values !== null) {
+								html += "<label class='' for='" + param.key + "'><select id='"+param.key +"' name='"+param.key +"' class='form-control'>";
+								$.each(allowedValues.allowed_values, function (key,obj) {
+									html += "<option value='"+obj.value+"' "+(param.value===obj.value?"selected":"")+">"+obj.display+"</option>";
+								});
+								html += "</select></label>";
+							} else {
+								console.log("WARN: For case string this case is not treated");
+							}
+						} else {
+							html += "<label class='' for='"+param.key+"'><input type='text' class='form-control' autocomplete='off' id='"+param.key+"' name='"+param.key+"' value='" +param.value+"' /></label>";
+						}
+						html += "</div>";
+						break;
+					case "string[]":
+						var allowedValues = param.allowedValues;
+						if (typeof param.allowedValues !== "undefined" && allowedValues !== null) {
+							if (allowedValues.allowed_values !== null) {
+								$.each(allowedValues.allowed_values, function (key,obj) {
+									var paramId = param.id+"_"+key;
+									html += "<label class='col-md-12' for='"+paramId+"'><input type='checkbox' name='"+param.key+"' id='"+paramId+"' /><label>"+param.label+"</label></label>";
+								});
+							}
+						} else {
+							console.log("WARN: For case string[] this case is not treated");
+						}
+						break;
+					case "directory":
+						console.error("WARN: Parameter: "+param.key+" with type "+param.dataType+" must not be present!");
+						break;
+					case "file":
+						html += "<label class='col-md-7'><span>"+param.label+"</span></label><div class='col-md-5'>";
+						html += "<label class='' for='"+param.key+"'><input class='form-control' type='file' name='"+param.key+"' id='"+param.key+"' /></label>";
+						html+="</div>";
+						break;
+					case "int":
+						html += "<label class='col-md-7'><span>"+param.label+"</span></label><div class='col-md-5'>";
+						var allowedValues = typeof param.allowedValues !== "undefined" && param.allowedValues !== null ? param.allowedValues.bounds : null;
+						if (allowedValues !== null) {
+							html += "<label class='' for='"+param.key+"'><input class='form-control' type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='1' min='"+allowedValues.min+"' max='"+allowedValues.max+"' /></label>";
+						} else {
+							html += "<label class='' for='"+param.key+"'><input class='form-control' type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='1' /></label>";
+						}
+						html+="</div>";
+						break;
+					case "float":
+						html += "<label class='col-md-7'><span>"+param.label+"</span></label><div class='col-md-5'>";
+						var allowedValues = typeof param.allowedValues !== "undefined" && param.allowedValues !== null ? param.allowedValues.bounds : null;
+						if (allowedValues !== null) {
+							html += "<label class='' for='"+param.key+"'><input class='form-control' type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='0.1' min='"+allowedValues.min+"' max='"+allowedValues.max+"' /></label>";
+						} else {
+							html += "<label class='' for='"+param.key+"'><input class='form-control' type='number' name='"+param.key+"' id='"+param.key+"' value='"+param.value+"' step='0.1' /></label>";
+						}
+						html+="</div>";
+						break;
+					case "bool":
+						var checkedProp = stringToBoolean(param.value)?"checked":"";
+						html += "<label class='' for='"+param.key+"'><input class='form-control' type='checkbox' name='"+param.key+"' id='"+param.key+"' "+checkedProp+" /><label>"+param.label+"</label></label>";
+						break;
+					default:
+						console.log("WARN: "+param.dataType+"is not treated");
+						break;
+				}
+				html += "</div>";
+				return html;
+		}
+		function createProcessorPramSection (data, $processorDiv) {
+			$(".panel-title", $processorDiv).html(data.name);
+			$(".form-group.row span", $processorDiv).html(data.description);
+			
+			if (data.lpisRequired || data.additionalConfigRequired) {
+				$(".important_info",$processorDiv).show();
+				if (data.additionalConfigRequired && !data.lpisRequired) {
+					$(".important_info span",$processorDiv).html("This service needs additional configuration files");
+				} else if (data.lpisRequired && !data.additionalConfigRequired){
+					$(".important_info span",$processorDiv).html("This service needs LPIS and LUT files");
+				} else {
+					$(".important_info span",$processorDiv).html("This service needs LPIS, LUT and additional configuration files");
+				}
+			} else {
+				$(".important_info",$processorDiv).hide();
+			}
+			var html = "";
+			
+			//get the root category id (workaround)
+			var parametersWithCategory = data.parameters.filter(obj => typeof obj.parentCategoryIds !== "undefined" && obj.parentCategoryIds !== null && obj.parentCategoryIds.length > 0)[0];
+			var rootCategoryId;
+			if (typeof parametersWithCategory !== "undefined") {
+				var parametersCategoryIds = parametersWithCategory.parentCategoryIds;
+				rootCategoryId = parametersCategoryIds[parametersCategoryIds.length - 1];
+			} else {
+				var parametersCategoryIds =  Array.from(new Set(Array.prototype.concat(...data.parameters.map(obj => obj.categoryId))));
+				if (parametersCategoryIds.length === 1) {
+					rootCategoryId = parametersCategoryIds[0];
+				}
+			}
+			if (typeof rootCategoryId !== "undefined") {
+				$processorDiv.attr("id",rootCategoryId);
+			}
+			
+			var uiVisibleParams = data.parameters.filter(obj=> obj.serviceUiVisible);
+			var sortedParams = _.sortBy(uiVisibleParams,"dataType").reverse();
+			$.each(sortedParams, function (idx, param) {
+				var $intermProcessorDiv = $processorDiv;
+				if (typeof param.parentCategoryIds !== "undefined" && param.parentCategoryIds !== null) {
+					$.each(param.parentCategoryIds.reverse(), function(index,categoryId) {
+						if (parseInt($processorDiv.attr("id")) !== categoryId) {
+							if (typeof $categoryTemplate === "undefined" && $("div#"+categoryId,$processorDiv).length === 0) {
+								$categoryTemplate = $("div","#processor_category_template").clone().attr("id",categoryId);
+								$("h4",$categoryTemplate).html(param.parentCategoryNames.reverse()[index]);
+								$intermProcessorDiv.append($categoryTemplate);
+							}
+							$intermProcessorDiv = $("div#"+categoryId,$processorDiv);
+						}
+					});
+				}
+					
+				if (parseInt($processorDiv.attr("id")) !== param.categoryId) {
+					if ($("div#"+param.categoryId,$processorDiv).length > 0) {
+						$intermProcessorDiv = $("div#"+param.categoryId,$processorDiv);
+					} else {
+						var $categoryTemplate = $("div","#processor_category_template").clone().attr("id",param.categoryId);
+						$("h4",$categoryTemplate).html(param.category);
+						$intermProcessorDiv.append($categoryTemplate);
+						$intermProcessorDiv = $("div#"+param.categoryId,$processorDiv);
+					}
+				}
+				//  add hidden class for those file element that depends on another parameter
+				var parentParam = sortedParams.filter(obj => obj.key === param.key.substring(0,param.key.lastIndexOf(".")))[0];
+				var hidden = false;
+				if (typeof parentParam !== "undefined" && parentParam.key+"."+parentParam.value !== param.key) {
+					hidden = true;
+				}
+				html = createProcessorHtml(param, hidden);
+				$intermProcessorDiv.append(html);
+			});
+		}
+		
+		/* START scheduled type creation and action */
+			function createScheduledTypeTemplate(prop) {
+				var $scheduledTypeTemplate = $("tr","#scheduled_type_template").clone().attr("id",prop.name.replaceAll(" ","_"));
+				$("td.task_name", $scheduledTypeTemplate).html(prop.name);
+				//select a repeat type
+				 $("select[name='schedule']>option[value='" + prop.repeatType + "']", $scheduledTypeTemplate).get(0).selected = true;
+				// populate start date field
+				$("input[name='startdate']",$scheduledTypeTemplate).attr("id", "startdate_" + prop.name.replaceAll(" ","_")).val(prop.firstRun);
+				$("input[name='repeatafter']", $scheduledTypeTemplate).val(1);
+				$("input[name='oneverydate']", $scheduledTypeTemplate).val(1);
+				switch (prop.repeatType) {
+					case 0:
+						$(".div_repeatnever", $scheduledTypeTemplate).removeClass("hidden");
+						break;
+					case 1:
+						$(".div_repeatafter", $scheduledTypeTemplate).removeClass("hidden");
+						$("input[name='repeatafter']", $scheduledTypeTemplate).val(prop.repeatAfterDays);
+						break;
+					case 2:
+						$(".div_oneverydate", $scheduledTypeTemplate).removeClass("hidden");
+						$("input[name='oneverydate']", $scheduledTypeTemplate).val(prop.repeatOnMonthDay);
+						break;
+				}
+				$("tbody",$categoryTemplate).append($scheduledTypeTemplate);
+			}
+			
+			function createScheduledTypeSection (data,$processorDiv) {
+				var processorScheduledData = $("#content").data("defaultScheduledType").filter(obj => obj.processorId === data.id);
+				if (processorScheduledData.length > 0) {
+					if ($("div#scheduled_task_"+data.id,$processorDiv).length > 0) {
+						//delete extra rows
+						$.each($("tbody tr",$("div#scheduled_task_"+data.id,$processorDiv)), function (idx,elem) {
+							if ($("#content").data("defaultScheduledType").filter(obj => obj.processorId === data.id).filter(obj =>obj.name===elem.id).length === 0) {
+								elem.remove();
+							}
+						});
+						//add or modify rows
+						$.each(processorScheduledData,function(idx,prop) {
+							if ($("input#startdate_"+prop.name.replaceAll(" ","_"),$("div#scheduled_task_"+data.id,$processorDiv)).length > 0) {
+								if (!$("input.startdate",$("div#scheduled_task_"+data.id,$processorDiv)).hasClass("changedByUser")) {
+									$("input#startdate_"+prop.name.replaceAll(" ","_"),$("div#scheduled_task_"+data.id,$processorDiv)).data("DateTimePicker").date(prop.firstRun);
+								}
+							} else {
+								createScheduledTypeTemplate(prop);
+							}
+						});
+					} else {
+						$categoryTemplate = $("div","#scheduled_type_category_template").clone().attr("id","scheduled_task_"+data.id);
+						$("h4",$categoryTemplate).html("Scheduled type");
+						$.each(processorScheduledData,function(idx,prop) {
+							createScheduledTypeTemplate(prop);
+						});
+						$processorDiv.append($categoryTemplate);
+						// Set dateTimePicker for startdate fileds
+						$(".startdate", $processorDiv).datetimepicker({ format: "YYYY-MM-DD HH:mm:ss", showClose: true })
+						.on('dp.show', function (e) {
+							var datepicker = $('body').find('.bootstrap-datetimepicker-widget:last');
+							var position = datepicker.offset();
+							datepicker.appendTo('body');
+							datepicker.css({ top: position.top, bottom: 'auto', left: position.left, right: 'auto' });
+						})
+						.on("dp.change", function (e) { 
+							$(e.target).trigger("dp-change");
+						});
+					}
+				}
+			}
+			
+			$("#request_usr_page_3").on("change dp-change", ".schedule-row [name]", function (e) {
+                switch (this.name) {
+                    case "schedule": selectedSchedule(this); break;
+                    case "repeatafter": jobEdit(this); break;
+                    case "oneverydate": setMin(this); break;
+                    case "startdate": jobEdit(this); break;
+                }
+            });
+			
+			function jobEdit(elem) {
+				var $parent = $(elem).closest(".schedule-row");
+				$parent.addClass("edit-mode");
+				$(elem).addClass("changedByUser");
+			}
+		
+			function selectedSchedule(elem) {
+				var $parent = $(elem).closest(".schedule-row");
+				var $div_repeatnever = $(".div_repeatnever", $parent);
+				var $div_repeatafter = $(".div_repeatafter", $parent);
+				var $div_oneverydate = $(".div_oneverydate", $parent);
+				switch (elem.value) {
+					case "0": // Once
+						$div_repeatnever.removeClass("hidden");
+						$div_repeatafter.addClass("hidden");
+						$div_oneverydate.addClass("hidden");
+						break;
+					case "1": // Cycle
+						$div_repeatnever.addClass("hidden");
+						$div_repeatafter.removeClass("hidden");
+						$div_oneverydate.addClass("hidden");
+						break;
+					case "2": // Repeat
+						$div_repeatnever.addClass("hidden");
+						$div_repeatafter.addClass("hidden");
+						$div_oneverydate.removeClass("hidden");
+						break;
+					default: // Once by default
+						$div_repeatnever.removeClass("hidden");
+						$div_repeatafter.addClass("hidden");
+						$div_oneverydate.addClass("hidden");
+						break;
+				}
+				jobEdit(elem);
+			}
+		
+			function setMin(elem) {
+				jobEdit(elem);
+				var $parent = $(elem).closest(".schedule-row");
+				var val = $("input[name='oneverydate']", $parent).val();
+				if (val < 1 || val > 31) {
+					alert("Number should be between [1, 31]");
+				}
+			}
+		/* END scheduled type creation and action */
+		
+		/* START validate input type file (must not be empty if are visible)*/
+		function validateFileInputs() {
+			var valid = true;
+			$.each($("input[type='file']","#request_usr_page_3 div.panel-body.service:not(.hidden)"), function(idx,elem) {
+				if (!$(elem).closest(".form-group.row").hasClass("hidden") && elem.value === "") {//add error label,if the file is empty
+					valid = false;
+					$(elem).closest(".form-group").append("<label class='error'>Select a file!</label>");
+					return true;
+				} else {
+					$(elem).closest(".form-group").find("label.error").remove();//remove error label
+				}
+			});
+			return valid
+		}
+		
+		$("#request_usr_page_3").on("change","div.panel-body.service:not(.hidden) input[type='file']", function () {
+			validateFileInputs();
+		});
+		/* END validate input type file (must not be empty if are visible)*/
+		
+/* Page navigation section */
+		var processorIndex = 0;
+		
+		$("#content").on("click", ".go-to-page, .glyphicon.glyphicon-backward:not([disabled]), .glyphicon.glyphicon-forward:not([disabled])", function (e) {
+			e.preventDefault();
+			var visibleServiceIndex;
+			var pageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;
+			var page3Parent = $(".go-to-page","div.form-page:not([style*='display: none'])").closest(".form-page").attr("id") === "request_usr_page_3";
+			var action = "";
+			if (pageId >= 0) {
+				switch (e.currentTarget.textContent) {
+					case "Previous":
+						action = "previous";
+						if (page3Parent) {
+							visibleServiceIndex = parseInt($("div.panel-body.service:not(.hidden)", "#request_usr_page_3").attr("listindex"));
+							if (visibleServiceIndex === 0) {
+								set_usr_active_page(pageId - 1);
+							} else {
+								set_usr_active_page(pageId);
+							}
+						} else {
+							set_usr_active_page(pageId - 1);
+						}
+						break;
+					case "Back and edit":
+						action = "previous";
+						set_usr_active_page(pageId - 1);
+						break;
+					case "Next":
+						action = "next";
+						if (page3Parent) {
+							set_usr_active_page(pageId, true);
+						} else {
+							set_usr_active_page(pageId + 1, true);
+						}
+						break;
+					case "Review and submit the request":
+						set_usr_active_page(pageId + 1, true);
+						break;
+				}
+				switch (e.currentTarget.className) {
+					case "glyphicon glyphicon-backward":
+						action = "previous";
+						if (page3Parent) {
+							visibleServiceIndex = parseInt($("div.panel-body.service:not(.hidden)", "#request_usr_page_3").attr("listindex"));
+							if (visibleServiceIndex === 0) {
+								set_usr_active_page(pageId - 1);
+							} else {
+								set_usr_active_page(pageId);
+							}
+						} else {
+							set_usr_active_page(pageId - 1);
+						}
+						break;
+					case "glyphicon glyphicon-forward":
+						action = "next";
+						if (page3Parent && $("#right-btn", "#request_usr_page_3").html() === "Next") {
+							set_usr_active_page(pageId, true);
+						} else {
+							set_usr_active_page(pageId + 1, true);
+						}
+						break;
+				}
+			}
+			$("#myModalLoading").hide();
+			$("#content").show();
+			if ((action === "previous" && visibleServiceIndex === 0 && (pageId - 1) === 2) || (action === "next" && (pageId + 1) === 2)) {
+				if (typeof myPolygonMap !== "undefined" && typeof myPolygonMap.map !== "undefined") {
+					myPolygonMap.map.updateSize();
+				}
+			}
+		});
+		
+		$("#request_usr_page_3").on("change", "select[id]", function(){
+			if ($("*[id='"+this.id+"."+this.value+"']","#request_usr_page_3").length > 0){
+				$("*[id='"+this.id+"."+this.value+"']","#request_usr_page_3").closest("div.form-group.row").removeClass("hidden");
+			} else {
+				$("*[id*='"+this.id+".'][id!='"+(this.id+"."+this.value)+"']","#request_usr_page_3").closest("div.form-group.row").addClass("hidden");
+				// clear prevoius selected file
+				$("*[id*='"+this.id+".'][id!='"+(this.id+"."+this.value)+"']","#request_usr_page_3").val("");
+				//remove error label
+				$("*[id*='"+this.id+".'][id!='"+(this.id+"."+this.value)+"']","#request_usr_page_3").closest(".form-group").find("label.error").remove();
+			}
+		});
+		
+		function set_usr_active_page(pageIndex, validation) {
+			if (!validation || (validation && checkPageValidation())) {
+				$("#content").hide();
+				$("#myModalLoading").show();
+				var prevPageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;
+				$("li:nth-child(" + pageIndex + ")>a", ".ui-tabs-nav ").trigger("click");
+				
+				$(".first-tag", "#request_usr_page" + pageIndex).focus();
+				
+				if (pageIndex == 2) {
+					processorIndex = 0;
+					if (validation && $("#request_usr_page_" + pageIndex).html().trim() === "") {
+						showFragmentHtml("request.regionOfInterest.fragment.html", $("#request_usr_page_" + pageIndex));
+					}
+					
+					if (typeof myPolygonMap !== "undefined" && typeof myPolygonMap.map !== "undefined") {
+						myPolygonMap.map.updateSize();
+					}
+					if (prevPageId < pageIndex) {
+						var currentServiceList = $("#processor").val();
+						var currentSelectedService = $("#prevSites").val();
+						if (JSON.stringify(currentServiceList) != JSON.stringify(previousServiceList)) {
+							createObsDataList();
+						}
+					}
+				}
+				if (pageIndex == 3) {
+					if (typeof $("#content").data("defaultScheduledType") === "undefined") {
+						defaultScheduledTaskVal();
+					}
+					var selectedProcessors = $("#processor").val();
+					
+					var usedIndexes = 0;
+					if (!validation && processorIndex > 0) {
+						processorIndex = parseInt($("div.panel-body.service:not(.hidden)", "#request_usr_page_3").attr("listindex"));
+						if (prevPageId == pageIndex) {
+							processorIndex--;
+						}
+					}
+					var indexGroup = processorIndex + 1;
+					
+					if (processorIndex < selectedProcessors.length) {
+						var $processorDiv = $("#processor_config", "#processor_config_template").clone().removeAttr("id");
+						var processorDivId = selectedProcessors[processorIndex];
+						
+						if ($("." + processorDivId,"#request_usr_page_" + pageIndex).length === 0) {
+							usedIndexes = 1;
+							var $subProcessor = $(".sub-service", "#sub_service_template").clone().addClass(processorDivId);
+							$processorDiv.attr("id",processorDivId);
+							createProcessorPramSection($("#content").data("serviceList").find(obj=> obj.id === parseInt(processorDivId)), $subProcessor);
+							$processorDiv.append($subProcessor);
+						}
+						
+						// hide all existing services div elements
+						$("div.panel-body.service", "#request_usr_page_" + pageIndex).addClass("hidden");
+						
+						//set service div insert order
+						if ($processorDiv.html() !== "") {
+							var $element = $("div.panel-body.service", "#request_usr_page_" + pageIndex)[processorIndex];
+							if (typeof $element !== "undefined") {
+								$processorDiv.insertBefore($element);
+							} else {
+								$processorDiv.insertBefore($( ".submit-buttons", "#request_usr_page_" + pageIndex));
+							}
+						} else {
+							$("." + processorDivId,"#request_usr_page_" + pageIndex).parent(".panel-body").removeClass("hidden");
+							$("." + processorDivId,"#request_usr_page_" + pageIndex).trigger('classChange');
+						}
+						//add schedule type to processor
+						if (typeof $("#content").data("defaultScheduledType") !== "undefined") {
+							createScheduledTypeSection($("#content").data("serviceList").find(obj=> obj.id === parseInt(processorDivId)),$(".sub-service."+processorDivId, "#request_usr_page_" + pageIndex));
+						}
+						// set processor index (used on page navigation) only on next action
+						if (validation) {
+							$("div.service", "#request_usr_page_" + pageIndex).each(function () {
+								var processorClass = this.classList[1];
+								$(this).attr("listindex", $("#processor").val().indexOf(this.id));
+							});
+						}
+						
+						// Add right button text
+						if (selectedProcessors.length - 1 > processorIndex) {
+							$("#right-btn", "#request_usr_page_" + pageIndex).html("Next");
+							processorIndex++;
+						} else {
+							$("#right-btn", "#request_usr_page_" + pageIndex).html("Review and submit the request");
+						}
+					}
+				}
+				if (pageIndex == 4) {
+					prettifyNumericList();
+					if ($("#request_usr_page_" + pageIndex).html().trim() === "") {
+						showFragmentHtml("request.summary.fragment.html", $("#request_usr_page_" + pageIndex));
+					}
+					populate_summary_page();
+				}
+				var lastIndexOfIdSeparator = $(".form-page", "#request_usr_form").last().attr("id").lastIndexOf("_");
+				var maxPages = parseInt($(".form-page", "#request_usr_form").last().attr("id").substr(lastIndexOfIdSeparator + 1));
+				if (pageIndex === maxPages) {
+					$("#content .glyphicon.glyphicon-forward").attr("disabled", true).addClass("hidden");
+				} else if (pageIndex === 1) {
+					$("#content .glyphicon.glyphicon-backward").attr("disabled", true).addClass("hidden");
+				} else {
+					$("#content").find(".glyphicon").attr("disabled", false).removeClass("hidden");
+				}
+			}
+		}
+		/* END Page navigation section */
+	});
+
+	$(window).on('load', removeLoadingImg());
+	
+	function removeLoadingImg() {
+		$("#myModalLoading").hide();
+		$("#content").show();
+	};
+//# sourceURL=request_form.js
+</script>

@@ -1,0 +1,1046 @@
+<link rel="stylesheet" type="text/css" href="assets/dist/css/styles-dashboard.css"/>
+<style>
+.request-form{width:70%;margin:0 auto;font-size:14px;background-color:whitesmoke}
+.request-form h3.panel-title{text-align:center; padding-bottom:2%}
+.request-form .panel .panel-body{background-color:white;border-radius:4px;border:1px solid lightgray;margin-bottom:15px;box-shadow:3px 3px 8px -2px rgba(0,0,0,0.1);padding:15px}
+.request-form h4.panel-title{color:#3a6ba0;padding:10px;margin:-15px -15px 15px -15px;border-bottom:1px dashed #e2e2e2}
+
+.request-form [name]{padding:2px 5px;border-radius:0;font-weight:400}
+.request-form [name]:disabled{background-color:#F2F2F2}
+.request-form input:read-only{color:#aaa}
+.request-form [type="radio"],
+.request-form [type="checkbox"]{width:auto;height:auto;margin-right:10px;display:inline;box-shadow:none}
+
+.request-form .form-group{margin-bottom:10px}
+.request-form .panel-body .form-group:last-child{margin-bottom:0}
+.request-form .form-group span{font-weight:400;color:gray;display:block;font-style:italic;min-height:5px;text-align:justify}
+.request-form .form-group label       strong{white-space:nowrap;width:100%;display:inline-block;overflow:hidden;text-overflow:ellipsis;float:left}
+.request-form .form-group label       span.title{display:inline;font-style:normal;color:#555}
+.request-form .form-group label:hover span.title{font-weight:700}
+.request-form .form-group label       span.extra-info{line-height:1.2em;color:#d8d8d8}
+.request-form .form-group label:hover span.extra-info{color:gray}
+.request-form .form-group label :checked+span.title{font-weight:700;color:#3a6ba0}
+.request-form .form-group label :checked~span.extra-info{color:#3a6ba0}
+.request-form .form-group label.error{color:red;display:block;font-weight:400;padding:0 15px}
+.request-form .sentinel-group a{height:28px;color:#555;padding:2px 5px;font-style:normal;font-weight:400}
+.request-form .sentinel-group .options-title{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.request-form .sentinel-group>div>label .extra-info,
+.request-form .sentinel-group .options-title~label.error{font-size:0.8em;margin-bottom:2px;line-height:1.3em;padding:0}
+
+.request-form .horizontal span{text-align:left}
+.request-form .horizontal.has-error .error{width:100%}
+.request-form .form-group.has-error .show-no-error{border-color:#ccc !important;box-shadow:none !important}
+
+.request-form label.highlight{font-style:italic}
+.request-form label.highlight span{font-weight:700}
+
+.request-form .summary-chapter .form-group label{margin:0;display:table;float:left;width:100%}
+.request-form .summary-chapter .form-group label.highlight{margin-bottom:5px}
+.request-form .summary-chapter .form-group label>*{margin:0;display:table-cell;line-height:1.2em;padding:3px 10px;font-size:14px;font-weight:400;font-style:normal;vertical-align:top;text-align:left}
+.request-form .summary-chapter .form-group label>span{width:35%;padding-left:0}
+.request-form .summary-chapter .form-group label>p   {width:65%;border-top:1px solid #eaeaea;color:#1e6aa2}
+.request-form .summary-chapter .form-group label:nth-child(odd) p{background-color:#f7f7f7}
+
+.request-form .summary-chapter .form-group .chapter-subgroup{margin-bottom:10px;float:left;margin-left:4%;width:96%}
+.request-form .summary-chapter .form-group .chapter-subgroup label>span{margin-left:4%;width:31%}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label>*{background-color:#f7f7f7;border:0;padding:3px 10px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label.highlight>*{background-color:#eaeaea;border-bottom:1px solid lightgray;font-style:normal;font-weight:700;line-height:1.4em}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:nth-child(2){margin-top:-5px}
+.request-form .summary-chapter .form-group .chapter-subgroup.s-content label:not(.highlight):last-child>*{border-bottom:5px solid #f0f0f0;margin-bottom:5px}
+
+.request-form .terms-conditions>label       >label{color:#3a6ba0;font-style:normal}
+.request-form .terms-conditions>label:hover>label{text-decoration:underline}
+
+#mapExtent{height:480px;border:1px solid #c5c5c5;margin-bottom:10px}
+#myFlatMap .poly-actions-panel.drawer-panel .drawer-content{width:auto}
+
+#request_usr_page2 input[type="file"]:disabled{color:lightgray}
+
+.glyphicon.glyphicon-backward,.glyphicon.glyphicon-forward{top:1rem;font-size:2rem;color:#c5c5c5;background-color:whitesmoke;position:absolute;z-index:10}
+.glyphicon-backward:not([disabled]):hover,.glyphicon.glyphicon-forward:not([disabled]):hover{color:#4c9ac8}
+
+.glyphicon.glyphicon-backward{left:0.5rem}
+.glyphicon.glyphicon-forward{right:0.5rem}
+</style>
+<!-- include validation plugin -->
+<script type="text/javascript" src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+<!-- includes map controls -->
+<script type="text/javascript" src="assets/libs/openlayers/ol.js"></script>
+<script type="text/javascript" src="assets/libs/openlayers/ol-poly.js"></script>
+
+<div class="inner-wrap">
+	<div id="primary">	
+		<div id="content" class="clearfix">
+			<form id="request_usr_form" enctype="multipart/form-data" method="POST" action="">
+				<input type="hidden" name="usageProfile" value="" />
+				<div class="request-form">
+					<i class="glyphicon glyphicon-backward" disabled></i>
+					<i class="glyphicon glyphicon-forward"></i>
+					<ul>
+						<li><a href="#request_usr_page1">Page 1</a></li>
+						<li><a href="#request_usr_page2">Page 2</a></li>
+						<li><a href="#request_usr_page3">Page 3</a></li>
+					</ul>					
+					<!-- PAGE 1 -->
+					<div id="request_usr_page1" class="form-page panel">
+						<h3 class="panel-title">Step 1/2 Define your service request</h3>
+						<div class="panel-body">
+							<h4 class="panel-title">Services list</h4>
+							<div class="form-group row">
+								<label class="col-md-12 first-tag" for="processor">
+									<span class="info">Select a service form list</span>
+									<select multiple="multiple" class="form-control" size="7" name="processor" id="processor">
+										<option value="l3b" data-description="Vegetation indicators informing about the evolution of the green vegetation corresponding to the crop vegetative development">EarthAgriculture - Vegetation Status Indicators</option>
+										<option value="l4a" data-description="Binary map separating annual cropland areas and other areas, thus corresponding to a mask over annually cultivated area. This binary map is produced along the agricultural season on a monthly basis, to serve for instance as a mask for monitoring crop growing conditions, as basis for sampling stratification and for agricultural extension">EarthAgriculture - Dynamic Crop Mask</option>
+										<option value="l4b" data-description="Map of the main crop types in a given region, with a minimum mapping unit of 0.01 ha and provided along with several quality flags. The crop types are classified over the cropland area identified in the cropland mask. The map is generated twice over the season, at the middle and at the end of the season">EarthAgriculture - Crop Type Map</option>
+									</select>
+									<span class="extra-info">&nbsp;</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Please enter a name to your request</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="name">
+									<input type="text" class="form-control" maxlength="30" name="name" id="name" placeholder="Request name..." autocomplete="off" value="" />
+									<span class="extra-info">30 characters max</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Your foreseen activities and support needs</h4>
+							<div class="form-group row">
+								<label class="col-md-12" for="ask_for_support">
+									<span>Before specifying the parametrs for your service, please describe your request, its context and objectives, and the foreseen work and processing to be performed.</span>
+									<input type="checkbox" class="form-control has-group-toggle" name="ask_for_support" id="ask_for_support" />Request additional support
+								</label>
+							</div>
+							<div class="form-group row group-toggle hidden">
+								<label class="col-md-12" for="additionalSupport">
+									<textarea class="form-control" rows="5" maxlength="2000" name="additionalSupport" id="additionalSupport" placeholder="Free text (2000 words max.)"></textarea>
+									<span class="extra-info">Free text (2000 words max.)</span>
+								</label>
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn cancel-btn left-btn" onclick="window.location.href='sap.html#dashboard'">Cancel</button>
+							<button class="go-to-page request-btn blue-btn">Next</button>
+						</div>
+					</div>
+					<!-- PAGE 2 -->
+					<div id="request_usr_page2" class="form-page panel">
+						<h3 class="panel-title">Step 2/2 Parameterize the selected services</h3>
+						<div class="panel-body">
+							<h4 class="panel-title">Earth Observation Data</h4>
+							<div class="form-group row">
+								<label class="col-md-12">
+									<span>Select Earth observation data to be used.</span>
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12 first-tag" for="useS2">
+									<input type="checkbox" class="form-control" name="useS2" id="useS2" value="Sentinel-2" checked />Sentinel-2
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12" for="useL8">
+									<input type="checkbox" class="form-control" name="useL8" id="useL8" value="Landsat-8" />Landsat-8
+								</label>
+							</div>
+						</div>
+						<div class="panel-body sub-service vegetation hidden">
+							<h4 class="panel-title">Vegetation Status Indicators</h4>
+							<div class="form-group row">
+								<label class="col-md-12">
+									<span>Vegetation indicators informing about the evolution of the green vegetation corresponding to the crop vegetative development.</span>
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12" for="includeNDVI">
+									<input type="checkbox" class="form-control" name="include" id="includeNDVI" value="NDVI" checked />Pheno NDVI metrics
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12" for="includeLAI">
+									<input type="checkbox" class="form-control" name="include" id="includeLAI" value="LAI" checked />Leaf Area Index
+								</label>
+							</div>
+						</div>
+						<div class="panel-body sub-service dynamic_crop_mask hidden">
+							<h4 class="panel-title">Dynamic Crop Mask</h4>
+							<div class="form-group row">
+								<label class="col-md-12">
+									<span>Binary map separating annual cropland areas and other areas, thus corresponding to a mask over annually cultivated area. This binary map is produced along the agricultural season on a monthly basis, to serve for instance as a mask for monitoring crop growing conditions, as basis for sampling stratification and for agricultural extension.</span>
+								</label>								
+								<label class="col-md-12" for="mode_unsupervised">
+									<input type="radio" class="form-control" name="crop_mask_mode" id="mode_unsupervised" value="Unsupervised" />
+									<span class="title">Unsupervised</span>
+									<span class="extra-info">Mode - unsupervised</span>
+								</label>
+								<label class="col-md-5" for="mode_supervised">
+									<input type="radio" class="form-control" name="crop_mask_mode" id="mode_supervised" value="Supervised" />
+									<span class="title">Supervised</span>
+									<span class="extra-info">Mode - Supervised</span>
+								</label>
+								<label class="col-md-7" for="l4aFile">
+									<label class="col-md-12 hidden" for="chooseSupervisedFile">
+										<input type="radio" class="form-control" name="chooseSupervisedFile" id="chooseSupervisedFile" disabled>Choose file
+									</label>
+									<label class="col-md-12" for="modeSupervisedFile">
+										<input type="file" class="form-control" id="modeSupervisedFile" name="l4aSupervisedCropMaskFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" disabled/>
+									</label>
+									<label class="col-md-12 hidden" for="useCropMapData">
+										<input type="radio" class="form-control" name="chooseSupervisedFile" id="useCropMapData" disabled>
+										Use Crop Map In-situ Data
+									</label>									
+								</label>								
+								<label class="col-md-12" for="mode_use_earthSignature">
+									<input type="radio" class="form-control" name="crop_mask_mode" id="mode_use_earthSignature" value="EarthSignature" checked />
+									<span class="title">Use EarthSignature</span>
+									<span class="extra-info">Mode - using EarthSignature</span>
+								</label>
+							</div>
+						</div>
+						<div class="panel-body sub-service crop_type_map hidden">
+							<h4 class="panel-title">Crop Type Map</h4>
+							<div class="form-group row">
+								<label class="col-md-12">
+									<span>Map of the main crop types in a given region, with a minimum mapping unit of 0.01 ha and provided along with several quality flags. The crop types are classified over the cropland area identified in the cropland mask. The map is generated twice over the season, at the middle and at the end of the season.</span>
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-5" for="useInsituData">
+									<input type="radio" class="form-control" name="crop_map_mode" id="useInsituData" value="Supervised"/>
+									Use In-situ Data									
+								</label>
+								<label class="col-md-7">
+									<label class="col-md-12 hidden" for="chooseInsituFile">
+										<input type="radio" class="form-control" name="chooseInsituFile" id="chooseInsituFile" disabled>Choose file</span>
+									</label>
+									<label class="col-md-12" for="insituDataFile">
+										<input type="file" class="form-control" id="insituDataFile" name="l4bSupervisedCropTypeFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" disabled/>
+									</label>
+									<label class="col-md-12 hidden" for="useCropMaskData">
+										<input type="radio" class="form-control" name="chooseInsituFile" id="useCropMaskData" disabled>
+										Use Crop Mask In-situ Data
+									</label>
+								</label>
+								<label class="col-md-12" for="useEarthSignature">
+									<input type="radio" class="form-control" name="crop_map_mode" id="useEarthSignature" value="EarthSignature" checked />
+									Use EarthSignature
+								</label>								
+							</div>
+							<div class="form-group row">
+								<label class="col-md-5" for="useReferenceMap">
+									<input type="checkbox" class="form-control" name="useReferenceMap" id="useReferenceMap" />
+									Use your own reference crop mask
+								</label>
+								<label class="col-md-7">
+									<label class="col-md-12 hidden" for="choosePreviousCropMask">
+										<input type="radio" class="form-control" name="chooseCropMask" id="choosePreviousCropMask" disabled>Choose file</span>
+									</label>
+									<label class="col-md-12" for="referenceMapFile">
+										<input type="file" class="form-control" id="referenceMapFile" name="l4bReferenceCropMaskFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" disabled/>
+									</label>
+									<label class="col-md-12 hidden" for="usePreviousCropMask">
+										<input type="radio" class="form-control" name="chooseCropMask" id="usePreviousCropMask" disabled>
+										Use previous generated Crop Mask
+									</label>
+								</label>
+							</div>							
+						</div>
+						<div class="panel-body roi">
+							<h4 class="panel-title">Region of interest</h4>
+							<div class="form-group row">
+								<label class="col-md-12">
+									<span>Please define your Region(s) of Interest using a GIS layer in ESRI Shapefile (in a zip file including all the components of the layer), GeoJSON or KML format.</span>
+									<input type="file" class="form-control" id="shapeFile" name="shapeFile" accept="application/zip,application/x-zip,application/x-zip-compressed,application/octet-stream,.kml,.geojson" onchange="$(this).trigger('blur');" />
+									<span class="extra-info">Maximum file size: 5 MB</span>
+								</label>
+							</div>
+							<div class="form-group row">
+								<div class="col-md-12">
+									<div id="mapExtent"></div>
+								</div>
+							</div>
+							<div class="form-group row horizontal">
+								<div class="latlon">
+									<label class="col-md-2"><strong>Min Latitude </strong><input type="number" class="form-control" id="latmin" name="latmin" placeholder="Lat min" value="" /></label>
+									<label class="col-md-2"><strong>Max Latitude </strong><input type="number" class="form-control" id="latmax" name="latmax" placeholder="Lat max" value="" /></label>
+									<label class="col-md-2"><strong>Min Longitude</strong><input type="number" class="form-control" id="lonmin" name="lonmin" placeholder="Lon min" value="" /></label>
+									<label class="col-md-2"><strong>Max Longitude</strong><input type="number" class="form-control" id="lonmax" name="lonmax" placeholder="Lon max" value="" /></label>
+									<label class="col-md-4 hidden"><strong>Center and fit view</strong><button class="request-btn blue-btn btn-xs" id="show_on_map" style="font-size:16px">Show on map</button></label>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body">
+							<h4 class="panel-title">Sensing period</h4>
+							<div class="form-group row">
+								<label class="col-md-12"><span>Select the sensing period of the data that will be used.</span></label>
+							</div>
+							<div class="form-group row horizontal" id="time_range_grp">
+								<label class="col-md-3" style="display:inline-block">
+									<strong>From:</strong>
+									<input type="text" class="form-control date-field" name="startDate" id="startDate" autocomplete="off" value="" />
+								</label>
+								<label class="col-md-3" style="display:inline-block">
+									<strong>To:</strong>
+									<input type="text" class="form-control date-field" name="endDate" id="endDate" autocomplete="off" value="" />
+								</label>
+							</div>
+							<div class="form-group row">
+								<label class="col-md-12" for="additionalDataSpecifications"><strong>Additional data specifications</strong><span>Detail here any other complementary information about the selection of your datasets.</span>
+									<textarea class="form-control" rows="3" maxlength="300" name="additionalDataSpecifications" id="additionalDataSpecifications" placeholder="Free text (300 words max.)"></textarea>
+									<span class="extra-info">Free text (300 words max.)</span>
+								</label>
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn blue-btn left-btn">Previous</button>
+							<button class="go-to-page request-btn blue-btn">Review and submit the request</button>
+						</div>
+					</div>
+					<!-- PAGE 3 - Summary -->
+					<div id="request_usr_page3" class="form-page panel">
+						<h3 class="panel-title form-page-title">Summary information on your service request</h3>
+						<p style="font-style:italic">This is a collection of information that you have selected.</p>
+						<div class="request-summary">
+							<!-- FROM PAGE 1 -->
+							<div class="panel-body summary-chapter">
+								<h4 class="panel-title">About your service request</h4>
+								<div class="form-group row">
+									<label class="col-md-12"><span>Requested service</span><p id="sum_usr_processor"></p></label>
+									<label class="col-md-12"><span>Request name</span><p id="sum_usr_project_name"></p></label>
+									<label class="col-md-12"><span>Additional support</span><p id="sum_usr_additional_support"></p></label>
+								</div>
+							</div>
+							<!-- FROM PAGE 2 -->
+							<div class="panel-body summary-chapter">
+								<h4 class="panel-title">Parameters</h4>
+								<div class="form-group row">
+									<label class="col-md-12 highlight">Earth Observation Data</label>
+									<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Sentinel-2</span><p id="sum_usr_useS2"></p></label></div>
+									<div class="chapter-subgroup s-content"><label class="col-md-12 highlight"><span>Landsat-8</span><p id="sum_usr_useL8"></p></label></div>
+								</div>
+								<div class="form-group row">
+									<label class="col-md-12 highlight">Service Data</label>
+									<div class="chapter-subgroup s-content sub-service vegetation hidden">
+										<label class="col-md-12 highlight"><span>Vegetation Status Indicators</span><p></p></label>
+										<label class="col-md-12"><span>Pheno NDVI metrics</span><p id="sum_usr_includeNDVI"></p></label>
+										<label class="col-md-12"><span>Leaf Area Index</span><p id="sum_usr_includeLAI"></p></label>
+									</div>
+									<div class="chapter-subgroup s-content sub-service dynamic_crop_mask hidden">
+										<label class="col-md-12 highlight"><span>Dynamic Crop Mask</span><p></p></label>
+										<label class="col-md-12"><span>Unsupervised</span><p id="sum_usr_mode_unsupervised"></p></label>
+										<label class="col-md-12"><span>Supervised</span><p id="sum_usr_mode_supervised"></p></label>
+										<label class="col-md-12"><span>Use EarthSignature</span><p id="sum_usr_mode_use_EarthSignature"></p></label>
+									</div>
+									<div class="chapter-subgroup s-content sub-service crop_type_map hidden">
+										<label class="col-md-12 highlight"><span>Crop Type Map</span><p></p></label>
+										<label class="col-md-12"><span>In-situ Data</span><p id="sum_usr_mode_insitu"></p></label>
+										<label class="col-md-12"><span>Use EarthSignature</span><p id="sum_usr_mode_EarthSignature"></p></label>
+										<label class="col-md-12"><span>Use your own reference crop mask</span><p id="sum_usr_useReferenceMap"></p></label>
+									</div>
+								</div>
+								<div class="form-group row">
+									<label class="col-md-12 highlight">Region of interest</label>
+									<div class="chapter-subgroup">
+										<label class="col-md-12"><span>Reference polygons</span><p id="sum_usr_refp"></p></label>
+										<label class="col-md-12"><span>Min Latitude</span><p id="sum_usr_latmin"></p></label>
+										<label class="col-md-12"><span>Max Latitude</span><p id="sum_usr_latmax"></p></label>
+										<label class="col-md-12"><span>Min Longitude</span><p id="sum_usr_lonmin"></p></label>
+										<label class="col-md-12"><span>Max Longitude</span><p id="sum_usr_lonmax"></p></label>
+									</div>
+								</div>
+							</div>
+							<div class="panel-body summary-chapter">
+								<div class="form-group row">
+									<label class="col-md-12 highlight">Sensing period</label>
+									<div class="chapter-subgroup">
+										<label class="col-md-12"><span>From</span><p id="sum_usr_time_range_from"></p></label>
+										<label class="col-md-12"><span>To</span><p id="sum_usr_time_range_to"></p></label>
+										<label class="col-md-12"><span>Additional data specifications</span><p id="sum_usr_additional"></p></label>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel-body">
+							<div class="form-group row terms-conditions">
+								<label class="col-md-12" for="conditions" style="color:#666666">
+									<input type="checkbox" name="conditions" id="conditions" class="first-tag" />
+									I have read and agree to the <label id="conditions_link" class="highlight">Terms and conditions</label>.
+								</label>
+							</div>
+						</div>
+						<div class="submit-buttons">
+							<button class="go-to-page request-btn blue-btn left-btn">Back and edit</button>
+							<button class="go-to-page request-btn blue-btn" id="request_usr_submit" disabled>Submit the request</button>
+						</div>
+					</div>
+				</div>
+			</form>
+			
+		</div>
+		
+	</div>
+</div>
+<script type="text/javascript">
+	function purgeAllProductsDialogs() {
+		purgeUiDialog("request_submit");
+	}
+
+	$(document).ready(function() {
+		var getDataFrom = function (requestId){		
+			return $.ajax({
+				async: false,
+				url: "/services/project/" + requestId,
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Accept", "application/json");
+					xhr.setRequestHeader("Content-Type", "application/json");
+				}	
+			});
+		}
+		var requestId = hasUrlParameters("id");
+		var existingRequstData = null; 
+		if (requestId) { // reuse existing request
+			$.when(getDataFrom(getUrlParameter("id"))).done(function (response) {
+				if (response.status === responseStatus.success) {
+					existingRequstData = response.data;
+				} else {
+					console.log(response.status + ": " + response.message);
+				}
+			});
+			if (existingRequstData !== null) {
+				populateRequestPage(1);
+			}
+		}
+		
+		$("#wp-custom-header h1.header-post-title-class").html("User service request");
+		$("ul", ".request-form").addClass("hidden");
+		$(".request-form").tabs({
+			activate: function (event, ui) {
+				switch (ui.newPanel.get(0).id) {
+					case "tab_usr_page1":
+						break;
+					case "tab_usr_page1":
+						break;
+				}
+			}
+		});
+		
+		$("#processor").on("change", function (e) {
+			if ($("#processor").val().indexOf("agriculture") >= 0) { 
+				$(this).siblings(".info").html("EarthAgriculture service provides reports and statistical analysis of the vegetation status over several crop types into an area of interest over a season");
+			} else {
+				$(this).siblings(".info").html("");
+			}
+			$(this).siblings(".extra-info").html("");
+			$.each ($(this).children("option:selected"), function (index, option) {
+				if ($(this).parent().siblings(".extra-info").html() !== "") {
+					$(this).parent().siblings(".extra-info").append("<br/><br/>");
+				}
+				$(this).parent().siblings(".extra-info").append($(option).data("description"));
+			});
+		});
+		
+		$("#shapeFile").on("change", function (e) {		
+			var formData = new FormData($('#request_usr_form').get(0));
+			$.when(getPoligon(formData)).done(function(JSONresponse){
+				var response = JSON.parse(JSONresponse);
+				if (response.status === responseStatus.success) {
+					var polygon = response.data;
+					var _map = window.myPolygonMap;
+					_map.createShapeFromGeometry(polygon, { extraFeatureDescription: "preview" }, true);
+					_map.fitAllFeatures();
+					_map.restartActiveInteraction();
+				} else {
+					console.log(response.status + ": " + response.message);
+				}
+			});
+		});
+		
+		$("#request_usr_page2").on("change", "#latmin, #latmax, #lonmin, #lonmax", function () {
+			var latmin = $("#latmin").val();
+			var latmax = $("#latmax").val();
+			var lonmin = $("#lonmin").val();
+			var lonmax = $("#lonmax").val();
+			var _map = window.myPolygonMap;
+			if (latmin != "" && latmax != "" && lonmin != "" && lonmax != "") {				
+				drawRectangle(latmin, latmax, lonmin, lonmax, _map.source);
+				_map.fitAllFeatures();
+				_map.restartActiveInteraction();
+				$("#shapeFile").val(null);
+			}else if (latmin != "" || latmax != "" || lonmin != "" || lonmax != "") {				
+				$("#shapeFile").val(null);
+				event.preventDefault();
+				_map.removeAllFeatures();
+			}
+		});
+		
+		$("#conditions").change(function() {
+			$("#request_usr_submit").attr("disabled", !$(this).is(":checked"));
+		});
+
+		$("body").on("change", ".has-group-toggle", function (e) {
+			if ($(this).is(':checked')) {
+				$(this).closest(".form-group").next().removeClass("hidden");
+			} else {
+				$(this).closest(".form-group").next().addClass("hidden");
+			}
+		});
+		
+		$("#useReferenceMap").change(function () {
+			if ($(this).prop("checked")) {
+				$("#referenceMapFile").prop("disabled", false);
+			}else {
+				$("#referenceMapFile").prop("disabled", true);
+			}
+		});
+		
+		$("input[name='crop_map_mode']").change(function () {
+			if ($(this).prop("checked") && $(this).attr("id") === "useInsituData") {
+				$("#insituDataFile").prop("disabled", false);
+			}else {
+				$("#insituDataFile").prop("disabled", true);
+			}
+		});
+		
+		$("#request_usr_page2 input[name='crop_mask_mode']").change(function () {
+			var selected_value = $("input[name='crop_mask_mode']:checked").val();
+			if (selected_value === "Supervised") {
+				$("#modeSupervisedFile").prop("disabled", false);
+			}else {
+				$("#modeSupervisedFile").prop("disabled", true);
+			}
+		});
+		// Date pickers with active validation
+		$(".date-field").datepicker({ changeYear: true, changeMonth: true, yearRange: "1970:2037", dateFormat: "yy-mm-dd" })
+		.on('change', function() {
+			if ($("#startDate").val() != "" && $("#endDate").val() != "") { $(this).valid() }
+		});		
+		
+		
+		/* Functions */
+		function populateRequestPage(pageId) {
+			if (pageId == 1) {
+				// Page 1
+				$("#processor").find("option").filter( function () { 
+					if ( $(this).val() === existingRequstData["processor"]["name"]) {
+						$(this).attr('selected', true);
+					}
+				});
+				$("#name").val(existingRequstData["name"]).attr('disabled','disabled');
+				if (existingRequstData["additionalSupport"] !== "") {
+					$("#ask_for_support").prop("checked", true);
+					$("#ask_for_support").closest(".form-group").next().removeClass("hidden");
+					$("#additionalSupport").text(existingRequstData["additionalSupport"]);				
+				}
+			}
+			if (pageId == 2) {
+				// Page 2
+				$.each($("input[type='checkbox']"), function () {
+					if (existingRequstData["datasets"].includes($(this).val())) {
+						$(this).prop("checked", true);
+					}
+				});
+				
+				$.each($("input[type='radio']"), function () {
+					if (typeof existingRequstData["processor"]["include"] !== "undefined" && existingRequstData["processor"]["include"].includes($(this).val())) {
+						$(this).prop("checked", true);
+					}
+					if (typeof existingRequstData["processor"]["mode"] !== "undefined" && existingRequstData["processor"]["mode"] === $(this).val()) {
+						$(this).prop("checked", true);
+					}
+				});
+				
+				if (existingRequstData["processor"]["fileName"]) {
+					$("#modeSupervisedFile").val(existingRequstData["processor"]["fileName"]);
+				}
+				
+				if (existingRequstData["footprintFilename"]) {
+					$("#shapeFile").val(existingRequstData["processor"]["fileName"]);
+				}
+				
+				var readFlatCoordinates = (new ol.format.WKT()).readGeometry(existingRequstData["footprint"]).flatCoordinates;				
+				var latmin = readFlatCoordinates[1];
+				var latmax = readFlatCoordinates[5];
+				var lonmin = readFlatCoordinates[0];
+				var lonmax = readFlatCoordinates[4];
+				
+				var _map = window.myPolygonMap;
+				_map.createShapeFromGeometry(existingRequstData["footprint"], { extraFeatureDescription: "preview" }, true);
+				_map.fitAllFeatures();
+				_map.resetInteractions();
+				$(".drawers.right-side", "#mapExtent").addClass("hidden");
+				
+				$("#shapeFile").prop("disabled", true);
+				$("#latmin").prop("disabled", true);
+				$("#latmax").prop("disabled", true);
+				$("#lonmin").prop("disabled", true);
+				$("#lonmax").prop("disabled", true);
+				
+				$("#startDate").val(existingRequstData["startDate"]).prop("disabled", true);
+				$("#endDate").val(existingRequstData["endDate"]).prop("disabled", true);
+				
+				$("#additionalDataSpecifications").val(existingRequstData["additionalDataSpecifications"]);
+			}
+		}
+		var getPoligon = function (form) {
+			return $.ajax({
+				beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				mimeType   : "multipart/form-data",
+				url  : "/services/decode-shape",
+				type : "POST",
+				data : form
+			});
+		};
+	
+		// Save the user service request into a JSON file
+		function createRequestObject (formData, data) {
+			var processorJSON = {};
+			var observationArray = [];
+			//remove processor key
+			formData.delete("processor");
+			
+			$.each (data, function (){
+				//create processor element
+				if (this.name === "processor") {					
+					if (this.value === "l3b") {
+						processorJSON[this.value] = {"include": formData.getAll("include")};
+					}else if (this.value === "l4a") {
+						processorJSON[this.value] = {"mode": formData.get("crop_mask_mode")};
+						formData.delete("crop_mask_mode");
+					}else {
+						processorJSON[this.value] = {"mode": formData.get("crop_map_mode")};
+						formData.delete("crop_map_mode");
+					}
+				}
+				
+				if (this.name === "useS2" || this.name === "useL8") {					
+					observationArray.push(this.value);
+				} else if (this.name === "userText" && formData.get("shapeFile") !== null && formData.get("shapeFile").size == 0) {
+					formData.append("footprint", this.value);
+				} else if (this.name === "shapeFile" && formData.get("shapeFile").size > 0) {
+					formData.append("footprintFile", formData.get("shapeFile"));
+					formData.delete("shapeFile");
+				} 
+			});
+			//add processor objects, observation data and user id to request
+			$.each (processorJSON, function (key, val) {
+				formData.append(key,JSON.stringify(val));
+			});
+			
+			formData.append("observationData",JSON.stringify(observationArray));
+			formData.append("userId", window.userID);
+		}
+		
+		function saveRequest() {
+			var formData = new FormData($('#request_usr_form').get(0));
+			$("form#request_usr_form div.hidden").find("input").attr('disabled','disabled');
+			$("form#request_usr_form .div.hidden").find("input").attr('disabled','disabled');
+			$("form#request_usr_form div.latlon").find("input").attr('disabled','disabled');
+			$("form#request_usr_form div.terms-conditions").find("input").attr('disabled','disabled');
+			
+			$.each($("form#request_usr_form").find("input[type='file']"), function () {
+				var value = $(this).val();
+				if ($(this).val() != "") {
+					value = value.split('\\').pop() + "&nbsp;";
+				}
+				$(this).attr("type","text").val(value);
+			});						
+			
+			var dataForm = $("form#request_usr_form").serializeArray();
+			
+			createRequestObject (formData, dataForm);
+			
+			$.ajax({
+				cache: false,
+				async: false,
+				processData: false,
+				contentType: false,
+				url  : "/services/save",
+				type : "POST",
+				data : formData,
+				success: function (response) {
+					if (response.status === responseStatus.success) {
+						console.log(response.status + ": " + response.message);
+					}else {
+						console.log(response.status + ": " + response.message);
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("ERROR");
+				}
+			});
+			
+			window.location.href='sap.html#dashboard';
+		}
+		
+		// Get Regex pattern for a comma separated list of numbers between 1 and maxValue
+		// (only works when maxValue is between 100 and 999)
+		function getListOfNumbersRegex(maxValue) {
+			var hundreds = parseInt(maxValue/100);
+			if (hundreds > 0) {
+				var decimals = parseInt((maxValue - hundreds*100)/10);
+				var units    = parseInt(maxValue - hundreds*100 - decimals*10);
+				
+				var number = "[1-9]|[1-9][0-9]|";
+				number += hundreds > 1 ? "[1-" + (hundreds-1) + "][0-9][0-9]|" : "";
+				number += decimals > 0 ? hundreds + "[0-" + (decimals-1) + "][0-9]|" : "";
+				number += (hundreds*10+decimals) + "[0-" + units + "]";
+				return "^ *(" + number + ")( *, *(" + number + "))* *$";
+			} else {
+				return "^.*$";
+			}
+		}
+
+		// Clean list format to match the following example: n1, n2, n3, ...
+		function prettifyNumericList() {
+			$.each($(".numeric-list"), function () {
+				// Trim value
+				var list = $(this);
+				var value = list.val().replace(/^ *| *$/g, "");
+				value = value.replace(/ *, */g, ", ");
+				list.val(value);
+			});
+		}
+		
+		// Populate summary page;
+		function populate_summary_page() {
+			// PAGE 1: About the service request
+			$("#sum_usr_processor"         ).html($("#processor").html().replaceAll("EarthAgriculture - ",""));
+			$("#sum_usr_project_name"      ).html($("#name").val());
+			$("#sum_usr_additional_support").html($("#additionalSupport").val().replace(/\n/g, "<br/>"));
+			
+			// PAGE 2: Parameterize the selected services
+			if ($("#useS2").is(":checked")) {
+				$("#sum_usr_useS2").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_useS2").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("#useL8").is(":checked")) {
+				$("#sum_usr_useL8").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_useL8").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("#includeNDVI").is(":checked")) {
+				$("#sum_usr_includeNDVI").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_includeNDVI").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("#includeLAI").is(":checked")) {
+				$("#sum_usr_includeLAI").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_includeLAI").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("input[name='crop_mask_mode']:checked").val() == "Unsupervised") {
+				$("#sum_usr_mode_unsupervised"      ).html('&#10003;').css({ color: "" });
+				$("#sum_usr_mode_supervised"        ).html('&#10007;').css({ color: "#b7b7b7" });
+				$("#sum_usr_mode_use_EarthSignature").html('&#10007;').css({ color: "#b7b7b7" });
+			} else if ($("input[name='crop_mask_mode']:checked").val() == "Supervised") {
+				$("#sum_usr_mode_supervised"        ).html('&#10003;').css({ color: "" });
+				$("#sum_usr_mode_unsupervised"      ).html('&#10007;').css({ color: "#b7b7b7" });
+				$("#sum_usr_mode_use_EarthSignature").html('&#10007;').css({ color: "#b7b7b7" });
+			} else {				
+				$("#sum_usr_mode_use_EarthSignature").html('&#10003;').css({ color: "" });
+				$("#sum_usr_mode_unsupervised"      ).html('&#10007;').css({ color: "#b7b7b7" });
+				$("#sum_usr_mode_supervised"        ).html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("input[name='crop_map_mode']:checked").val() == "Supervised") {
+				$("#sum_usr_mode_insitu"        ).html('&#10003;').css({ color: "" });
+				$("#sum_usr_mode_EarthSignature").html('&#10007;').css({ color: "#b7b7b7" });
+			} else {				
+				$("#sum_usr_mode_EarthSignature").html('&#10003;').css({ color: "" });
+				$("#sum_usr_mode_insitu"        ).html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			if ($("#useReferenceMap").is(":checked")) {
+				$("#sum_usr_useReferenceMap").html('&#10003;').css({ color: "" });
+			} else {
+				$("#sum_usr_useReferenceMap").html('&#10007;').css({ color: "#b7b7b7" });
+			}
+			
+			// Region of interest
+			$("#sum_usr_refp").html($("#shapeFile").val().split('\\').pop() + "&nbsp;");
+			$("#sum_usr_latmin").html($("#latmin").val());
+			$("#sum_usr_latmax").html($("#latmax").val());
+			$("#sum_usr_lonmin").html($("#lonmin").val());
+			$("#sum_usr_lonmax").html($("#lonmax").val());
+			
+			// Sensing period section
+			$("#sum_usr_time_range_from").html($("#startDate").val());
+			$("#sum_usr_time_range_to").html($("#endDate").val());
+			$("#sum_usr_additional").html($("#additionalDataSpecifications").val().replace(/\n/g, "<br/>") + "&nbsp;");
+		}
+			
+		function drawRectangle(latmin, latmax, lonmin, lonmax, source) {		   
+			var polyCoords = [];
+			var p1 = lonmin + "," + latmin;
+			var p2 = lonmax + "," + latmin;
+			var p3 = lonmax + "," + latmax;
+			var p4 = lonmin + "," + latmax;
+			var coords = (p1 + " " + p2 + " " + p3 + " " + p4).split(' ');
+			for (var i in coords) {
+				var c = coords[i].split(',');
+				polyCoords.push(ol.proj.transform([parseFloat(c[0]), parseFloat(c[1])], 'EPSG:4326', 'EPSG:3857'));
+			}
+		   
+			var feature = new ol.Feature({
+				geometry: new ol.geom.Polygon([polyCoords])
+			});
+			feature.setProperties({"extraFeatureDescription": "preview"});
+			source.clear();
+			source.addFeature(feature);
+		   
+			return feature;
+		}
+/* END Functions */
+
+/* Validation section */
+		// Custom validation for comma separated lists of numbers between 1 and maxValue (only works with maxValue between 100 and 999)
+		$.validator.addMethod('commaSeparatedList', function (value, element, params) {
+			var pattern = new RegExp(getListOfNumbersRegex(params.maxValue), "g");
+			var sentinelChk = $(element).closest(".sentinel-group").find('input[type="checkbox"]');
+			if (sentinelChk.is(":checked")) {
+				var match = value.match(pattern);
+				return (value.length == 0 || match);
+			}
+			return true;
+		}, 'Invalid list of comma separated numbers');
+		
+		// Custom validation for ROI selection (shape file or lat/lon)
+		$.validator.addMethod('roiSelect', function (value, element, params) {
+			return $("#shapeFile").val() != '' || $(".latlon input[type='number']").filter(function () { return this.value !== ''; }).length == 4;
+		}, 'Select either a shapefile or the geographical coordinates.');
+		
+		// Custom validation for a set of two dates
+		$.validator.addMethod('datesGroupValidation', function(value, element, params) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			return dates.length == 2 && $(dates[0]).datepicker("getDate") <= $(dates[1]).datepicker("getDate");
+		}, function (params, element) {
+			var dates = $(".date-field", "#" + params.datesGroup).filter(function () { return this.value !== ''; });
+			return dates.length < 2 ? 'Both fields above are required' : 'Start date should not be greater than end date';
+		});
+		
+		$.validator.addMethod('supervised', function(value) {
+			if (value === "Supervised") {
+				return $("#modeSupervisedFile").val() != "";
+			}
+			return true;
+		}, 'Reference crop type file must be selected!');
+		
+		$.validator.addMethod('referenceCropMask', function(value) {
+			if (value === "on") {
+				return $("#referenceMapFile").val() != "";
+			}
+			return true;
+		}, 'Reference crop mask file must be selected!');
+		
+		//Form validation
+		$("#request_usr_form").validate({
+			rules: {
+				// PAGE 1
+				processor      	: { required: true },
+				name   	: { required: true },
+				// PAGE 2
+				latmin         	: { roiSelect: true },
+				latmax         	: { roiSelect: true },
+				lonmin         	: { roiSelect: true },
+				lonmax          : { roiSelect: true },
+				shapeFile       : { roiSelect: true },
+				startDate		: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				endDate  		: { datesGroupValidation: { datesGroup: "time_range_grp" } },
+				crop_mask_mode	: { supervised: true},
+				useReferenceMap : { referenceCropMask: true},
+				// PAGE 3
+				conditions      : { required: true }
+			},
+			highlight: function(element, errorClass) {
+				$(element).closest(".form-group").addClass("has-error");
+			},
+			unhighlight: function(element, errorClass) {
+				$(element).closest(".form-group").removeClass("has-error");
+			},
+			groups: {
+				roiSelect    : "latmin latmax lonmin lonmax shapeFile",
+				timeRange    : "startDate endDate"
+			},
+			messages: {
+			},
+			errorPlacement: function(error, element) {
+				if (element.closest(".roi").length > 0) {
+					error.appendTo($(element).closest(".roi").find(">div.form-group:last-child"));
+				} else if (element.hasClass("numeric-list")) {
+					error.appendTo($(element).parent());
+				} else {
+					error.appendTo($(element).closest(".form-group"));
+				}
+			},
+			success: function(label) {
+				label.remove();
+			}
+		});
+		
+		function checkPageValidation() {
+			if ($("#request_usr_form").valid()) {
+				return true;
+			} else {
+				var ferror = $("label.error:visible", ".form-page:visible").first();
+				// PAGE 1
+				
+				// PAGE 2
+				if ($(ferror).attr("for") == "roiSelect") {
+					if      ($("#latmin").val() == '') { $("#latmin").first().focus(); }
+					else if ($("#latmax").val() == '') { $("#latmax").first().focus(); }
+					else if ($("#lonmin").val() == '') { $("#lonmin").first().focus(); }
+					else                               { $("#lonmax").first().focus(); }
+				} else if ($(ferror).attr("for") == "timeRange") {
+					if   ($("#startDate").val() == "") { $("#startDate").first().focus(); }
+					else      						   { $("#endDate").first().focus(); }
+				} else { $(ferror).focus(); }
+				return false;
+			}
+		}
+/* END Validation section */
+
+/* Page navigation section */
+		$("#content").on("click", ".glyphicon.glyphicon-backward:not([disabled]), .glyphicon.glyphicon-forward:not([disabled])", function (e) {
+			e.preventDefault();
+			var pageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;			
+			if (pageId >= 0) {
+				switch (e.currentTarget.className) {
+					case "glyphicon glyphicon-backward":
+						set_usr_active_page(pageId - 1);
+						break;
+					case "glyphicon glyphicon-forward":
+						set_usr_active_page(pageId + 1, true);
+						break;
+				}
+			}
+		});
+		
+		$(".go-to-page").on("click", function (e) {
+			e.preventDefault();
+			var pageId = $(".ui-tabs-active", ".ui-tabs").index() + 1;
+			if (pageId >= 0) {
+				switch (e.currentTarget.textContent) {
+					case "Previous":
+						set_usr_active_page(pageId - 1);
+						break;
+					case "Back and edit":
+						set_usr_active_page(pageId - 1);
+						break;
+					case "Next":
+						if (requestId) {
+							populateRequestPage(pageId + 1);
+						}
+						set_usr_active_page(pageId + 1, true);
+						break;
+					case "Review and submit the request":
+						set_usr_active_page(pageId + 1, true);
+						break;
+				}
+			}
+		});
+		function set_usr_active_page(pageIndex, validation) {
+			if (!validation || (validation && checkPageValidation())) {
+				$("li:nth-child(" + pageIndex + ")>a", ".ui-tabs-nav ").trigger("click");
+				
+				$(".first-tag", "#request_usr_page" + pageIndex).focus();
+				if (pageIndex > 1) {
+					$(".sub-service").addClass("hidden");
+					$.each ($("#processor").val(), function (index, value) {
+						switch (value) {
+							case "l3b":
+								$(".sub-service.vegetation").removeClass("hidden");
+								break;
+							case "l4a":
+								$(".sub-service.dynamic_crop_mask").removeClass("hidden");
+								break;
+							case "l4b":
+								$(".sub-service.crop_type_map").removeClass("hidden");
+								break;
+						}
+					});
+				}
+				if (pageIndex == 2) {
+					myPolygonMap.map.updateSize();
+					// check if Crop Map and Crop type are bouth selected and display a checkbox to use data from one to another
+					if ($.inArray("l4a", $("#processor").val()) >= 0 && $.inArray("l4b", $("#processor").val()) >= 0) {
+						$("#useCropMapData").parent().removeClass("hidden");
+						$("#chooseSupervisedFile").parent().removeClass("hidden");
+						$("#useCropMaskData").parent().removeClass("hidden");
+						$("#chooseInsituFile").parent().removeClass("hidden");
+						$("#usePreviousCropMask").parent().removeClass("hidden");
+						$("#choosePreviousCropMask").parent().removeClass("hidden");
+					}
+				} else if (pageIndex == 3) {
+					prettifyNumericList();
+					populate_summary_page();
+				}
+				var maxPages = $(".ui-tabs-tab", ".ui-tabs").length;
+				if (pageIndex === maxPages) {
+					$("#content .glyphicon.glyphicon-forward").attr("disabled", true);
+				} else if (pageIndex === 0) {
+					$("#content .glyphicon.glyphicon-backward").attr("disabled", true);
+				} else {
+					$("#content").find(".glyphicon").attr("disabled", false);
+				}
+			}
+		}
+		
+		$("#request_usr_submit").click( function (event) {
+			if ($("#request_usr_form").valid()) {
+				event.preventDefault();
+				saveRequest();
+			}
+		});
+	});
+/* END Page navigation section */
+
+/* Map functionalities */
+	window.myPolygonMap = { mapActive: false };
+	var olPoly = $("#mapExtent").poly2D({ startLat: 47, startLon: 14, zoom: 3.5, maxFeaturesNo: 1, extraFeatureDescription: "preview", panPrc: 0 });
+	$.when(olPoly).done(function (result) {
+		if (typeof result.readOnly === "boolean") {
+			$("#mapExtent").removeClass("hidden");
+			myPolygonMap = result;
+			var _map = myPolygonMap;
+			if (_map.mapActive) {
+				_map.setReadOnly(false);
+			}
+		}
+		_map.el.on("newfootprint", function (evt, footprint) {
+			evt.stopPropagation();
+			var drawnFeatures = _map.getAllFeatures().getArray();
+			if (drawnFeatures.length > 0) {
+				var extent = drawnFeatures[0].getGeometry().getExtent();
+				var transedExtent = ol.proj.transformExtent(extent, "EPSG:3857", "EPSG:4326");
+				$("#latmin").val(transedExtent[1]);
+				$("#latmax").val(transedExtent[3]);
+				$("#lonmin").val(transedExtent[0]);
+				$("#lonmax").val(transedExtent[2]);
+			}else {
+				$("#latmin").val(null);
+				$("#latmax").val(null);
+				$("#lonmin").val(null);
+				$("#lonmax").val(null);
+				$("#shapeFile").val(null);
+			}
+		});
+	});
+	// Bring all features on map into view
+	$("#show_on_map").on("click", function (e) {
+		if (myPolygonMap.mapActive) {
+			var _map = myPolygonMap;
+			_map.fitAllFeatures();
+		}
+	});
+/* END Map functionalities */
+//# sourceURL=request_form.js
+</script>

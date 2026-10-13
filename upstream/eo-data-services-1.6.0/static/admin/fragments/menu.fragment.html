@@ -1,0 +1,80 @@
+<ul class="primary-menu">
+	<li class="sites"         ><a href="#sites"         >Sites          </a></li>
+	<li class="products"      ><a href="#products"      >Products       </a></li>
+	<!--li class="analyticaldashboard"		><a href="#analyticaldashboard"		>Analytical dashboard	</a></li-->
+	<li class="systemoverview"><a href="#systemoverview">System overview</a></li>
+	<li class="dashboard"     ><a href="#dashboard"     >Dashboard      </a></li>
+	<li class="customjobs"    ><a href="#customjobs"    >Custom jobs    </a></li>
+	<li class="configurations"><a href="#configurations">Configurations </a></li>
+	<li class="users"         ><a href="#users"         >Users          </a></li>
+	<li class="datasources"   ><a href="#datasources"   >Data sources   </a></li>
+	<li class="statistics"    ><a href="#statistics"    >Statistics     </a></li>
+</ul>
+<ul class="secondary-menu">
+	<li class="logout"><span class="glyphicon glyphicon-log-out"></span> logout</li>
+</ul>
+<ul class="tiny">
+	<li class="sites"         ><a href="#sites"         >Sites          </a></li>
+	<li class="products"      ><a href="#products"      >Products       </a></li>
+	<li class="systemoverview"><a href="#systemoverview">System overview</a></li>
+	<li class="dashboard"     ><a href="#dashboard"     >Dashboard      </a></li>
+	<li class="customjobs"    ><a href="#customjobs"    >Custom jobs    </a></li>
+	<li class="configurations"><a href="#configurations">Configurations </a></li>
+	<li class="users"         ><a href="#users"         >Users          </a></li>
+	<li class="datasources"   ><a href="#datasources"   >Data sources   </a></li>
+	<li class="statistics"    ><a href="#statistics"    >Statistics     </a></li>
+	<li class=""              ><span>-</span></li>
+	<li class="logout"><span class="glyphicon glyphicon-log-out"></span> logout</li>
+</ul>
+<style>
+	/* General */
+	#menu ul{line-height:17px;margin:0}
+	#menu ul li{display:inline-block;font:18px/18px "Roboto Condensed",Arial,Helvetica,sans-serif;color:#999;margin:3px 0 0 25px;padding-bottom:3px;cursor:pointer}
+	#menu ul li.selected{color:var(--color-default);text-shadow:0 0 1px #6cb88f;cursor:default;border-bottom:3px solid var(--color-default)}
+	#menu ul li.inactive {color:#e4e4e4;cursor:default}
+	#menu ul li:not(.selected):not(.inactive):hover{color:#333}
+	#menu ul li a{color:inherit;cursor:inherit}
+	/* Specific */
+	#menu ul.primary-menu{position:absolute;bottom:0;right:0;width:80%;width:calc(100% - 200px);text-align:right}
+	#menu ul.secondary-menu{position:absolute;bottom:-38px;right:0;z-index:99}
+	#menu ul.secondary-menu	li.logout{font-size:15px}
+	#menu ul.tiny{display:none;position:absolute;right:10px;top:10px;background-color:white;border:1px solid var(--table-header-bg-color);z-index:999}
+	#menu ul.tiny::before{content:"\f0c9";padding:10px;text-align:right;display:block;background-color:var(--table-header-bg-color);font-family:FontAwesome}
+	#menu ul.tiny li{display:none;margin:0;float:right;clear:both;padding:5px 10px;margin-bottom:5px}
+	#menu ul.tiny li.selected{margin-right:20px}
+	#menu ul.tiny:hover{width:200px}
+	#menu ul.tiny:hover::before{content:"Menu";font:17px/17px "Roboto Condensed",Arial,Helvetica,sans-serif}
+	#menu ul.tiny:hover li{display:inline-block}
+	/* Small body layout */
+	body.layout-sm #menu ul.tiny{top:-5px}
+	
+	/* Responsive */
+	@media (max-width:1210px) { #menu ul li{letter-spacing:-1px;} }
+	@media (max-width:1110px) { #menu ul li{margin-left:10px} }
+	@media (max-width:970px) {
+		#menu ul.primary-menu,#menu ul.secondary-menu{display:none}
+		#menu ul.tiny{display:block}
+	}
+</style>
+<script type="text/javascript">
+	$(document).ready( function() {
+		// set admin pages
+		$(".primary-menu>li.datasources").addClass("for-admins");
+		$(".primary-menu>li.configurations").addClass("for-admins");
+		
+		$("ul.primary-menu").on("click", "a", function (e) {
+			if ($(this).parent().hasClass("inactive")) {
+				e.preventDefault();
+			}
+		});
+		
+		if (typeof window.tokenKey === "undefined") {
+			$(".primary-menu>li").addClass("inactive");
+		} else if (!window.userIsAdmin) {
+			$(".primary-menu>li.for-admins").addClass("inactive");
+		} else {
+			$(".primary-menu>li").removeClass("inactive");
+		}
+	});
+//# sourceURL=menu.js
+</script>

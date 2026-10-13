@@ -1,0 +1,533 @@
+<section id="tree-content" class="content">
+    <div class="row">
+        <div class="col-md-12">
+			<div class="box">
+				<div class="box-header">
+					<div class="treeview-header">
+						<div class="col-md-12 loading">
+							<img src="./assets/dist/img/loader.gif" />
+						</div>
+					</div>
+				</div>
+				<div class="box-body">
+					<div class="treeview sub"></div>
+					<div id="properties" class="folder hidden">
+						<div class="box-shadow--6dp properties-content">
+							<div class="callout properties-holder">
+								<div class="callout-title"><h4 class="title">File name</h4></div>
+								<button type="button" class="close">&times;</button>
+								<div class="holder"><div>
+									<table class="table table-hover">
+										<thead><tr><th>Name</th><th>Value</th></tr></thead>
+										<tbody></tbody>
+									</table>
+									<div class="imagepreview-holder hidden"><div><span class="fa fa-expand fa-fw full-preview"></span><img src=""/></div></div></div>
+								</div>
+							</div>
+							<div class="callout actions-holder">
+								<div class="callout-title"><h4>Actions</h4></div>
+								<table class="actions-set for-files">
+									<tr class="action download-holder">
+										<td><span class="action-name">Download</span></td>
+										<td><span class="action-info"></span></td>
+										<td><a href="#"><button class="btn bg-green btn-flat"><i class="fa fa-download fa-fw"></i>Download file</button></a></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+        </div>
+    </div>
+</section>
+<script>
+	var $compsTree = $("#tree-content .treeview");
+	var responseStatus = { success: "SUCCEEDED", fail: "FAILED" };
+	
+	var resizeTimer;
+	$(window).on("ready resize", function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(function() { adjustPropertiesPosition(); }, 250); });
+	$(window).on("scroll", function() { adjustPropertiesPosition(); });
+	
+	// === FILE TREE SECTION ==========================================================================
+	
+	function refreshTree(attributes) {
+		var root = (typeof attributes === "undefined") || (typeof attributes.fileInfo === "undefined") || (typeof attributes.fileInfo.relativePath === "undefined");
+		var deferred = $.Deferred();
+		var firstLevel = true;
+		
+		if (root) $("#tree-content .loading").removeClass("hidden");
+		
+		if (attributes && attributes.fileInfo.fileType == "folder") {
+			var url = baseApiUrl + "products/?userId=" + window.userID + "&siteId=" + attributes.fileInfo.parentID + "&productTypeId=" + attributes.fileInfo.fileID;
+			firstLevel = false;
+		} else {
+			var url = baseApiUrl + "products/?userId=" + window.userID + "&siteId=0&productTypeId=0";
+		}
+		
+		$.ajax({
+			url: url,
+			type: "GET",
+			dataType: 'json',
+			beforeSend: function(xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+			},
+			success: function(response) {
+				if (root) $("#tree-content .loading").addClass("hidden");
+				if (response.status == responseStatus.success) {
+					if (firstLevel) {
+						renderTree(response.data, root ? void(0) : attributes.fileInfo.relativePath);
+					} else {
+						var siteSelector = attributes.fileInfo.parentName+":"+attributes.fileInfo.parentID;
+						var typeSelector = attributes.fileInfo.fileName+":"+attributes.fileInfo.fileID;
+						var data = response.data[siteSelector][typeSelector];
+						
+						renderTree(data, root ? void(0) : attributes.fileInfo.relativePath);
+					}
+					if (root) $compsTree.closest(".box").addClass("box-success");
+					deferred.resolve(response);
+				} else {
+					alert(response.message);
+					deferred.reject(null, response.status, response.message);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+				if (jqXHR.status == 401) { // unauthorized
+					logout();
+				} else if (jqXHR.status == 500) { // server error
+					deferred.reject(jqXHR, textStatus, errorThrown);
+				}
+				if (root) $("#tree-content .loading").addClass("hidden");
+				if (root) $compsTree.closest(".box").addClass("box-warning");
+				deferred.reject(jqXHR, textStatus, "Error while loading files.");
+			}
+		});
+		return deferred.promise();
+	}
+	
+	function getParentFolder(relativePath) {
+		var parentId = relativePath.substr(0, relativePath.lastIndexOf("/"));
+		var parent = $("input[id='" + parentId + "']").parent().find(">.sub");
+		if (parent.length == 0) { parent = $compsTree; }
+		return parent;
+	}
+	
+	function renderFolder(relPath, productTypes) {
+		var attributes = null;
+		var relativePath = relPath.replace(/\\/g, "/");
+		
+		// parent info
+		var parentID = -1;
+		var parentName = "";
+		if (relativePath.lastIndexOf("/") >= 0) {
+			// product type
+			parentName = relativePath.substr(0, relativePath.indexOf("/"));
+			if (parentName.indexOf(":") >= 0) {
+				parentID   = parentName.substr(parentName.indexOf(":") + 1);
+				parentName = parentName.substr(0, parentName.indexOf(":"));
+			}
+		}
+		// file info
+		var fileID = -1;
+		var fileName = relativePath.substr(relativePath.lastIndexOf("/") + 1);
+		if (fileName.indexOf(":") >= 0) {
+			fileID   = fileName.substr(fileName.indexOf(":") + 1);
+			fileName = fileName.substr(0, fileName.indexOf(":"));
+		}
+		
+		// set attributes
+		if (!attributes) { attributes = {}; }
+		attributes.fileInfo = {};
+		attributes.fileInfo.relativePath = relativePath;
+		attributes.fileInfo.fileSize     = 0;
+		attributes.fileInfo.fileType     = "folder";
+		attributes.fileInfo.fileID       = fileID;
+		attributes.fileInfo.fileName     = fileName;
+		attributes.fileInfo.parentID     = parentID;
+		attributes.fileInfo.parentName   = parentName;
+		attributes.fileInfo.uri          = "";
+		attributes.site = parentName == "" ? fileName : parentName;
+		attributes.name = fileName;
+		
+		// get parent, render if null
+		var parent = getParentFolder(relativePath);
+		if (parent == $compsTree && relativePath.indexOf("/") >= 0 ) {
+			parent = renderFolder(relativePath.substr(0, relativePath.lastIndexOf("/")), null);
+		}
+		
+		// render folder if not found
+		var chk = parent.find("input[id='" + relativePath + "']");
+		if (chk.length == 0) {
+			var faPublic = attributes.visibility === "PUBLIC";
+			var selectable = false;
+			var element = $('<div' + (relativePath == 'files' ? ' class="files-folder"' : '') + ">" +
+								'<input type="checkbox" id="' + relativePath + '">' +
+								'<label for="' + relativePath + '">' +
+									(selectable ? '<label class="select-for"><input type="checkbox" class="select-for"></label>' : '') +
+									'<a href="#" title="' + attributes.fileInfo.fileName + '">' +
+										'<span class="fa fa-folder' + (faPublic ? " fa-public" : "") + '"></span>' +
+										attributes.fileInfo.fileName +
+									'</a>' +
+								'</label>' +
+								'<div class="sub loading empty"></div>' +
+							'</div>');
+			
+			// Make sure "/files" folder is always last in list
+			var $files = $(".files-folder", $compsTree);
+			if ($files.length > 0 && parent.hasClass("treeview")) {
+				$files.prepend(element);
+			} else {
+				parent.append(element);
+				parent.removeClass("empty loading");
+			}
+			chk = parent.find("input[id='" + relativePath + "']");
+		}
+		chk.find("~label>a").data("attributes", attributes);
+		
+		return chk.find("~.sub");
+	}
+	
+	function renderTree(response, relativePath) {
+		var parentFolder = (typeof relativePath === "undefined") ? "" : relativePath;
+		if (parentFolder == "") {
+			$compsTree.html("");
+		} else {
+			$("input[id='" + relativePath + "']~div.sub", $compsTree).html("");
+		}
+		
+		if (!$.isArray(response)) {
+			// Render sites
+			$.each(response, function (siteIdx, productTypes) {
+				renderFolder(siteIdx, productTypes);
+				// Render product types
+				$.each(productTypes, function (typeIdx, productType) {
+					renderFolder(siteIdx + "/" + typeIdx, productType);
+				});
+			});
+		} else {
+			if (response.length == 0) {
+				var folder = getParentFolder(parentFolder + "/empty");
+				folder.removeClass("loading");
+			}
+			// Render products
+			$.each(response, function (index, file) {
+				var size = parseInt(file.size);
+				if (size < 1024) {
+					size = size + " B";
+				} else if (size < 1024*1024) {
+					size = parseFloat(size / 1024, 2).toFixed(2) + " KB";
+				} else if (size < 1024*1024*1024) {
+					size = parseFloat(size / 1024 / 1024, 2).toFixed(2) + " MB";
+				} else if (size < 1024*1024*1024*1024) {
+					size = parseFloat(size / 1024 / 1024 / 1024, 2).toFixed(2) + " GB";
+				} else {
+					size = parseFloat(size / 1024 / 1024 / 1024 / 1024, 2).toFixed(2) + " TB";
+				}
+				var relPath = relativePath + "/" + file.name;
+				//file.path.replace(/\\/g, "/");
+				var name    = file.name;
+				var type    = file.type;
+				var folder  = getParentFolder(relPath);
+				var href    = file.path;
+				
+				var fafile = "fa-file-o";
+				switch (type) {
+					case ".txt" : fafile = "fa-file-text-o"   ; break;
+					case ".log" : fafile = "fa-file-text-o"   ; break;
+					case ".html": fafile = "fa-file-code-o"   ; break;
+					case ".xml" : fafile = "fa-file-code-o"   ; break;
+					case ".json": fafile = "fa-file-code-o"   ; break;
+					case ".tif" : fafile = "fa-file-image-o"  ; break;
+					case ".png" : fafile = "fa-file-image-o"  ; break;
+					case ".jpg" : fafile = "fa-file-image-o"  ; break;
+					case ".jpeg": fafile = "fa-file-image-o"  ; break;
+					case ".pdf" : fafile = "fa-file-pdf-o"    ; break;
+					case ".zip" : fafile = "fa-file-archive-o"; break;
+				}
+				var element = $('<a href="#" title="' + name + '"' + (href ? '' : ' class="unavailable"') + '><span class="fa ' + fafile + '"></span>' + name + '<span>' + size + '</span>' + '<span>' + "" + '</span>' + '</a>');
+				
+				// site info
+				var siteID = -1;
+				var siteName = "";
+				if (relativePath.indexOf("/") >= 0) {
+					siteName = relativePath.substr(0, relativePath.indexOf("/"));
+					if (siteName.indexOf(":") >= 0) {
+						siteID   = siteName.substr(siteName.indexOf(":") + 1);
+						siteName = siteName.substr(0, siteName.indexOf(":"));
+					}
+				}
+				// product type info
+				var productID = -1;
+				var productName = relativePath.substr(relativePath.lastIndexOf("/") + 1);
+				if (productName.indexOf(":") >= 0) {
+					productID   = productName.substr(productName.indexOf(":") + 1);
+					productName = productName.substr(0, productName.indexOf(":"));
+				}
+				
+				if (!file.attributes) { file.attributes = {}; }
+				file.attributes.fileInfo = {};
+				file.attributes.fileInfo.relativePath = relativePath;
+				file.attributes.fileInfo.fileSize     = size;
+				file.attributes.fileInfo.fileType     = type;
+				file.attributes.fileInfo.fileName     = name;
+				file.attributes.fileInfo.parentID     = productID;
+				file.attributes.fileInfo.parentName   = productName;
+				file.attributes.fileInfo.siteID       = siteID;
+				file.attributes.fileInfo.siteName     = siteName;
+				file.attributes.fileInfo.uri          = href;
+				file.attributes.site = siteName;
+				file.attributes.type = type;
+				file.attributes.name = name;
+				file.attributes.size = size;
+				file.attributes.path = href;
+				
+				element.data("attributes", file.attributes);
+				if (!element.hasClass("unavailable") && $(".unavailable", folder).length > 0) {
+					element.insertBefore($(".unavailable", folder).get(0));
+				} else {
+					folder.append(element);
+				}
+				folder.removeClass("empty loading");
+			});
+		}
+		
+		// Adjust folder indentation
+		$(".select-for", $compsTree).closest(".sub").addClass("has-selectable-for");
+	}
+	
+	function expandFolder(relativePath) {
+		var $chk = $("input[id='" + relativePath + "']");
+		if ($chk.is(":checked") && $chk.siblings("div.sub.loading").length > 0) {
+			$chk.siblings("div.sub").removeClass("failed");
+			var attributes = $chk.siblings("label").find("a").data("attributes")
+			$.when(refreshTree(attributes))
+			.done(function () {
+			})
+			.fail(function (jqXHR, status, error) {
+				$chk.siblings("div.sub.loading").addClass("failed");
+			});
+		}
+	}
+	
+	$("#tree-content .treeview").on("dblclick", "label", function (e) {
+		if (!$(e.target).hasClass("select-for")) {
+			var $chk = $(this).siblings("input[type='checkbox']");
+			if ($chk.length > 0) {
+				// Expand/collapse folder
+				$chk.prop("checked", !$chk.prop("checked"));
+				// Show folder contents
+				expandFolder($chk.attr("id"));
+			}
+		}
+	});
+	
+	$("#tree-content .treeview").on("change", "input[type='checkbox']", function (e) {
+		expandFolder($(this).attr("id"));
+	});
+	
+	// === PROPERTIES WINDOW SECTION ==================================================================
+	
+	function adjustPropertiesPosition() {
+		if ($("#properties").length > 0 && !$("#properties").hasClass("hidden")) {
+			var scrollTop  = document.documentElement ? document.documentElement.scrollTop : document.body.scrollTop;
+			var treeTop    = $("#tree-content .treeview").offset().top;
+			var contentTop = $("#tree-content .treeview-header").offset().top + $("#tree-content .treeview-header").outerHeight();
+			
+			var sumHeight = 15;
+			$.each($("#properties .callout"), function () {
+				sumHeight += $(this).hasClass("properties-holder") ? $(this).find(".title").outerHeight() : $(this).outerHeight();
+			});
+			
+			var newTop = treeTop - scrollTop;
+			if (contentTop - scrollTop < 0) {
+				newTop = treeTop - contentTop;
+			}
+			var addWidth = $("#main").width() - $("#main2").width()
+			var newWidth = $("#tree-content .box-body").width() - $("#tree-content .treeview").width() + addWidth/2;
+			$("#properties").css({ "width": newWidth + "px", "top": newTop + "px" });
+			
+			var newHeight = $(window).height() - newTop - sumHeight - (treeTop - contentTop);
+			$("#properties .properties-holder .holder").css({ "max-height": newHeight + "px" });
+			
+			if ($("#properties .properties-holder .holder").outerHeight() >= $("#properties .properties-holder .holder>div").outerHeight()) {
+				$("#properties .properties-holder .holder").css({ "overflow-y": "unset" });
+			} else {
+				$("#properties .properties-holder .holder").css({ "overflow-y": "" });
+			}
+		}
+	}
+	
+	function displayActions(attributes) {
+		// Display actions for folders
+		if ($("#properties.folder").length > 0) {
+			// Nothing to display
+		} else {
+			// Download
+			if (attributes && attributes.path) {
+				$(".for-files .download-holder .action-info").text("Download size: " + attributes.fileInfo.fileSize);
+				$(".for-files .download-holder a").attr("href", baseApiUrl + "products/download?siteId=" + attributes.fileInfo.siteID + "&name=" + attributes.fileInfo.fileName + "&token=" + window.tokenKey);
+				$(".for-files .download-holder a .btn").prop("disabled", false);
+			} else {
+				$(".for-files .download-holder .action-info").text("Download unavailable");
+				$(".for-files .download-holder a").attr("href", "");
+				$(".for-files .download-holder a .btn").prop("disabled", true);
+			}
+		}
+	}
+	
+	function showPorperties(attributes) {
+		closePorperties();
+		
+		$("#properties .properties-holder .title").text(attributes.fileInfo.fileName);
+		$("#properties").removeClass("folder file unavailable");
+		if (attributes.fileInfo.fileType == "folder") {
+			$("#properties").addClass("folder");
+			return;
+		} else {
+			if (attributes && attributes.path) {
+				$("#properties").addClass("file");
+			} else {
+				$("#properties").addClass("unavailable");
+			}
+		}
+		
+		var tableBody = $("#properties .properties-holder tbody");
+		var size = 0;
+		$.each(attributes, function (name, value) {
+			if (name == "productType" && value == "GeoTIFF" && attributes.fileInfo.fileType != "folder") {
+				tableBody.append('<tr><td>' + name + '</td><td>' + value + '<button class="btn bg-green btn-flat btn-xs image-preview"><i class="fa fa-eye fa-fw"></i>Toggle quick view</button></td></tr>');
+			} else if (name != "fileInfo") {
+				tableBody.append('<tr><td>' + name + '</td><td>' + (value ? value.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, "<br/>") : "") + '</td></tr>');
+			} else {
+				size --;
+			}
+			size ++;
+		});
+		if (size == 0) {
+			tableBody.append('<tr><td>-</td><td>-</td></tr>');
+		}
+		
+		// Draw Actions
+		displayActions(attributes);
+		
+		$("#properties").data("attributes", attributes);
+		
+		// Unhide properties window
+		$("#properties").removeClass("hidden");
+		$compsTree.addClass("compact");
+	}
+	
+	function closePorperties() {
+		// Set attributes default values
+		$("#properties .properties-holder .title").text("File name");
+		var tableBody = $("#properties .properties-holder tbody");
+		tableBody.html("");
+		
+		// Empty image preview
+		$("#properties .imagepreview-holder").addClass("hidden");
+		$("#properties .imagepreview-holder img").attr("src", "");
+		
+		// Set actions default values and availability
+		$("#properties .actions-holder a").attr("href", "");
+		$("#properties .actions-holder .action-info").text("");
+		$("#properties .actions-holder button").attr('disabled', false);
+		$("#properties .actions-holder input[type='checkbox']").prop('checked', true);
+		
+		// Hide properties window and clear data
+		$("#properties").removeClass("file folder").addClass("hidden").removeData("attributes");
+		$compsTree.removeClass("compact");
+	}
+	
+	$("#tree-content .treeview").on("click", "a", function (e) {
+		e.preventDefault();
+		
+		$("#tree-content .treeview a.selected").removeClass("selected");
+		$(this).addClass("selected");
+		
+		showPorperties($(this).data("attributes"));
+		adjustPropertiesPosition();
+	});
+	
+	$("#tree-content .treeview").on("change", "input.select-for", function (e) {
+		if ($(this).prop("checked"))
+			$(this).parent().addClass("checked");
+		else
+			$(this).parent().removeClass("checked");
+		
+		
+		if ($("#tree-content .treeview .select-for:checked").length > 0) {
+			$("#createQuery i").removeClass("fa-square-o").addClass("fa-check-square-o");
+			$("#createQuery").prop("disabled", false);
+		} else {
+			$("#createQuery i").removeClass("fa-check-square-o").addClass("fa-square-o");
+			$("#createQuery").prop("disabled", true);
+		}
+	});
+	
+	$("#properties .imagepreview-holder img").load(function () {
+		$("#properties .imagepreview-holder").removeClass("hidden");
+		$("#properties .properties-holder .holder").css({ "max-height": "" });
+		adjustPropertiesPosition();
+	});
+	
+	$("#properties").on("click", "button.image-preview", function (e) {
+		var attributes = $(this).closest("#properties").data("attributes");
+		if ($("#properties .imagepreview-holder img").attr("src") != "") {
+			$("#properties .imagepreview-holder").toggleClass("hidden");
+			adjustPropertiesPosition();
+		} else {
+			$("#properties .imagepreview-holder").addClass("hidden");
+			$("#properties .imagepreview-holder img").attr("src", "");
+			if (attributes.formatType == "RASTER") {
+				$.ajax({
+					url: attributes.fileInfo.uri.replace("download?fileName=", "preview?fileName="),
+					type: "GET",
+					beforeSend: function(xhr) { xhr.setRequestHeader("X-Auth-Token", window.tokenKey); },
+					success: function(response) {
+						if (response.status == responseStatus.success) {
+							$("#properties .imagepreview-holder img").attr("src", "data:image/jpeg;base64, " + response.data);
+						}
+					}
+				});
+			}
+		}
+		
+	});
+	
+	$("#properties").on("click", ".full-preview", function (e) {
+		$("#properties .imagepreview-holder").clone().appendTo("#tree-content").addClass("full-screen");
+		$("#tree-content .full-screen span").remove();
+	});
+	
+	$("#tree-content").on("click", ".full-screen", function (event) {
+		event.stopPropagation();
+		$(this).remove();
+	});
+	
+	$("#properties").on("click", "button.close", function (e) {
+		closePorperties();
+		$("#tree-content .treeview a.selected").removeClass("selected");
+	});
+	
+	$("#properties .download-holder").on("click", "a", function (e) {
+		var btn  = $(this).find("button");
+		var info = $(this).closest(".download-holder").find(".action-info");
+		var infoVal = info.text();
+		
+		btn.prop("disabled", true);
+		info.text("Your download request has been sent!");
+	});
+	
+	// === START ======================================================================================
+	
+	$(document).ready(function() {
+		// Set content class
+		$("#tree-content").addClass("shared-files");
+		
+		// Get files
+		$.when(refreshTree()).done(function () {});
+	});
+	
+//# sourceURL=productsOld.js
+</script>

@@ -1,0 +1,617 @@
+<div class="panel panel-resources">
+    <div class="panel-heading">
+        <h2 class="panel-title">Configurations</h2>
+    </div>
+    <div class="panel-body">
+        <div class="panel-group">
+            <div class="panel bevel">
+
+                <div id="customization_form" style="display: none;">
+                    <form method="post">
+                        <div class="form-group row">
+                            <label>Customized site values</label>
+                        </div>
+                        <div class="form-group row" id="customized_sites">
+                            <img src="assets/dist/img/loader.gif" width="64px" height="64px">
+                        </div>
+                        <div class="form-group row"><span class="error-block error hidden"></span></div>
+                        <div class="form-group row submit-buttons">
+                            <input class="add-edit-btn done-btn lspace" name="done" type="button" value="Done" />
+                        </div>
+                    </form>
+                </div>
+                <div id="accordion_configuration"></div>
+            </div>
+
+            <hr />
+        </div>
+
+    </div>
+
+    <!-- Templates -->
+    <div id="accordion_template" style="display: none;">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title"><a data-toggle="collapse" data-parent="#accordion_configuration"
+                        class="collapsed" href=""></a></h3>
+            </div>
+            <div class="panel-body panel-collapse collapse" id="">
+                <form role="form">
+                    <input type="hidden" name="categoryId" value="">
+                    <input type="hidden" name="category" value="">
+                    <div class="form-group form-group-sm row submit-buttons">
+                        <input class="add-edit-btn done-btn lspace" name="save" type="button" value="Save" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="template_form_content" style="display: none;">
+        <div class="form-group form-group-sm row">
+
+        </div>
+    </div>
+
+    <div id="template_col" style="display: none;">
+        <div class="col">
+            <input type="hidden" name="id" value="">
+            <input type="hidden" name="key" value="">
+            <input type="hidden" name="dataType" value="">
+            <input type="hidden" name="label" value="">
+            <input type="hidden" name="allowedValues" value="">
+            <input type="hidden" name="allowPerSiteCustomization" value="">
+            <input type="hidden" name="customizations" value="">
+            <div class="col-md-3 inline_view">
+                <div class="info_popup">
+                    <input type="button" class="info_popup_img icon"></input>
+                    <span class="info_popup_text"></span>
+                </div>
+                <label for="frendlyName_KEY" class="control-label">
+
+                </label>
+
+            </div>
+            <div class="col-md-3">
+                <div class="input_select inline_view"></div>
+                <div><span class="error-block error hidden"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="template_field" style="display: none;">
+        <input type="" name="field_input_value" id="input_frendlyName_KEY" value="" class="form-control">
+        <select name="field_select_value" id="select_frendlyName_KEY" value="" class="form-control">
+        </select>
+        <span class="help-block"></span>
+
+        <input type="button" name="add_customization" title="Add site with diferent value" class="icon">
+    </div>
+</div>
+<!-- includes for bootstrap-switch -->
+<link href="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-switch/3.3.2/bootstrap-switch.min.js"></script>
+
+<!-- includes for datepicker and other controls -->
+<script src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+<link href="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.css" rel="stylesheet"
+	type="text/css" />
+<script src="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.js"></script>
+
+<style>
+	.control-label,
+	.help-block {
+		font-size: 12px;
+	}
+
+	input.error {
+		border-color: red;
+	}
+
+	.done-btn {
+		margin-right: 15px;
+
+	}
+
+	/* Style for the info popup */
+	.col .inline_view {
+		display: flex;
+	}
+
+	.info_popup {
+		display: inline-flex;
+	}
+
+	div#accordion_configuration .info_popup_img.icon {
+		cursor: pointer;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		background-image: url("assets/dist/img/icon-info.png");
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: cover;
+		width: 16px;
+		height: 16px;
+
+	}
+
+	.info_popup .info_popup_text {
+		position: absolute;
+		visibility: hidden;
+		text-align: center;
+		margin-left: 30px;
+		background-color: var(--accordion-header-bg-color);
+		color: var(--color-default);
+
+	}
+
+	.info_popup_text::after,
+	.info_popup_text::before {
+		content: '';
+		position: absolute;
+		left: 0.75vw;
+		top: 97%;
+		z-index: 2;
+		border: solid 0.5em transparent;
+		overflow: hidden;
+		border-bottom: 0;
+		border-top-color: var(--accordion-header-bg-color);
+	}
+
+	.info_popup_text::after {
+		top: 100%;
+		z-index: 1;
+		border-top-color: var(--color-default);
+	}
+
+
+
+	.info_popup_text.show {
+		visibility: visible;
+		-webkit-animation: fadeIn 1s;
+		animation: fadeIn 1s;
+		z-index: 1;
+		text-align: center;
+		bottom: 2em;
+		margin-left: -1vw;
+		border-radius: 10px;
+		-webkit-border-radius: 10px;
+		width: fit-content;
+		border-style: groove;
+		border: 0.01em solid var(--color-default);
+		bottom: 110%;
+		padding: 2px;
+	}
+
+	/* Style for add button */
+	div#accordion_configuration input[name="add_customization"] {
+		background-image: url("assets/dist/img/add.png");
+	}
+
+	div#accordion_configuration .icon {
+		border: 1px solid transparent;
+		border-radius: 50%;
+		width: 22px;
+		height: 22px;
+		padding: 5px;
+		background-position: 50% 50%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+
+	}
+
+	div#accordion_configuration .icon:hover {
+		border-color: var(--color-default)
+	}
+
+	div#accordion_configuration .icon:focus {
+		outline: none;
+	}
+
+	/* Responsive */
+	@media screen and (max-width: 1600px) {
+		.grid-container {
+			grid-template-columns: auto;
+		}
+
+		.formContent {
+			display: block;
+		}
+
+		.info_popup {
+			display: inline-block;
+			margin-bottom: 0.7vh;
+		}
+	}
+</style>
+
+
+<script type="text/javascript">
+	// ======================== PUBLIC CONFIGURATIONS FUNCTIONS ======================== //
+	function purgeAllConfigurationsDialogs() {
+		purgeUiDialog("customization_form");
+	}
+
+	$(document).ready(function () {
+
+		var updateFields = function (fieldMap) {
+			var inputsInError = {};
+			$.each(fieldMap, function (itemId, value) {
+				var url = baseApiUrl + "config" + "?itemId=" + itemId + "&value=" + value;
+				var $associatedKey = $("input[name='id'][value='" + itemId + "']").siblings("input[name='key']").attr("value");
+				$.ajax({
+					cache: false,
+					async: false,
+					url: url,
+					type: "PUT",
+					success: function (response) {
+						if (response.message !== null) {
+							inputsInError[$associatedKey] = response.message;
+						}
+					},
+					error: function (response) {
+						inputsInError[$associatedKey] = response.message;
+					}
+				});
+			});
+			return inputsInError;
+		};
+
+		var getSites = function (userId) {
+			return $.ajax({
+				cache: false,
+				url: baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+				type: "GET"
+			});
+		};
+
+		var getData = function () {
+			return $.ajax({
+				url: baseApiUrl + "config/",
+				type: "GET"
+			});
+		};
+
+		function openAddDialog($dialog) {
+			var fieldData = $dialog.data("fieldData");
+			$.ajax({
+				cache: false,
+				url: "fragments/configurations.customization.fragment.html",
+				type: "GET",
+				dataType: "html",
+				success: function (data) {
+					$("#customized_sites", "#customization_form").html(data);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					console.log("Status: " + textStatus + "   Error: " + errorThrown);
+				}
+			});
+
+			$dialog.dialog({ "title": fieldData.category + "-" + (fieldData.label !== "not set" ? fieldData.label : fieldData.key) +" "});
+			$dialog.dialog("open");
+
+		};
+
+		var getDatabaseFieldData = function (categoryId) {
+			return $.ajax({
+				cache: false,
+				url: baseApiUrl + "config/" + "?categoryId=" + categoryId,
+				type: "GET"
+			});
+		};
+
+		function createDialogs() {
+			$("#customization_form").dialog({
+				width: '50%',
+				autoOpen: false,
+				modal: true,
+				resizable: false,
+				beforeClose: function (event, ui) { resetDialog($("form", this)); },
+			}).on("click", ".done-btn", function (e) {
+				e.preventDefault();
+
+				if ($(this).parent().siblings("#customized_sites").find(".icon[name='save']:not(.hidden)").length) {
+					if (confirm("Are you want to abort unsaved configurations?")) {
+						closeDialog(this);
+					}
+				} else {
+					closeDialog(this);
+				}
+				var fieldKey = $("#customization_form").data("fieldData").key;
+				var categoryId = $("#customization_form").data("fieldData").categoryId;
+
+
+				var $customizationButton = $("input[name='add_customization']", "div[id='" + fieldKey + "']");
+				$.when(getDatabaseFieldData(categoryId)).done(function (response) {
+					var data = response.data.find(val => val.key === fieldKey);
+					$customizationButton.data("data", data);
+				});
+
+			});
+		};
+
+		function hidePanelError(form) {
+			if ($("span.error-block:not(.hidden)", form).length) {
+				$("span.error-block:not(.hidden)", form).html("").addClass("hidden");
+			}
+		};
+
+		function resetDialog($forms) {
+			$.each($forms, function (index, form) {
+				if ($(form).attr("id")) {
+					if ($(form).attr("id") == "customization_form") {
+						$("tbody>tr>td", "#site_customization").remove();
+						hidePanelError(form);
+					} else if (form.id == "site_customization_delete") {
+						hidePanelError(form);
+					}
+				}
+			});
+		};
+
+		function createSelectField(data, $columnDiv) {
+			var selectField = $("select[id='select_frendlyName_KEY']", "#template_field").clone();
+			var errorField = $("span.error-block", $columnDiv);
+
+			$.each(data.allowedValues.allowed_values, function (index, value) {
+				selectField.append('<option name="' + value.display + '" value="' + value.value + '">' + value.display +'</option>');
+			});
+
+			$("option[value='" + data.value + "']", selectField).prop("selected", true);
+
+			$("div.input_select", $columnDiv).append(selectField.attr({ "id": data.key }));
+			if (errorField.html()) {
+				errorField.removeClass("hidden");
+			}
+
+		};
+
+		function createInputField(data, $columnDiv) {
+			var inputField = $("input[id='input_frendlyName_KEY']", "#template_field").clone();
+			var errorField = $("span.error-block", $columnDiv);
+			switch (data.dataType) {
+				case "int": case "float":
+					try {
+						inputField.attr({ "type": "number", "value": data.value });
+						if (data.allowedValues && data.allowedValues.bounds !== undefined && data.allowedValues.bounds !== null) {
+							$.each(data.allowedValues.bounds, function (prop, value) {
+								if (prop == "min" && value == "") {
+									inputField.attr(prop, Number.MIN_VALUE);
+								} else if (prop == "max" && value == "") {
+									inputField.attr(prop, Number.MAX_VALUE);
+								} else {
+									inputField.attr(prop, value);
+								}
+							});
+						}
+					} catch (err) {
+						inputField.attr({ "type": "text", "value": data.value }).addClass("error");
+						errorField.html("Type changed to text: " + data.value +" is not " + data.dataType + ".");
+					}
+					break;
+				case "date":
+					inputField.attr({ "type": "text", "value": data.value }).datetimepicker({ format: "YYYY-MM-DD", showClose: true }); break;
+				case "bool":
+					try {
+						inputField.prop("checked", JSON.parse(data.value));
+						inputField.attr({ "type": "checkbox", "value": inputField.prop("checked") });
+
+					} catch (err) {
+						inputField.attr({ "type": "text", "value": data.value }).addClass("error");
+						errorField.html("Type changed to text:" + data.value + " is not " + data.dataType +".");
+					}
+					break;
+
+				default:
+					inputField.attr({ "type": "text", "value": data.value }); break;
+			}
+
+			$("div.input_select", $columnDiv).append(inputField.attr({ "id": data.key }));
+			if (errorField.html()) {
+				errorField.removeClass("hidden");
+			}
+		};
+
+		function createContent(response, $parent) {
+			$parent.html("");
+			$.each(response, function (index, data) {
+
+				var $accordionBody;
+				var $form;
+				/*
+				* if the categoryId is greater then 0 (category diffrent of n/a)
+				* else get the div with the categoryId
+				*/
+				if (!$("div#source_" + data.categoryId, $parent).length) {
+					var $accordion_template = $(".panel", "#accordion_template").clone();
+					var $accordionHeader = $(".panel-heading", $accordion_template);
+					$accordionBody = $(".panel-body", $accordion_template);
+					$("a", $accordionHeader).html(data.category).attr("href", "#source_" + data.categoryId);
+					$form = $("form", $accordionBody).attr("id", "form_" + data.categoryId);
+					$accordionBody.attr("id", "source_" + data.categoryId);
+					$($parent).append($accordion_template);
+
+				} else {
+					$accordionBody = $("div#source_" + data.categoryId, $parent);
+					$form = $("form#form_" + data.categoryId, $parent);
+				}
+				/*
+				* add fields in the category form
+				*/
+
+				// hidden fields for category
+				$("input[name='categoryId']", $form).val(data.categoryId);
+				$("input[name='category']", $form).val(data.category);
+
+				var $configEntryDiv;
+				var $columnDiv;
+				if (!$("div.row:not(.submit-buttons)", $form).length || $("div.col", $("div.row:not(.submit-buttons)", $form).last()).length == 2) {
+					$configEntryDiv = $("div.row", "#template_form_content").clone();
+				} else {
+					$configEntryDiv = $("div.row:not(.submit-buttons)", $form).last();
+				}
+				$columnDiv = $("div.col", "#template_col").clone().attr("id", data.key);
+
+				// hidden fields for configuration entry
+				$("input[name='id']", $columnDiv).val(data.id);
+				$("input[name='key']", $columnDiv).val(data.key);
+				$("input[name='dataType']", $columnDiv).val(data.dataType);
+				$("input[name='allowedValues']", $columnDiv).val(data.allowedValues);
+				$("input[name='allowPerSiteCustomization']", $columnDiv).val(data.allowPerSiteCustomization);
+				$("input[name='customizations']", $columnDiv).val(data.customizations);
+
+				// config entry name and value
+				$("label[for='frendlyName_KEY']", $columnDiv).attr("for", data.key).html(data.label !== "not set" ? data.label : data.key + ":");
+				$("span.info_popup_text", $columnDiv).html(data.friendlyName);
+
+				//select the input type
+
+				if (data.allowedValues && data.allowedValues.allowed_values !== undefined && data.allowedValues.allowed_values !== null && data.allowedValues.allowed_values.length > 0) {
+					createSelectField(data, $columnDiv);
+				} else {
+					createInputField(data, $columnDiv);
+				}
+
+				//add customization button if allowed
+				if (data.allowPerSiteCustomization) {
+					var $customizationButton = $("input[name='add_customization']", "#template_field").clone();
+					$customizationButton.data("data", data);
+					$customizationButton.data("dataType", $("[name='field_input_value']", $columnDiv).attr("type"));
+					$("div.input_select", $columnDiv).append($customizationButton);
+				}
+
+				// add field to form
+				$configEntryDiv.append($columnDiv);
+				$configEntryDiv.insertBefore($("div.row.submit-buttons", $form));
+			});
+			//add bootstrapSwitch on all checkboxes
+			$("input[type='checkbox']", $parent).bootstrapSwitch({
+				size: "small",
+				onColor: "success",
+				offColor: "default",
+				onText: "TRUE",
+				offText: "FALSE"
+			});
+
+		};
+
+		function typeValidation(element) {
+			var dataType = $("input[name='dataType']", element.closest("div[id='" + element.id + "']")).val();
+			if (element.type === "number") {
+				return element.value === "" ? false : dataType === "int" ? Number.isInteger(Number(element.value)) : dataType === "float" ? parseFloat(element.value) % 1 !== 0 : dataType === "double" ? $.isNumeric(element.value) : true;
+			}
+			return true;
+		}
+		
+		function refreshPage() {
+			$.when(getData()).done(function (response) {
+				if (response.status == responseStatus.success) {
+					createContent(response.data, $("div#accordion_configuration"));
+					createDialogs();
+				} else {
+					console.log("Fail to get the data: " + response.message);
+				}
+			});
+		}
+
+		refreshPage();
+
+		$("#accordion_configuration").on("click", ".info_popup_img", function (e) {
+			e.preventDefault();
+			if ($(this).siblings(".info_popup_text").hasClass("show")) {
+				$(this).siblings(".info_popup_text").removeClass("show");
+			} else {
+				$(this).closest("#accordion_configuration").find(".info_popup_text.show").removeClass("show");
+				$(this).siblings(".info_popup_text").addClass("show");
+			}
+		});
+
+		$("#accordion_configuration").on("click", "a[data-parent='#accordion_configuration']", function (e) {
+			$("#accordion_configuration").find(".info_popup_text.show").removeClass("show")
+		});
+
+		$("#accordion_configuration").on("click", "input[name='add_customization']", function (e) {
+			e.preventDefault();
+			$("#customization_form").data("fieldData", $(this).data("data"));
+			$("#customization_form").data("dataType", $(this).data("dataType"));
+			$.when(getSites(window.userIsAdmin ? void 0 : window.userID))
+				.done(function (response) {
+					$("#customization_form").data("siteList", response.data);
+					openAddDialog($("#customization_form"));
+				});
+		});
+
+		$("#accordion_configuration").on("click", "input[name='save']", function (e) {
+			e.preventDefault();
+			var fieldMap = {};
+
+			$.each($(".form-control:not([type='checkbox'])", this.closest("form")), function (index, field) {
+				if ($(field).val() !== $(field).attr("value")) {
+					var values = $(field).val();
+					if ($.isArray(values)) {
+						values = values.join(";");
+					}
+					fieldMap[$(field.closest("div[id='" + $(field).attr("id") + "']")).children("input[name='id']").attr("value")] = values;
+				}
+			});
+
+
+
+			$.each($("input[class='form-control'][type='checkbox']", this.closest("form")), function (index, field) {
+				if (JSON.parse($(field).val()) !== $(field).prop("checked")) {
+					fieldMap[$(field.closest("div[id='" + $(field).attr("id") +"']")).children("input[name='id']").attr("value")] = $(field).prop("checked");
+				}
+			});
+			$.when(updateFields(fieldMap)).done(function (response) {
+				if (!$.isEmptyObject(response)) {
+					$.each(response, function (key, message) {
+						var $input = $("[id='" + key + "']:not(div)").addClass("error");
+						$input.parent().siblings().find("span.error-block").removeClass("hidden").html(message);
+						$input.on("keyup change", function () {
+							$input.removeClass("error").parent().siblings().find("span.error-block").addClass("hidden").html("");
+						});
+					});
+				} else {
+					refreshPage();
+				}
+			});
+		});
+		
+		$("#accordion_configuration").on("change paste keyup", "input[name='field_input_value']", function () {			
+			if (!typeValidation(this)) {
+				var dataType = $("input[name='dataType']", $(this).closest("div[id='" + this.id + "']")).val();
+				var error =  'Value should be ' + dataType;
+				$(this).parent().siblings("div:has(span.error-block)").find("span").html(error);
+				$(this).parent().siblings("div:has(span.error-block)").find("span").removeClass("hidden");
+				$(this).closest("form").find("input[type='button']").prop("disabled",true);
+			} else {
+				if ($(this).parent().siblings("div:has(span.error-block)").find("span").html() !== "") {
+					$(this).parent().siblings("div:has(span.error-block)").find("span").html("");
+					$(this).parent().siblings("div:has(span.error-block)").find("span").addClass("hidden");
+				}
+				var validForm = true;
+				$.each($(this).closest("form").find("input[name='field_input_value']"), function (idx, element) {
+					if (!typeValidation(element)) {
+						validForm = false;
+						return false;
+					}
+				});
+				if (validForm) {
+					$(this).closest("form").find("input[type='button']").prop("disabled",false);
+				}
+			}
+		});
+
+		$("#main").on("click", function(e){
+			if($(".info_popup_text",".info_popup").hasClass("show") && !$(e.target).hasClass("info_popup_img icon")){
+				$(".info_popup_text",".info_popup").removeClass("show")
+			}
+		});
+	});
+
+//# sourceURL=configurations.js
+</script>

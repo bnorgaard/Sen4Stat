@@ -1,0 +1,904 @@
+﻿<div class="panel panel-resources">
+    <div class="panel-heading">
+        <h2 class="panel-title">Dashboard</h2>
+    </div>
+    <div class="panel-body">
+        <div class="tabControl"></div>
+        <div id="div_addjob" style="display:none">
+            <!-- form add new job -->
+            <form id="jobform_addnew" method="post" class="tspace vspace">
+                <input type="hidden" name="job_new_siteId" value="">
+                <div class="form-group row">
+                    <h3 class="control-label col-md-4">Processor:</h3>
+                    <h4 class="control-label col-md-8 processor-name" style="line-height:1.7em"></h4>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Job name:</label>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" name="jobname" />
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Site name:</label>
+                    <div class="col-md-8">
+                        <select class="form-control" name="sitename"><option value="" selected>Select site</option></select>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Season name:</label>
+                    <div class="col-md-8">
+                        <select class="form-control" name="seasonname"><option value="" selected>Select season</option></select>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Product:</label>
+                    <div class="col-md-8">
+                        <select class="form-control" name="product"><option value="" selected>Select a product</option></select>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Select a schedule:</label>
+                    <div class="col-md-8">
+                        <select class="form-control" name="schedule">
+                            <option value="" selected>Select a schedule</option>
+                            <option value="0">Once</option>
+                            <option value="1">Cycle</option>
+                            <option value="2">Repeat</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <label class="control-label col-md-4">Start date:</label>
+                    <div class="col-md-8 div_startdate">
+                        <input type="text" class="startdate form-control" name="startdate" disabled />
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row row-repeat">
+                    <label class="control-label col-md-4">Repeat:</label>
+                    <div class="col-md-8 col-repeat div_repeatnever">
+                        <span>-</span>
+                    </div>
+                    <div class="col-md-8 col-repeat div_repeatafter hidden">
+                        <span>After</span><input type="number" class="form-control" name="repeatafter" value="1" min="0" style="width:50px" /><span>days</span>
+                    </div>
+                    <div class="col-md-8 col-repeat div_oneverydate hidden">
+                        <span>Every</span><input type="number" class="form-control" name="oneverydate" value="1" min="0" max="31" step="1" style="width:50px" /><span>day of month</span>
+                    </div>
+                </div>
+                <div class="form-group form-group-sm row">
+                    <div class="col-md-12 error hidden"></div>
+                </div>
+                <div class="submit-buttons">
+                    <input class="add-edit-btn" name="save_new_job" type="submit" value="Save">
+                    <input class="add-edit-btn cancel-btn lspace" name="cancel_new_job" type="button" value="Abort">
+                </div>
+            </form>
+        </div>
+        <div id="div_deletejob" style="display:none">
+            <!-- form delete job -->
+            <form id="jobform_delete" method="delete">
+                <span>Are you sure you want to remove the selected job?</span>
+                <hr />
+                <div class="form-group form-group-sm row">
+                    <div class="col-md-12 error hidden"></div>
+                </div>
+                <div class="submit-buttons">
+                    <input class="add-edit-btn delete-btn" name="delete_job_yes" type="submit" value="Yes">
+                    <input class="add-edit-btn cancel-btn lspace" name="delete_job_no" type="button" value="No">
+                </div>
+            </form>
+        </div>
+        <hr />
+    </div>
+</div>
+<div id="proc_template" class="panel-group tab-content collapse">
+    <div class="panel bevel">
+        <div class="dash-row dash-row-sm" style="height:550px">
+            <div class="panel dash-panel panel_resources loading">
+                <div class="panel-heading"><h3 class="panel-title">Resource Utilization<span class="glyphicon glyphicon-refresh panel-control refresh"></span></h3></div>
+                <div class="panel-body">
+                    <table class="table table-striped"><tbody></tbody></table>
+                    <div class="error hidden"></div>
+                </div>
+            </div>
+            <div class="panel dash-panel panel_output loading">
+                <div class="panel-heading"><h3 class="panel-title">Output<span class="glyphicon glyphicon-refresh panel-control refresh"></span></h3></div>
+                <div class="panel-body">
+                    <table class="table table-striped"><tbody></tbody></table>
+                    <div class="error hidden"></div>
+                </div>
+            </div>
+            <div class="panel dash-panel panel_configuration loading">
+                <div class="panel-heading"><h3 class="panel-title">Default Configuration<span class="glyphicon glyphicon-refresh panel-control refresh"></span></h3></div>
+                <div class="panel-body">
+                    <table class="table table-striped"><tbody></tbody></table>
+                    <div class="error hidden"></div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="dash-row">
+            <div class="panel dash-panel panel_scheduled loading">
+                <div class="panel-heading"><h3 class="panel-title">Jobs Scheduler<span class="glyphicon glyphicon-refresh panel-control refresh"></span></h3></div>
+                <div class="panel-body">
+                    <input class="add-edit-btn tspace vspace" name="schedule_add" type="button" value="Schedule New Job">
+                    <table class="table table-striped schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Job name</th>
+                                <th>Site name</th>
+                                <th>Season name</th>
+                                <th class="product">Product</th>
+                                <th>Schedule type</th>
+                                <th style="width:160px">First run time</th>
+                                <th style="width:160px">Repeat</th>
+                                <th style="width:115px;text-align:center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="schd-template collapse">
+                                <td class="job_name"></td>
+                                <td class="site_name"></td>
+                                <td class="season_name"></td>
+                                <td class="product"></td>
+                                <td class="schedule_type">
+                                    <select class="schedule_format" name="schedule">
+                                        <option value="0">Once</option>
+                                        <option value="1">Cycle</option>
+                                        <option value="2">Repeat</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" class="startdate schedule_format" name="startdate" /></td>
+                                <td>
+                                    <span class="div_repeatnever nowrap hidden"><label>Never</label></span>
+                                    <span class="div_repeatafter nowrap hidden"><label>After</label><input type="number" class="schedule_format" name="repeatafter" value="1" min="0" /> days</span>
+                                    <span class="div_oneverydate nowrap hidden"><label>Every</label><input type="number" class="schedule_format" name="oneverydate" value="1" min="0" max="31" step="1" /> day of month</span>
+                                </td>
+                                <td class="nowrap">
+                                    <input type="submit" class="btn btn-success btn-xs" name="update_scheduled_job" value="Save" disabled />
+                                    <input type="submit" class="btn btn-danger btn-xs" name="delete_scheduled_job" value="Delete" />
+                                    <input type="submit" class="btn btn-danger btn-xs" name="cancel_edited_job" value="Cancel" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="error hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+	.panel-group .panel+.panel{margin-top:0}
+	
+	input[name='schedule_add']{text-align:left;width:220px}
+	
+	/* stack dash-panels in flexible columns per fixed height rows */
+	.dash-row{display:flex;flex-wrap:wrap;flex-direction:column;display:-webkit-flex;-webkit-flex-wrap:wrap;-webkit-flex-direction:column;margin-bottom:20px}
+	.dash-row:last-child{margin-bottom:0}
+    .dash-panel.panel_resources     {flex: 0 0 50%;order: 1;-webkit-flex: 0 0 50%;-webkit-order: 1;width: 49%;margin-right: 2%}
+    /*.dash-panel.panel_vspace        {flex: 0 0 4%;order: 2;-webkit-flex: 0 0 4%;-webkit-order: 2;width: 35%;margin-right: 2%;box-shadow: none}*/
+    .dash-panel.panel_output        {flex: 0 0 45%;order: 2;-webkit-flex: 0 0 45%;-webkit-order: 2;width: 49%;margin-right: 2%}
+    .dash-panel.panel_configuration {flex: 0 0 97%;order: 3;-webkit-flex: 0 0 97%;-webkit-order: 3;width: 49%;}
+
+	.dash-panel.panel_scheduled    {width:100%}
+	.dash-panel.panel_scheduled .panel-body{min-height:200px}
+	
+	.dash-row .dash-panel{padding-left:0}
+	.dash-row .dash-panel::after{content:none}
+	.dash-row .dash-panel .panel-body{overflow:auto;height:80%;height:calc(100% - 40px);padding:15px}
+	.dash-row-sm .dash-panel .table{font-size:0.8em}
+	.dash-row-sm .dash-panel .table th{line-height:1em;padding:5px 10px;width:60%}
+	.dash-row-sm .dash-panel .table td{line-height:1em;padding:5px;font-size:0.9em;word-break:break-all}
+	.dash-row-sm .dash-panel.panel_configuration .table th{width:30%}
+	
+	.schedule-table th{height:42px}
+	.schedule-row{display:table-row;font-size:0.8em}
+	.schedule-row label{font-weight:400;width:35px;margin:0}
+	.schedule-row [name]{border:1px solid #cdcdcd;padding:3px;width:100%}
+	.schedule-row input[type="number"]{padding:2px;width:40px;text-align:center}
+	
+	.schedule-row .btn{padding:4px 8px;border:0;width:55px}
+	.schedule-row .btn:disabled{background-color:#b1b1b1}
+	
+	.schedule-row .error{display:block;text-align:left;width:100%;margin:0;font-size:11px;white-space:normal}
+	.schedule-row-add{height:45px;background-color:#bce893 !important}
+	.schedule-row-add span{padding-top:10px}
+	.schedule-row:not(.edit-mode) input[name='cancel_edited_job']{display:none}
+	.schedule-row.edit-mode input[name='delete_scheduled_job']{display:none}
+	.schedule-row.edit-mode{transition:background 0.5s}
+	.schedule-table tr.schedule-row.delete-mode{background-color:#e25959}
+	.schedule-table tr.schedule-row.delete-mode span{color:white}
+	.schedule-table tr.schedule-row.delete-mode [name]:not([type="submit"]){color:red}
+	
+	/* Show sub product fields when available (ex: for L3 processor) */
+	.tab-content .product{display:none}
+	.tab-content.has-products .product{display:table-cell}
+	
+	.row-repeat [name],.row-repeat span{display:inline-block;margin-right:5px}
+	
+	/* Set dialog title color */
+	#div_addjob{outline-color:var(--color-default)}
+	#div_deletejob{outline-color:crimson}
+</style>
+
+<!-- includes for datepicker and other controls -->
+<script src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+<link href="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<script src="assets/libs/bootstrap-datetimepicker/4.17.37/bootstrap-datetimepicker.min.js"></script>
+<!-- includes for validate form -->
+<script src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js"></script>
+
+<script type="text/javascript">
+    // ======================== EXTENSIONS ======================== //
+    $.fn.clearValidation = function () { var v = $(this).validate(); $('[name]', this).each(function () { v.successList.push(this); v.showErrors(); }); v.resetForm(); v.reset(); };
+    /* ======================== PUBLIC USERS FUNCTIONS ======================== */
+    function purgeAllDashboardDialogs() {
+        purgeUiDialog("div_addjob");
+        purgeUiDialog("div_deletejob");
+    }
+    $(document).ready(function () {
+        // ======================== Processors Statistics And Scheduled Jobs ======================== //
+        var processorList = [];
+        var siteList = [];
+        var get_processor_statistics_interval = 60000;
+
+        var getSites = function (userId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+                type: "GET"
+            });
+        }
+        var getSiteSeasons = function (siteId) {
+            return $.ajax({
+                cache: false,
+                async: false,
+                url: baseApiUrl + "sites/seasons?site=" + siteId,
+                type: 'GET'
+            });
+        }
+        var getActiveProcessors = function () {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/processors",
+                type: "GET"
+            });
+        }
+        function getSitesHtml(sites) {
+            var $form = $("form#jobform_addnew");
+            $("select[name='sitename']", $form).html('<option value="" selected>Select site</option>');
+            $("select[name='seasonname']", $form).html('<option value="" selected>Select season</option>');
+            $.each(sites, function (index, site) {
+                siteList.push(site.id);
+                var $option = $('<option value="' + site.id + '">' + site.name + '</option>').data("dna", site);
+                $("select[name='sitename']", $form).append($option);
+                $.when(getSiteSeasons(site.id))
+                    .done(function (response) {
+                        if (response.status === responseStatus.success) {
+                            $.each(response.data, function (idx, season) {
+                                $option = $('<option class="season hidden" value="' + season.id + '" data-siteid="' + site.id + '">' + season.name + '</option>').data("dna", season);
+                                $("select[name='seasonname']", $form).append($option);
+                            });
+                        } else {
+                            console.log("Unable to get seasons for siteId = " + site.id);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log("Unable to get seasons for siteId = " + site.id);
+                    });
+            });
+        }
+        function getProcessorsHtml(processors) {
+            var $parent = $(".tabControl").html("<ul></ul>");
+            $.each(processors, function (index, proc) {
+                // title
+                var $title = $('<li><a href="#tab_' + proc.shortName + '" title="' + proc.name + '">' + proc.name + '</a></li>');
+                $("ul", $parent).append($title);
+                // content
+                var $template = $("#proc_template").clone(true).attr("id", "tab_" + proc.shortName);
+                $(".panel_resources", $template).attr("id", ("pnl_proc_resources").replace("proc", proc.shortName)).data("dna", { shortName: proc.shortName, panel: "resources" });
+                $(".panel_output", $template).attr("id", ("pnl_proc_output").replace("proc", proc.shortName)).data("dna", { shortName: proc.shortName, panel: "output" });
+                $(".panel_configuration", $template).attr("id", ("pnl_proc_configuration").replace("proc", proc.shortName)).data("dna", { shortName: proc.shortName, panel: "configuration" });
+                $(".panel_scheduled", $template).attr("id", ("pnl_proc_scheduled").replace("proc", proc.shortName)).data("dna", { shortName: proc.shortName, panel: "scheduled" });
+                $template.data("dna", proc);
+                $($parent).append($template.removeClass("collapse"));
+            });
+            $(".tabControl").tabs();
+        }
+        /* ======================== New Scheduled Job ======================== */
+        function personalizeNewJob(proc) {
+            var $form = $("#jobform_addnew");
+            // Processor name
+            $(".processor-name", $form).html(proc.name + " [" + proc.shortName + "]");
+            // Processor sub products
+            $("select[name='product']", $form).html('<option value="" selected>Select a product</option>');
+            $("select[name='product']", $form).closest(".row").addClass("hidden");
+            if (proc && proc.subProducts && proc.subProducts !== "") {
+                var products = proc.subProducts.split(",");
+                $.each(products, function (index, prod) {
+                    $("select[name='product']", $form).append('<option value="' + prod + '">' + prod + '</option>')
+                });
+                $("select[name='product']", $form).closest(".row").removeClass("hidden");
+            }
+        }
+        function selectedSiteAdd(elem) {
+            var $form = $(elem).closest("form");
+            $("select[name='seasonname']>option.season", $form).addClass("hidden");
+            $("select[name='seasonname']>option.season[data-siteid='" + elem.value + "']", $form).removeClass("hidden");
+            $("select[name='seasonname']", $form).val("");
+        }
+        function selectedScheduleAdd(elem) {
+            var $form = $(elem).closest("form");
+            var $div_startdate = $(".div_startdate", $form);
+            var $div_repeatnever = $(".div_repeatnever", $form);
+            var $div_repeatafter = $(".div_repeatafter", $form);
+            var $div_oneverydate = $(".div_oneverydate", $form);
+
+            $("input[name='startdate']", $div_startdate).prop("disabled", false);
+            $(".row-repeat .col-repeat", $form).addClass("hidden");
+            switch (elem.value) {
+                case "0": // Once
+                    $div_repeatnever.removeClass("hidden");
+                    $("span", $div_repeatnever).html("Never");
+                    break;
+                case "1": // Cycle
+                    $div_repeatafter.removeClass("hidden");
+                    break;
+                case "2": // Repeat
+                    $div_oneverydate.removeClass("hidden");
+                    break;
+                default: // - by default
+                    $("input[name='startdate']", $div_startdate).prop("disabled", true);
+                    $div_repeatnever.removeClass("hidden");
+                    $("span", $div_repeatnever).html("-");
+                    break;
+            }
+        }
+        var newJobValidator = {
+            rules: {
+                jobname: { required: true, pattern: "[a-zA-Z]{1}[a-zA-Z0-9_]*" },
+                sitename: { required: true },
+                seasonname: { required: true },
+                product: { required: true },
+                schedule: { required: true },
+            },
+            messages: {
+                jobname: { pattern: "Name should start with a letter. Only letters, numbers and underscore are allowed." }
+            },
+            highlight: function (element, errorClass) {
+                $(element).parent().addClass("has-error");
+            },
+            unhighlight: function (element, errorClass) {
+                $(element).parent().removeClass("has-error");
+            },
+            errorPlacement: function (error, element) {
+                error.appendTo(element.parent());
+            },
+            success: function (label) {
+                label.remove();
+            },
+            submitHandler: function (form) {
+                hidePanelError(form);
+
+                var $activeProc = $(".tabControl .tab-content:visible");;
+                var processor = $.extend(true, {}, $activeProc.data("dna"));
+                var siteId = $("select[name='sitename']", form).val();
+                var site = $("select[name='sitename']>option[value='" + siteId + "']", form).data("dna");
+                var seasonId = $("select[name='seasonname']", form).val();
+                var season = $("select[name='seasonname']>option[value='" + seasonId + "']", form).data("dna");
+                var parameters = "";
+                if (typeof processor["subProducts"] !== "undefined") {
+                    delete processor["subProducts"];
+                    parameters = JSON.stringify({ "general_params": { "product_type": $("select[name='product']", form).val() } });
+                }
+                var taskData = {
+                    "name": $("input[name='jobname']", form).val(),
+                    "id": "0",                      // not known now
+                    "processorId": processor.id,
+                    "siteId": site.id,
+                    "seasonId": season.id,
+                    "parameters": parameters,
+                    "repeatType": $("select[name='schedule']", form).val(),
+                    "repeatAfterDays": $("input[name='repeatafter']", form).val(),
+                    "repeatOnMonthDay": $("input[name='oneverydate']", form).val(),
+                    "retrySeconds" : "0",       //not used for now
+                    "priority" : "1",           //not used for now
+                    "firstRun": $("input[name='startdate']", form).val(),
+                };
+                $.ajax({
+                    cache: false,
+                    url: baseApiUrl + "jobs/scheduled",
+                    type: "POST",
+                    data: JSON.stringify(taskData),
+                    headers: { "content-type": "application/json" },
+                    success: function (response) {
+                        if (response.status === responseStatus.success) {
+                            updateDashPanelContent($(".panel_scheduled", $activeProc));
+                            closeDialog(form);
+                        } else {
+                            showPanelError(form, response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showPanelError(form, jqXHR.responseText);
+                    }
+                });
+            }
+        }
+        /* ======================== Existing Scheduled Job ======================== */
+        function jobEdit(elem) {
+            var $parent = $(elem).closest(".schedule-row");
+            $parent.addClass("edit-mode");
+            $("input[name='update_scheduled_job']", $parent).attr("disabled", false);
+        }
+        function selectedSchedule(elem) {
+            var $parent = $(elem).closest(".schedule-row");
+            var $div_repeatnever = $(".div_repeatnever", $parent);
+            var $div_repeatafter = $(".div_repeatafter", $parent);
+            var $div_oneverydate = $(".div_oneverydate", $parent);
+            switch (elem.value) {
+                case "0": // Once
+                    $div_repeatnever.removeClass("hidden");
+                    $div_repeatafter.addClass("hidden");
+                    $div_oneverydate.addClass("hidden");
+                    break;
+                case "1": // Cycle
+                    $div_repeatnever.addClass("hidden");
+                    $div_repeatafter.removeClass("hidden");
+                    $div_oneverydate.addClass("hidden");
+                    break;
+                case "2": // Repeat
+                    $div_repeatnever.addClass("hidden");
+                    $div_repeatafter.addClass("hidden");
+                    $div_oneverydate.removeClass("hidden");
+                    break;
+                default: // Once by default
+                    $div_repeatnever.removeClass("hidden");
+                    $div_repeatafter.addClass("hidden");
+                    $div_oneverydate.addClass("hidden");
+                    break;
+            }
+            jobEdit(elem);
+        }
+        function checkMin(elem) {
+            jobEdit(elem);
+            var $parent = $(elem).closest(".schedule-row");
+            var val = $("input[name='repeatafter']", $parent).val();
+            if (val < 1) {
+                alert("Invalid number");
+            }
+        }
+        function setMin(elem) {
+            jobEdit(elem);
+            var $parent = $(elem).closest(".schedule-row");
+            var val = $("input[name='oneverydate']", $parent).val();
+            if (val < 1 || val > 31) {
+                alert("Number should be between [1, 31]");
+            }
+        }
+        function fill_key_value_table(parent, list) {
+            if (!list) {
+                return;
+            }
+            $(parent + " .table>tbody").html("");
+            list.forEach(function (item) {
+                var new_row = "<tr class='to_be_refreshed" + (item[1] == "N/A" ? " hidden" : "") + "'>" +
+                    "<th>" + item[0] + "</th>" +
+                    "<td>" + item[1] + "</td>" +
+                    "</tr>";
+                $(parent + " .table>tbody").append(new_row);
+            });
+            $(parent).removeClass("loading");
+        }
+        function resetScheduledJob($template) {
+            var job = $template.data("dna");
+            if (typeof job !== "undefined") {
+				var siteName = $("option[value='"+job.siteId+"']","select[name='sitename']").data("dna").name;
+				var seasonName = $("option[value='"+job.seasonId+"'][data-siteid='"+job.siteId+"']").data("dna").name;
+                $(".job_name", $template).html(job.name);
+                $(".site_name", $template).html(siteName);
+                $(".season_name", $template).html(seasonName);
+                if (job.parameters) {
+                    var params = JSON.parse(job.parameters);
+                    if (params && params.general_params && params.general_params.product_type) {
+                        $(".product", $template).html(params.general_params.product_type);
+                    }
+                }
+                $("input[name='startdate']", $template).attr("id", "startdate_" + job.processorId + "_" + job.id).val(job.firstRun);
+                $("select[name='schedule']>option[value='" + job.repeatType + "']", $template).get(0).selected = true;
+
+                $(".div_repeatnever", $template).addClass("hidden");
+                $(".div_repeatafter", $template).addClass("hidden");
+                $(".div_oneverydate", $template).addClass("hidden");
+                $("input[name='repeatafter']", $template).val(1);
+                $("input[name='oneverydate']", $template).val(1);
+                switch (job.repeatType) {
+                    case 0:
+                        $(".div_repeatnever", $template).removeClass("hidden");
+                        break;
+                    case 1:
+                        $(".div_repeatafter", $template).removeClass("hidden");
+                        $("input[name='repeatafter']", $template).val(job.repeatAfterDays);
+                        break;
+                    case 2:
+                        $(".div_oneverydate", $template).removeClass("hidden");
+                        $("input[name='oneverydate']", $template).val(job.repeatOnMonthDay);
+                        break;
+                }
+            }
+        }
+        function cancelJobEdit($template) {
+            resetScheduledJob($template);
+            hideDashboardError($template.closest(".dash-panel"), true);
+
+            $template.removeClass("edit-mode");
+            $("input[name='update_scheduled_job']", $template).attr("disabled", true);
+        }
+        function cancelAllOtherEditedJobs($template) {
+            $.each($template.siblings(".edit-mode"), function () {
+                cancelJobEdit($(this));
+            });
+        }
+        function updateEditedJob($template) {
+            var $parent = $template.closest(".dash-panel");
+            hideDashboardError($parent, true);
+
+            var job = $.extend(true, {}, $template.data("dna"));
+            if (typeof job !== "undefined") {
+                var taskData = {
+                    "name": job.name,
+                    "id": job.id,                    
+                    "processorId": job.processorId,
+                    "siteId": job.siteId,
+                    "seasonId": job.seasonId,
+                    "parameters": job.parameters,
+                    "repeatType": parseInt($("select[name='schedule']", $template).val()),
+                    "repeatAfterDays": parseInt($("input[name='repeatafter']", $template).val()),
+                    "repeatOnMonthDay": parseInt($("input[name='oneverydate']", $template).val()),
+                    "retrySeconds" : "0",       //not used for now
+                    "priority" : "1",           //not used for now
+                    "firstRun": $("input[name='startdate']", $template).val()
+                };
+                $.ajax({
+                    cache: false,
+                    url: baseApiUrl + "jobs/scheduled",
+                    type: "PUT",
+                    data: JSON.stringify(taskData),
+                    headers: { "content-type": "application/json" },
+                    success: function (response) {
+                        if (response.status === responseStatus.success) {
+                            $template.removeClass("edit-mode");
+                            updateDashPanelContent($parent);
+                        } else {
+                            showDashboardError($parent, response.message);
+                        }
+                    },
+                    error: function (responseData, textStatus, errorThrown) {
+                        showDashboardError($parent, responseData.responseText);
+                    }
+                });
+            }
+        }
+        function deleteSelectedJob($form) {
+            hidePanelError($form);
+
+            var job = $form.data("dna");
+            if (typeof job !== "undefined") {
+                var $template = $("#job_edit_" + job.id);
+                var $parent = $template.closest(".dash-panel");
+                $.ajax({
+                    cache: false,
+                    url: baseApiUrl + "jobs/scheduled",
+                    type: "DELETE",
+                    data: JSON.stringify(job.id),
+                    headers: { "content-type": "application/json" },
+                    success: function (response) {
+                        if (response.status === responseStatus.success) {
+                            $template.removeClass("delete-mode");
+                            updateDashPanelContent($parent);
+                            closeDialog($form.get(0));
+                        } else {
+                            showPanelError($form, response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showPanelError($form, jqXHR.responseText);
+                    }
+                });
+            }
+        }
+        function get_processor_scheduled_jobs(parent, processor, purge) {
+            if (purge) {
+                $(".schedule-row", parent).removeClass("edit-mode delete-mode");
+            }
+            // skip refresh during add/edit/delete process
+            if (
+                $('#div_addjob').dialog('isOpen') ||
+                $(".schedule-row.edit-mode", parent).length > 0 ||
+                $(".schedule-row.delete-mode", parent).length > 0) {
+                $(parent).removeClass("loading");
+                return false;
+            }
+            hideDashboardError($(parent));
+            $.ajax({
+                cache: false,
+                url: baseApiUrl + "jobs/scheduled?processorId=" + processor.id,
+                type: "GET",
+                success: function (response) {
+                    if (response.status == responseStatus.success) {
+                        var json_data = response.data;
+                        var $parentTable = $(".schedule-table", parent);
+                        $(".schedule-row", $parentTable).remove();
+                        var cntJobs = 0;
+                        $.each(json_data, function (idx, job) {
+							if (job.siteId > 0 && job.seasonId > 0 && job.processorId === processor.id) {
+								if ($.inArray(job.siteId, siteList) >= 0) {
+                                    var $tr = $("tr.schd-template", $parentTable).clone(true).removeClass("schd-template collapse").addClass("schedule-row").attr({ "id": "job_edit_" + job.id });
+                                    $tr.data("dna", job);
+                                    resetScheduledJob($tr);
+                                    $("tbody", $parentTable).append($tr);
+                                    cntJobs++;
+                                }
+                            }
+                        });
+                        if (cntJobs == 0) {
+                            $("tbody", $parentTable).append('<tr class="schedule-row"><td colspan="8" style="text-align:center;font-size:16px;font-weight:700;font-style:italic;padding:8px;background-color:whitesmoke">No scheduled jobs</td>No scheduled jobs</td></tr>');
+                        }
+                        // Set dateTimePicker for startdate fileds
+                        $(".schedule-row .startdate", parent).datetimepicker({ format: "YYYY-MM-DD HH:mm:ss", showClose: true })
+                            .on('dp.show', function (e) {
+                                var datepicker = $('body').find('.bootstrap-datetimepicker-widget:last');
+                                var position = datepicker.offset();
+                                datepicker.appendTo('body');
+                                datepicker.css({ top: position.top, bottom: 'auto', left: position.left, right: 'auto' });
+                            })
+                            .on("dp.change", function (e) { $(e.target).trigger("dp-change"); });
+                        $(parent).removeClass("loading");
+                    } else {
+                        $(parent).removeClass("loading");
+                        showDashboardError($(parent), response.message);
+                    }
+                },
+                error: function (responseData, textStatus, errorThrown) {
+                    $(parent).removeClass("loading");
+                    showDashboardError($(parent), responseData.responseText);
+                }
+            });
+        }
+        function get_processor_jobs(refresh, processor, purge) {
+            if (window.location.hash != "#dashboard") {
+                return false;
+            }
+            if (processorList.length > 0) {
+                for (var i = 0; i < processorList.length; i++) {
+                    if (typeof processor === "undefined" || processorList[i].shortName == processor.shortName) {
+                        get_processor_scheduled_jobs("#pnl_" + processorList[i].shortName + "_scheduled", processorList[i], purge);
+                    }
+                }
+            }
+            if (refresh) {
+                setTimeout(function () { get_processor_jobs(refresh, processor); }, get_processor_statistics_interval);
+            }
+        }
+        /* ======================== Processor Statistics ======================== */
+        function update_processor_statistics(json_data, processor) {
+            if (processorList.length > 0) {
+                var proc;
+                for (var i = 0; i < processorList.length; i++) {
+                    if (typeof processor === "undefined" || processorList[i].shortName == processor.shortName) {
+                        proc = processorList[i].shortName + '_statistics';
+                        // refresh resources panel
+                        if (typeof processor === "undefined" || processor.panel == "resources") {
+                            $("#pnl_" + processorList[i].shortName + "_resources table:first tr.to_be_refreshed").remove();
+                            fill_key_value_table("#pnl_" + processorList[i].shortName + "_resources", json_data[proc].resources);
+                        }
+                        // refresh output panel
+                        if (typeof processor === "undefined" || processor.panel == "output") {
+                            $("#pnl_" + processorList[i].shortName + "_output table:first tr.to_be_refreshed").remove();
+                            fill_key_value_table("#pnl_" + processorList[i].shortName + "_output", json_data[proc].output);
+                        }
+                        // refresh configuration panel
+                        if (typeof processor === "undefined" || processor.panel == "configuration") {
+                            // get processor sub_products
+                            var subProducts = $.map(json_data[proc].configuration, function (keyValue, index) { if (keyValue[0] == "sub_products") return keyValue[1]; });
+                            if (subProducts.length > 0) {
+                                processorList[i].subProducts = subProducts[0];
+                                $("#tab_" + processorList[i].shortName).addClass("has-products");
+                            }
+
+                            $("#pnl_" + processorList[i].shortName + "_configuration table:first tr.to_be_refreshed").remove();
+                            fill_key_value_table("#pnl_" + processorList[i].shortName + "_configuration", json_data[proc].configuration);
+                        }
+                    }
+                }
+            }
+        }
+        function get_processor_statistics(refresh, processor) {
+            if (window.location.hash != "#dashboard") {
+                return false;
+            }
+            var parent = (processor ? "#pnl_" + processor.shortName + "_" + processor.panel : ".panel_resources, .panel_output, .panel_configuration");
+            hideDashboardError($(parent));
+            $.ajax({
+                url: baseApiUrl + "refresh/processors",
+                type: "GET",
+                success: function (response) {
+                    if (response.status == responseStatus.success) {
+                        var json_data = JSON.parse(response.data);
+                        if (json_data != null) {
+                            update_processor_statistics(json_data, processor);
+                            if (refresh) {
+                                setTimeout(function () { get_processor_statistics(refresh, processor); }, get_processor_statistics_interval);
+                            }
+                        }
+                    } else {
+                        $(parent).removeClass("loading");
+                        showDashboardError($(parent), response.message);
+                        if (refresh) {
+                            setTimeout(function () { get_processor_statistics(refresh, processor); }, get_processor_statistics_interval);
+                        }
+                    }
+                },
+                error: function (responseData, textStatus, errorThrown) {
+                    $(parent).removeClass("loading");
+                    showDashboardError($(parent), responseData.responseText);
+                    if (refresh) {
+                        setTimeout(function () { get_processor_statistics(refresh, processor); }, get_processor_statistics_interval);
+                    }
+                }
+            });
+        }
+        /* ======================== Functions ======================== */
+        function showDashboardError($panels, error) {
+            $.each($panels, function (index, panel) {
+                showPanelError($(".panel-body", panel), error);
+            });
+        }
+        function hideDashboardError($panels) {
+            $.each($panels, function (index, panel) {
+                hidePanelError($(".panel-body", panel));
+            });
+        }
+        function updateDashPanelContent($panel, purge) {
+            if ($panel.length > 0) {
+                $(".table>tbody>tr:not(.schd-template)", $panel).remove();
+                $panel.addClass("loading");
+                setTimeout(function () {
+                    var processor = $panel.data("dna");
+                    if (processor && processor.panel == "scheduled") {
+                        get_processor_jobs(false, processor, purge);
+                    } else {
+                        get_processor_statistics(false, processor);
+                    }
+                }, 100);
+            }
+        }
+        // ======================== Dialog Ui Functions ======================== //
+        function resetFormDialog($forms) {
+            $.each($forms, function (index, form) {
+                if (form.id === "jobform_delete") {
+                    hidePanelError(form);
+                    var job = $(form).data("dna");
+                    if (typeof job !== "undefined") {
+                        var $template = $("#job_edit_" + job.id);
+                        $template.removeClass("delete-mode");
+                    }
+                } else if (form.id === "jobform_addnew") {
+                    hidePanelError(form);
+                    form.reset();
+                    selectedScheduleAdd($("select[name='schedule']", form).get(0));
+                    $(form).clearValidation();
+                }
+            });
+        }
+        function defineFormDialogs() {
+            // clear all previous dialogs
+            purgeAllDashboardDialogs();
+
+            // Set add new job form validation rules
+            $("#jobform_addnew").validate(newJobValidator);
+            // Set dateTimePicker for startdate fileds
+            $(".startdate", $("#jobform_addnew")).datetimepicker({ format: "YYYY-MM-DD HH:mm:ss", showClose: true });
+
+            $("#div_addjob").dialog({
+                title: "Add New Scheduled Job",
+                width: "640px",
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            });
+
+            $("#div_deletejob").dialog({
+                title: "Delete Scheduled Job",
+                width: "560px",
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                beforeClose: function (event, ui) { resetFormDialog($("form", this)); }
+            }).on("click", ".cancel-btn", function (e) {
+                e.preventDefault();
+                closeDialog(this);
+            }).on("submit", "form", function (e) {
+                e.preventDefault();
+                deleteSelectedJob($(this));
+            });
+        }
+        // ======================== START ======================== //
+        defineFormDialogs();
+
+        $.when(getActiveProcessors(), getSites(window.userIsAdmin ? void 0 : window.userID))
+            .done(function (responseGetActiveProcessors, responseGetSites) {
+                var procs = responseGetActiveProcessors[0];
+                var sites = responseGetSites[0];
+                if (procs.status === responseStatus.success && sites.status === responseStatus.success) {
+					//processorList = $.map(procs.data, function (proc, index) { if (proc.shortName.substring(0, 2).toUpperCase() !== "L2") { return proc; } }); // HARDCODED
+                    processorList = $.map(procs.data, function (proc, index) { if (proc.adminUIVisible) { return proc; } }); 
+                    getSitesHtml(sites.data);
+                    getProcessorsHtml(processorList);
+                    setTimeout(function () {
+                        get_processor_statistics(true);
+                        get_processor_jobs(true);
+                    }, 100);
+                    //$(".tab-titles a.tab-title:first-child", ".tabControl").trigger("click");
+                } else {
+                    console.log("Unable to get resource data.");
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("Unable to get resource data.");
+            });
+
+        $(".tabControl")
+            .on("click", ".panel-title span", function (e) {
+                updateDashPanelContent($(this).closest(".dash-panel"), true);
+            })
+            .on("click", "input[name='schedule_add']", function (e) {
+                var $activeProc = $(".tabControl .tab-content:visible");
+                cancelAllOtherEditedJobs($("tr.schd-template", $activeProc));
+                personalizeNewJob($activeProc.data("dna"));
+
+                hidePanelError($("div_addjob"));
+                $("#div_addjob").dialog("open");
+            })
+            .on("click", "input[name='update_scheduled_job']", function (e) {
+                var $crtJob = $(this).closest(".schedule-row");
+                cancelAllOtherEditedJobs($crtJob);
+                updateEditedJob($crtJob);
+            })
+            .on("click", "input[name='cancel_edited_job']", function (e) {
+                var $crtJob = $(this).closest(".schedule-row");
+                cancelJobEdit($crtJob);
+            })
+            .on("click", "input[name='delete_scheduled_job']", function (e) {
+                var $crtJob = $(this).closest(".schedule-row");
+                cancelAllOtherEditedJobs($crtJob);
+
+                var job = $crtJob.data("dna");
+                $("#jobform_delete").data("dna", job);
+                $("#div_deletejob").dialog({ title: "Delete Job <" + job.name + ">" }).dialog("open");
+                $crtJob.addClass("delete-mode");
+            })
+            .on("change dp-change", ".schedule-row [name]", function (e) {
+                switch (this.name) {
+                    case "schedule": selectedSchedule(this); break;
+                    case "repeatafter": jobEdit(this); break;
+                    case "oneverydate": setMin(this); break;
+                    case "startdate": jobEdit(this); break;
+                }
+            });
+
+        $("#jobform_addnew").on("change", "[name]", function (e) {
+            switch (this.name) {
+                case "sitename": selectedSiteAdd(this); break;
+                case "schedule": selectedScheduleAdd(this); break;
+            }
+        });
+    });
+//# sourceURL=dashboard.js
+</script>

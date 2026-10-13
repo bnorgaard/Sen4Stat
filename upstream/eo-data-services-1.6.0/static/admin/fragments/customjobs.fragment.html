@@ -1,0 +1,740 @@
+<div class="panel panel-resources">
+    <div class="panel-heading">
+        <h2 class="panel-title">Custom jobs</h2>
+    </div>
+    <div class="panel-body">
+        <div class="tabControl">
+            <ul></ul>
+        </div>
+        <hr />
+    </div>
+</div>
+<div id="proc_template" class="panel-group tab-content collapse">
+    <div class="panel bevel">
+        <div class="panel">
+            <div class="panel-body">
+                <label class="control-advanced"><input class="form-control" type="checkbox" />Show advanced parameters</label>
+                <div class="row">
+                    <!-- Filters -->
+                    <div class="col-md-4">
+                        <form id="filters_input_files" role="form" method="post">
+                            <div class="form-group row required">
+                                <label class="control-label col-md-3">Site</label>
+                                <div class="col-md-9">
+                                    <select class="form-control" name="sitename"></select>
+                                </div>
+                            </div>
+                            <label>Filter criteria for &lt;Input files&gt;:</label>
+                            <div class="filters">
+                                <span class="filters-title"><i>Please select a site</i></span>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Parameters -->
+                    <div class="col-md-8">
+                        <h3 class="control-label subtitle"></h3>
+                        <form enctype="multipart/form-data" role="form" method="post" action="">
+                            <input type="hidden" name="name" value="" />
+                            <input type="hidden" name="description" value="" />
+                            <input type="hidden" name="processorId" value="" />
+                            <input type="hidden" name="siteId" value="" />
+                            <input type="hidden" name="startTypeId" value="2" />
+                            <input type="hidden" name="configuration" value="" />
+                            <input type="hidden" name="parameters" value="" />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="params particular-params"></div>
+                                    <div class="params specific-params"></div>
+                                    <div class="params advanced-params hidden"></div>
+                                </div>
+                            </div>
+                            <div class="submit-buttons">
+                                <button type="button" class="btn btn-success" name="btnSubmitJob" disabled>Save Job</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="filter_template" class="filters-content collapse">
+    <div class="row site-tiles"></div>
+    <div class="form-group row">
+        <label class="control-label col-md-12">Season:</label>
+        <div class="col-md-12">
+            <select name="seasonname" class="form-control">
+                <option value="">Select season</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="control-label col-md-6">From:</label>
+        <div class="col-md-6">
+            <input type="text" name="startdate" autocomplete="off" class="form-control has-date">
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="control-label col-md-6">To:</label>
+        <div class="col-md-6">
+            <input type="text" name="enddate" autocomplete="off" class="form-control has-date">
+        </div>
+    </div>
+    <div class="submit-buttons">
+        <button type="button" class="btn btn-success" name="btnFilter"><span class="glyphicon glyphicon-filter"></span> Apply Filters</button>
+        <button type="button" class="btn btn-danger" name="btnResetFilter"><span class="glyphicon glyphicon-refresh"></span> Reset Filters</button>
+    </div>
+</div>
+<div id="particular_params_template" class="collapse">
+    <div class="l3a any-sen2agri">
+        <div class="particular form-group form-group-sm">
+            <label class="control-label">Resolution:</label>
+            <select class="form-control" name="resolution">
+                <option value="">Select a resolution</option>
+                <option value="10" selected="selected">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+            </select>
+            <span class="help-block">Resolution of the output image (in meters).</span>
+        </div>
+    </div>
+<!--    
+    <div class="l3a">
+        <div class="particular form-group form-group-sm required" data-provide="datepicker">
+            <label class="control-label">Synthesis date:</label>
+            <input type="text" class="form-control" name="synthDate" />
+            <span class="help-block">The synthesis date [YYYYMMDD].</span>
+        </div>
+    </div>
+-->    
+    <div class="l4a l4b only-sen2agri">
+        <div class="particular form-group form-group-sm required">
+            <label class="control-label">Reference polygons:</label>
+            <input type="file" class="form-control" name="refp" onchange="$(this).trigger('blur');" />
+            <span class="help-block">The reference polygons. A .zip file containing the shapefile is expected. See Software User Manual for the format of the shapefile. Take care of the header of the columns.</span>
+        </div>
+    </div>
+    <div class="l4a_wo only-sen2agri">
+        <div class="particular form-group form-group-sm">
+            <label class="control-label">Reference raster:</label>
+            <input type="file" class="form-control" name="refr" onchange="$(this).trigger('blur');" />
+            <span class="help-block">The reference raster when in situ data is not available.</span>
+        </div>
+    </div>
+</div>
+<style>
+    .filters,
+	.control-advanced{background-color:var(--accordion-header-bg-color);padding:15px;border:1px solid #dddddd;border-radius:5px;box-shadow:0 0 5px 0 rgba(0, 0, 0, 0.1)}
+	.control-advanced{cursor:pointer;position:absolute;padding:8px 12px;right:50px;top:8px;margin:0}
+	.filters{margin-bottom:15px}
+	.filters .site-tiles textarea{padding:2px 5px;margin-bottom:5px}
+
+	.params{padding-left:30px;border-left:10px solid var(--panel-thick-border)}
+	.advanced-params .form-group{margin-bottom:25px}
+	.tab-content input[type=checkbox].form-control,.tab-content input[type=radio].form-control{float:left;cursor:pointer;display:inline-block;width:16px;height:16px;margin:1px 7px 4px 3px}
+	.tab-content input[type="submit"]{float:right}
+	.tab-content .subtitle{margin-bottom:15px;color:var(--color-default)}
+
+	.subgroup{border:1px solid #ccc;padding-bottom:10px}
+	.subgroup>label{background-color:#f4f2e1;width:100%;padding:10px;margin-bottom:10px}
+	.subgroup div{margin:10px 10px 10px 20px}
+	.subgroup input,.subgroup select{width:50%}
+	.lai>div>label{cursor:pointer;margin:0px;font-weight:400}
+	.lai .help-block{display:inline-block;float:right;margin:0}	
+</style>
+<!-- includes for validate form -->
+<script src="assets/libs/jquery-validate/1.14.0/jquery.validate.min.js" type="text/javascript"></script>
+<script src="assets/libs/jquery-validate/1.14.0/additional-methods.min.js" type="text/javascript"></script>
+<!-- includes moment.js for date manipulation -->
+<script src="assets/libs/momentjs/2.24.0/moment.min.js"></script>
+
+<script type="text/javascript">
+    var L2A_PROD_ID = 1;
+    var MSK_L2A_PROD_ID = 26;
+    var MSK_L2A_PROC_ID = 15;
+    var MSK_L2A_ENABLED_KEY = "processor.l2a_msk.enabled"
+    $(document).ready(function () {
+        // ======================== Processors Statistics And Scheduled Jobs ======================== //
+        var getSites = function (userId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/" + (userId ? "?userId=" + userId : ""),
+                type: "GET"
+            });
+        }
+        var getSiteSeasons = function (siteId) {
+            return $.ajax({
+                cache: false,
+                async: false,
+                url: baseApiUrl + "sites/seasons?site=" + siteId,
+                type: 'GET'
+            });
+        }
+        var getSiteTiles = function (siteId) {
+            return $.ajax({
+                cache: false,
+                async: false,
+                url: baseApiUrl + "sites/tiles?siteId=" + siteId,
+                type: 'GET'
+            });
+        }
+        var getActiveProcessors = function () {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "sites/processors",
+                type: "GET"
+            });
+        }
+        var getProcessorParameters = function (processor, advanced, categoryId) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "jobs/custom/parameters" +
+                    "?processor=" + processor +
+                    "&advanced=" + (advanced ? "true" : "false") +
+                    "&categoryId=" + (categoryId ? categoryId : ""),
+                type: "GET"
+            });
+        }
+        var getFilteredProducts = function (data) {
+            return $.ajax({
+                cache: false,
+                url: baseApiUrl + "products/filter",
+                type: "POST",
+                headers: { "content-type": "application/json" },
+                data: JSON.stringify(data)
+            });
+        }
+        function getL2AControlDescription(proc, prdTypeId) {
+            var l2aPrdsCtrl = {};
+            var productTypeId = (proc.id == MSK_L2A_PROC_ID ? L2A_PROD_ID : prdTypeId);
+            l2aPrdsCtrl['advanced'] = false;
+            l2aPrdsCtrl['categoryId'] = -1;
+            l2aPrdsCtrl['dataType'] = 'select';
+            l2aPrdsCtrl['friendlyName'] = 'The list of L2A products.';
+            l2aPrdsCtrl['key'] = 'inputFiles';
+            l2aPrdsCtrl['label'] = 'Available L2A input files';
+            l2aPrdsCtrl['name'] = 'input_files';
+            l2aPrdsCtrl['siteId'] = 0;
+            l2aPrdsCtrl['siteVisible'] = true;
+            l2aPrdsCtrl['value'] = 'N/A';
+            l2aPrdsCtrl['values'] = "{\"name\":\"inputFiles[]\",\"product_type_id\":" + productTypeId + ",\"satellite_ids\":[1,2], \"required\" : \"true\" }";
+            return l2aPrdsCtrl;
+        }
+        function getProductTypeIdForL2AControl(l2aMskParams) {
+            var l2aMskProc = l2aMskParams.filter(function (param) { return (param.key == MSK_L2A_ENABLED_KEY && param.value == 'true'); });
+            var productId = L2A_PROD_ID;
+            if (l2aMskProc.length > 0) {
+                return MSK_L2A_PROD_ID;
+            }
+            return productId;
+        }
+        function getSitesHtml(sites) {
+            var $template = $("#proc_template");
+            $("select[name='sitename']", $template).html('<option value="" selected>Select site</option>');
+            $.each(sites, function (index, site) {
+                $("select[name='sitename']", $template).append('<option value="' + site.id + '">' + site.name + '</option>');
+            });
+        }
+        function getParameterElementHtml(type, name, values) {
+            var $elem = $('<input type="text" />');
+            switch (type) {
+                case "float":
+                case "int":
+                    $elem = $('<input type="number" />');
+                    if (values && values.hasOwnProperty("min") && values["min"] !== "") { $elem.attr({ "min": values["min"] }); }
+                    if (values && values.hasOwnProperty("max") && values["max"] !== "") { $elem.attr({ "max": values["max"] }); }
+                    if (values && values.hasOwnProperty("step") && values["step"] !== "") { $elem.attr({ "step": values["step"] }); }
+                    break;
+                case "bool":
+                    $elem = $('<input type="checkbox" />');
+                    break;
+                case "directory":
+                    $elem = $('<input type="file" />');
+                    break;
+                case "file":
+                    $elem = $('<input type="file" />');
+                    break;
+                case "select":
+                    $elem = $('<select multiple="" size="10" class="input-files"></select>');
+                    break;
+                case "string":
+                    if (values) {
+                        $elem = $('<select></select>');
+                        $.each(values.allowed_values, function (index, allowed_value) {
+                            $elem.append($('<option>', {
+                                value: allowed_value.value,
+                                text: allowed_value.display
+                            }));
+                        });
+                    }
+                    break;
+            }
+            $elem.addClass("form-control");
+            if (name) {
+                $elem.attr({ "name": name });
+            }
+            return $elem;
+        }
+        function getParameterHtml(data) {
+            var values = ((data.values && data.values["type"] == "json" && data.values.hasOwnProperty("value")) ? JSON.parse(data.values.value) : void 0);
+            if (values == null) {
+                try {
+                    values = JSON.parse(data.values);
+                }
+                catch(e) {
+                }
+            }
+            var elemName = (!$.isEmptyObject(values) && values.hasOwnProperty("name")) ? values["name"] : data.key;
+            var $elem = getParameterElementHtml(data.dataType, elemName, values);
+            var requiredCls = ""
+            if ($elem.is("input")) {
+                if ($elem.attr("type") === "checkbox") {
+                    $elem.prop("checked",stringToBoolean(data.value));
+                }
+                $elem.attr({ value: data.value });
+            } else if ($elem.is("select") && !$.isEmptyObject(values)) {
+                if (values.hasOwnProperty("product_type_id")) {
+                    $elem.data("product_type_id", values["product_type_id"]);
+                }
+                if (values.hasOwnProperty("satellite_ids")) {
+                    $elem.data("satellite_ids", values["satellite_ids"]);
+                }
+                if (values.hasOwnProperty("required") && values["required"] == "true") {
+                   requiredCls = "required";
+                }                
+            }
+            var $div = $('<div class="form-group form-group-sm ' + requiredCls + '"></div>');
+            var $label = $('<label class="control-label"></label>').text(data.label + ":");
+            var $span = $('<span class="help-block">' + data.friendlyName + '</span>');
+            $div.append($label).append($elem).append($span);
+            if (!$.isEmptyObject(values) && values["type"] !== "") {
+                $div.data("subgroup", values.type);
+            }
+            return $div;
+        }
+        function getProcessorsHtml(processors, l2aProductTypeId) {
+            // var l2a_proc = processors.filter(function (proc) { return (proc.shortName.toUpperCase() == "L2A"); })[0]; // HARDCODED
+            var adminUiVisibleProc = processors.filter(function (proc) { return (proc.adminUIVisible); });
+            var $parent = $(".tabControl").html("<ul></ul>");
+            $.each(adminUiVisibleProc, function (index, proc) {
+                // title
+                var $title = $('<li><a href="#proc_' + proc.shortName + '" title="' + proc.name + '">' + proc.name + '</a></li>');
+                // content
+                var $template = $("#proc_template").clone(true).attr("id", "proc_" + proc.shortName);
+                $("form#filters_input_files", $template).attr("id", "form_" + proc.shortName).data("dna", proc);
+
+                // filters for input files
+                var $filterTemplate = $("#filter_template").clone(true).removeAttr("id");
+                var $particularTemplate = $("#particular_params_template").clone(true).removeAttr("id");
+                
+                // TODO: This condition should be removed
+                if (window.sen2agri) {
+                    $(".not-sen2agri", $filterTemplate).remove();
+                    $(".not-sen2agri", $particularTemplate).remove();
+                } else {
+                    $(".only-sen2agri", $filterTemplate).remove();
+                    $(".only-sen2agri", $particularTemplate).remove();
+                }
+                $(".has-date", $filterTemplate).datepicker({ dateFormat: "yy-mm-dd" });
+                $(".filters", $template).append($filterTemplate);
+
+                $("input[name='name']", $template).val(proc.shortName + "_processor_" + moment().format('YYYYMMDDTHHmmss'));
+                $("input[name='name']", $template).data("procshortName", proc.shortName);
+                $("input[name='description']", $template).val("Submit job for processor " + proc.shortName);
+                $("input[name='processorId']", $template).val(proc.id);
+
+                // particular parameters
+                var cntParticular = 0;
+                $.each($(">div", $particularTemplate), function (idx, param) {
+                    if ($(param).hasClass(proc.shortName)) {
+                        // for all particular input-files product_type_id is set to L2A_processor_ID
+                        // $(".input-files", param).data({ "product_type_id": l2a_proc.id }); // HARDCODED
+                        $divs = $(">div.particular", param);
+                        $(".particular-params", $template).append($divs);
+                        cntParticular += $divs.length;
+                    }
+                })
+
+                // special && advanced parameters
+                var procName = proc.shortName;
+                switch (proc.shortName) {
+                    case "l4a_wo": procName = "l4a"; break; // HARDCODED
+                }
+                $.when(getProcessorParameters(procName, false, ""), getProcessorParameters(procName, true, ""))
+                    .done(function (responseCustom, responseAdvanced) {
+                        var cntSpecial = 0;
+                        // special parameters
+                        var responseCust = responseCustom[0];
+                        if (responseCust.status === responseStatus.success) {
+                            // First check if we have a select control. If not, add it
+                            var specificParamsArray = new Array();
+                            var hasVisibleL2APrdsCtrl = true;
+                            $.each(responseCust.data, function (idx, param) {
+                                if (param.siteId == 0 && param.siteVisible == true) {
+                                    // if a select control is found, then add it at the top
+                                    if (param.dataType == "select") {
+                                        specificParamsArray.unshift(param);
+                                    } else {
+                                        specificParamsArray.push(param);
+                                    }
+                                }
+                                if (param.siteId == 0 && param.siteVisible == false && param.dataType == "select" && param.name == "input_l2a") {
+                                    hasVisibleL2APrdsCtrl = false;
+                                }
+                            });
+                            // check if we have a visible l2a crtl added in the config. In this case we remove it and add the above L2A control description
+                            var ctrlL2ADescrAdded = false;
+                            for (var i = 0; i < specificParamsArray.length; i ++ ){
+                                var param = specificParamsArray[i];
+                                if ((param.siteId == 0) && (param.siteVisible == true) && (param.dataType == "select") && (param.name == "input_l2a")) {
+                                    // remove this instance and add at the beginning the L2A control description
+                                    specificParamsArray.splice(i, 1);
+                                    specificParamsArray.unshift(getL2AControlDescription(proc, l2aProductTypeId));
+                                    ctrlL2ADescrAdded = true;
+                                    break;
+                                }
+                            }
+                            
+                            // if no select control defined in the database, then add one, on the first position, for L2A products by default
+                            if ((hasVisibleL2APrdsCtrl == true) && (ctrlL2ADescrAdded == false) && (specificParamsArray.length == 0 || specificParamsArray[0].dataType != "select")) {
+                                specificParamsArray.unshift(getL2AControlDescription(proc, l2aProductTypeId));
+                            }
+                            for (var i = 0; i < specificParamsArray.length; i ++ ){
+                                var param = specificParamsArray[i];
+                                if (param.siteId == 0) {
+                                    var $cp = getParameterHtml(param);
+                                    $cp.addClass("specific");
+                                    $(".specific-params", $template).append($cp);
+                                    cntSpecial++;
+                                }
+                            };
+                        }
+                        // advanced parameters
+                        var cntAdvanced = 0;
+                        var responseAdv = responseAdvanced[0];
+                        if (responseAdv.status === responseStatus.success) {
+                            $.each(responseAdv.data, function (idx, param) {
+                                if (param.siteId == 0 && param.siteVisible == true) {
+                                    var $cp = getParameterHtml(param);
+                                    if (typeof $cp.data("subgroup") !== "undefined") {
+                                        var subgroupName = $cp.data("subgroup");
+                                        if ($(".advanced-params ." + subgroupName, $template).length == 0) {
+                                            var $subgroup = $('<div class="subgroup ' + subgroupName + ' advanced"><label class="control-label" style="text-transform:capitalize">' + subgroupName + ' parameters:</label></div>');
+                                            $(".advanced-params", $template).append($subgroup);
+                                        }
+                                        $(".advanced-params ." + subgroupName, $template).append($cp);
+                                    } else {
+                                        $cp.addClass("advanced");
+                                        $(".advanced-params", $template).append($cp);
+                                    }
+                                    cntAdvanced++;
+                                }
+                            });
+                            if (cntAdvanced == 0) {
+                                $(".control-advanced", $template).remove();
+                            }
+                        }
+                        if (cntParticular + cntSpecial + cntAdvanced > 0) {
+                            $("ul", $parent).append($title);
+                            $parent.append($template.removeClass("collapse"));
+                            if (typeof $(".tabControl").data("ui-tabs") === "undefined") {
+                                $(".tabControl").tabs();
+                            } else {
+                                $(".tabControl").tabs("refresh");
+                            }
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) { });
+            });
+        }
+        function seasonSelected(season) {
+            var $parent = $(season).closest(".filters");
+            $(".has-date", $parent).attr("disabled", season.value != "");
+        }
+        function updateProducts(products, $elem) {
+            $elem.html("");
+            var values = new Array(); //used to select all available products
+            $.each(products, function (index, prod) {
+                $elem.append('<option value="' + prod.product + '">' + prod.product + '</option>');
+                values.push(prod.product);
+            });
+            $elem.val(values);
+        }
+        function getSiteProducts(siteId, $inputElement, useFilters) {
+            if ($inputElement && typeof $inputElement.data("product_type_id") !== "undefined") {
+                var prodTypeIds = new Array();
+                var satIds = new Array();
+                var seasonId = null;
+                var since = "";
+                var until = "";
+                var tiles = new Array();
+
+                prodTypeIds.push($inputElement.data("product_type_id"));
+                if (useFilters) {
+                    var $filters = $inputElement.closest(".tab-content").find(".filters");
+                    var satList = { "S2": 1, "L8": 2, "S1": 3 }; // HARDCODED
+                    $.each(satList, function (satName, satId) {
+                        var satelliteIds = $inputElement.data("satellite_ids");
+                        var addSatId = true;
+                        if (typeof satelliteIds !== "undefined" && Array.isArray(satelliteIds) && satelliteIds.length > 0) {
+                            if (!satelliteIds.includes(satId)) {
+                                addSatId = false;
+                            }
+                        }
+                        if (addSatId) {
+                            if ($("input[name='chk" + satName + "Edit']", $filters).is(":checked")) {
+                                satIds.push(satId);
+                                if ($("textarea[name='" + satName + "Tiles']", $filters).val() != "") {
+                                    tiles = tiles.concat($("textarea[name='" + satName + "Tiles']", $filters).val().split(","));
+                                }
+                            }
+                        }
+                    });
+                    seasonId = $("select[name='seasonname']", $filters).val();
+                    since = (seasonId == "" ? $("input[name='startdate']", $filters).val() : "");
+                    until = (seasonId == "" ? $("input[name='enddate']", $filters).val() : "");
+                }
+                var data = {
+                    "siteId": siteId,
+                    "productTypeIds": prodTypeIds,
+                    "seasonId": seasonId,
+                    "satelliteIds": satIds,
+                    "since": since,
+                    "until": until,
+                    "tiles": tiles
+                };
+                $.when(getFilteredProducts(data))
+                    .done(function (response) {
+                        if (response.status == responseStatus.success) {
+                            updateProducts(JSON.parse(response.data), $inputElement);
+                            $inputElement.focus().select();
+                        } else {
+                            updateProducts(new Array(), $inputElement);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        updateProducts(new Array(), $inputElement);
+                    });
+            }
+        }
+
+        function siteSelected(site) {
+            var $parent = $(site).closest(".tab-content");
+            var $siteTiles = $(".filters .site-tiles", $parent);
+            var $siteSeasons = $(".filters select[name='seasonname']", $parent);
+
+            var $productsEls = $("select.input-files", $parent);
+            var $cropMaskEl = $("select[name='cropMask']", $parent);
+
+            if ($(site).val() != "") {
+                $(".subtitle", $parent).html($("option:selected", site).text());
+                $("button[name='btnSubmitJob']", $parent).attr("disabled", false);
+            } else {
+                $(".subtitle", $parent).html("");
+                $("button[name='btnSubmitJob']", $parent).attr("disabled", true);
+            }
+            //copy siteId to save job form
+            $("input[name='siteId']", $parent).val($(site).val());
+
+            // reset filters
+            $siteTiles.html("");
+            $siteSeasons.html('<option value="" selected>Select season</option>');
+            $(".filters .has-date", $parent).attr("disabled", false).datepicker("setDate", null);
+
+            //update_custom_param_values(site.options[site.selectedIndex].value, site.form.id);
+            if (site.value != "") {
+                $(".filters-title", $parent).addClass("collapse");
+                $(".filters-content", $parent).removeClass("collapse");
+
+                // get site tiles
+                $.when(getSiteTiles(site.value))
+                    .done(function (response) {
+                        if (response.status == responseStatus.success) {
+                            $.each(response.data, function (index, tile) {
+                                var tileHtml = '<div class="col-md-2">' +
+                                    '<label class="control-label"><input class="tile-active form-control" id="chk' + tile.satelliteName + 'Edit" type="checkbox" name="chk' + tile.satelliteName + 'Edit" value="' + tile.satelliteName + '"' + (tile.enabled ? ' checked="checked"' : '') + (tile.required ? ' disabled' : '') + '>' + tile.satelliteName + '</label>' +
+                                    '</div>' +
+                                    '<div class="col-md-10">' +
+                                    '<textarea class="form-control tile-list" style="resize:vertical;font-size:0.8em;" rows="4" name="' + tile.satelliteName + 'Tiles"></textarea>' +
+                                    '<span class="invalidTiles' + tile.satelliteName + '"></span>' +
+                                    '</div>';
+                                $siteTiles.append(tileHtml);
+                                if (tile.tiles) {
+                                    $('textarea[name="' + tile.satelliteName + 'Tiles"]', $siteTiles).val(tile.tiles.join(","));
+                                }
+                            });
+                        }
+                        // get products for all product types in category (default filters applied)
+                        $.each($productsEls, function (index, product) {
+                            getSiteProducts(site.value, $(product), false);
+                        });
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log("Unable to get sensor tiles for siteId = " + site.value);
+                    });
+
+                // get site seasons
+                $.when(getSiteSeasons(site.value))
+                    .done(function (response) {
+                        if (response.status === responseStatus.success) {
+                            $.each(response.data, function (idx, season) {
+                                $siteSeasons.append('<option value="' + season.id + '" data-siteid="' + site.value + '">' + season.name + '</option>');
+                            });
+                        } else {
+                            console.log("Unable to get seasons for siteId = " + site.value);
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log("Unable to get seasons for siteId = " + site.value);
+                    });
+            } else {
+                $(".filters-title", $parent).removeClass("collapse");
+                $(".filters-content", $parent).addClass("collapse");
+
+                //update products for all product types in category
+                $.each($productsEls, function () {
+                    $(this).empty();
+                    //update_products(new Array(), $(this));
+                });
+                //update_crop_mask(new Array(), $cropMaskEl);
+            }
+        }
+        // ======================== START ======================== //
+        $.when(getActiveProcessors(), getSites(window.userIsAdmin ? void 0 : window.userID), getProcessorParameters("l2a_msk", false, ""))
+            .done(function (responseGetActiveProcessors, responseGetSites, responseGetL2AMskParams) {
+                var procs = responseGetActiveProcessors[0];
+                var sites = responseGetSites[0];
+                var l2aMskParams = responseGetL2AMskParams[0];
+                if (procs.status === responseStatus.success && sites.status === responseStatus.success && l2aMskParams.status === responseStatus.success) {
+                    getSitesHtml(sites.data);
+                    getProcessorsHtml(procs.data, getProductTypeIdForL2AControl(l2aMskParams.data));
+                    //$(".tab-titles a.tab-title:first-child", ".tabControl").trigger("click");
+                } else {
+                    console.log("Unable to get resource data.");
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("Unable to get resource data.");
+            });
+
+        $(".tabControl")
+            .on("change", "select[name='sitename']", function (e) {
+                siteSelected(this);
+            })
+            .on("change", "select[name='seasonname']", function (e) {
+                seasonSelected(this);
+            })
+            .on("click", "button[name='btnResetFilter']", function (e) {
+                var $parent = $(this).closest(".tab-content");
+                var $site = $("select[name='sitename']", $parent);
+                siteSelected($site.get(0));
+            })
+            .on("click", "label.control-advanced>input[type='checkbox']", function (e) {
+                if ($(this).is(":checked")) {
+                    $(this).closest(".tab-content").find(".advanced-params").removeClass("hidden");
+                }
+                else {
+                    $(this).closest(".tab-content").find(".advanced-params").addClass("hidden");
+                }
+            })
+            .on("click", "button[name='btnFilter']", function (e) {
+                var $parent = $(this).closest(".tab-content");
+                var siteId = $("select[name='sitename']", $parent).val();
+                var $productsEls = $("select.input-files", $parent);
+                $.each($productsEls, function (index, product) {
+                    getSiteProducts(siteId, $(product), true);
+                });
+            })
+            .on("click", "button[name='btnSubmitJob']", function (e) {
+                var $parent = $(this).closest(".tab-content");
+                var procShortName = $("input[name='name']", $parent).data("procshortName");
+                var parameters = {};
+                var config_parameters = [];
+
+                $.each($(".specific-params .form-control, .advanced-params .form-control, .particular-params .form-control", $parent), function () {
+                    var name = $(this).attr("name");
+                    var cls = $(this).attr("class");
+                    var key = name;
+                    var isParticularParam = $(this.parentNode).attr("class").includes("particular-params");
+                    if (cls.includes("input-files")) {
+                        if (name.endsWith("[]")) {
+                            name = name.slice(0, -2);
+                        }
+                        if (name == "inputFiles") {
+                            key = "input_L2A";
+                        } else {
+                            if (name.startsWith("inputFiles_")) {
+                                key = "input_" + name.substring(name.indexOf('_') + 1);
+                            }
+                        }
+                        isParticularParam = true;
+                    }
+                    var val;
+                    if ($(this).is("input")) {
+                        if ($(this).attr("type") === "checkbox") {
+                            val = $(this).prop('checked');
+                        } else {
+                            val = $(this).val();
+                        }
+                    } else if ($(this).is("select")) {
+                        if ($(this).prop('multiple') === false) {
+                            $.each($(this).find(':selected'), function () {
+                                val = $(this).val();
+                            });
+                        } else {
+                            var options = [];
+                            $.each($(this).find(':selected'), function () {
+                                options.push($(this).val());
+                            });
+                            val = options;
+                        }
+                    }
+                    if (isParticularParam) {
+                        parameters[key] = val;
+                    } else {
+                        config_parameters.push({ "key": key, "value": val });
+                    }
+                });
+                $("input[name='parameters']", $parent).val(JSON.stringify(parameters));
+                $("input[name='configuration']", $parent).val(JSON.stringify(config_parameters));
+
+                //disable params to avoid posting
+                $(".particular-params .form-control, .specific-params .form-control, .advanced-params .form-control", $parent).attr("disabled", true);
+
+                $.ajax({
+                    url: baseApiUrl + "jobs/custom",
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    mimeType: "multipart/form-data",
+                    data: new FormData($(this).closest("form").get(0)),
+                    success: function (JSONresponse) {
+                        var response = JSON.parse(JSONresponse);
+                        if (response.status !== responseStatus.success) {
+                            alert(response.message);
+                        } else {
+                            alert("Job submitted successfuly!");
+                            $("select[name='sitename']", $parent).val("").change();
+                        }
+                        $(".particular-params .form-control, .specific-params .form-control, .advanced-params .form-control", $parent).attr("disabled", false);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        var responseJSON = { "status": textStatus, "error": errorThrown };
+                        if (jqXHR.responseJSON) {
+                            responseJSON = jqXHR.responseJSON;
+                        } else if (jqXHR.responseText) {
+                            responseJSON = xmlToJson(jqXHR.responseText);
+                            if (typeof responseJSON["Map"] !== "undefined") {
+                                responseJSON = responseJSON["Map"];
+                            }
+                        }
+                        //re-enable params
+                        $(".particular-params .form-control, .specific-params .form-control, .advanced-params .form-control", $parent).attr("disabled", false);
+                    }
+                });
+            });
+    });
+//# sourceURL=customjobs.js
+</script>
+
