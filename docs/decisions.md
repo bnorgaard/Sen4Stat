@@ -104,3 +104,31 @@ Livrable : [etape2-tessera.md](etape2-tessera.md).
   dans QGIS. Voir [etape3-prototype.md](etape3-prototype.md).
 - Le passage complet (128 bandes, 180 cellules) n'est pas lancé : le prototype
   est jugé démontré. Volume et durée restent à mesurer si besoin.
+
+## Étape 4 — Mesure de la valeur ajoutée : sautée (13/10/2026)
+
+- Décision de Boris : la valeur ajoutée de TESSERA est jugée déjà démontrée ;
+  pas de comparaison hors Sen4Stat.
+
+## Contrôle de disponibilité de TESSERA (13/10/2026, pour l'étape 5)
+
+- Besoin : quand une classification est lancée avec `tessera` et que les
+  embeddings n'existent pas sur CreoDias à cet endroit, l'interface doit le dire.
+- Constat : le formulaire Custom jobs ne fait que créer le job ; l'erreur ne
+  peut apparaître qu'à l'exécution. La sortie d'erreur du conteneur est
+  enregistrée dans `step_resource_log.stderr_text` (vérifié sur `eostat-12m`)
+  et affichée dans System overview → Monitoring → Jobs history → [output],
+  colonne « Errors ».
+- Décision : contrôle au tout début de `crop-map-s4s.py`, avant tout appel
+  Docker, sur le modèle de l'erreur « No season found » (`logging.error` puis
+  code de sortie 1).
+- Règle : le dossier de l'année doit exister, et toutes les cellules de 0,1°
+  qui recouvrent à la fois une tuile S2 du site et la géométrie du site
+  (`site.geog`) doivent être présentes.
+- Message en anglais, avec la version, l'année, la tuile, le nombre et les noms
+  des cellules manquantes, et la marche à suivre.
+- Améliorations de l'interface (texte des erreurs affiché en clair, erreurs
+  HTTP du formulaire Custom jobs) : reportées au volet B.
+- Constat annexe : le job 43193 (tâche 205938) a échoué ; son journal d'erreurs
+  est noyé sous des avertissements `urllib3 … Connection pool is full`.
+
