@@ -41,3 +41,21 @@ elles sont vérifiées.
   géoréférence).
 - Hypothèse : le dossier CreoDias suit l'arborescence de Source Cooperative
   (`npy/v1/{année}/grid_X_Y/`, `landmasks/`). À vérifier à l'étape 2.
+
+## Étape 1 — Lecture du classifieur (13/10/2026)
+
+Livrable : [etape1-classifieur.md](etape1-classifieur.md).
+
+- Image `sen4x/crop-map-s4s:0.5.0` téléchargée sur `eostat-12m` ; ses 7 scripts
+  sont dans `upstream/crop-map-s4s-0.5.0/`.
+- `eostat-12m` est une installation ancienne : sa base configure l'image
+  `0.3.0`. Elle sert de poste Docker pour l'étape 1.
+- **Point ouvert, à trancher avant l'étape 5** : instance Sen4Stat v4.0 pour
+  les étapes 5 à 7 (mise à jour d'une instance existante avec `update.sh`, ou
+  installation neuve).
+- Montages : le script lit la clé globale `general.orchestrator.docker_add_mounts`.
+  La clé `general.orchestrator.s4s-crop-type-mapping.docker_add_mounts` prévue au
+  cadrage n'existe pas en v4.0.
+- Les comparaisons avec et sans TESSERA devront réutiliser les mêmes points
+  d'entraînement et de validation (`--keep-polygons`), le partage étant aléatoire.
+- `geotessera` est exclu dans l'image (Python 3.8) : lecture directe des `.npy`.
