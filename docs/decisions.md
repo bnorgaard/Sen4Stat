@@ -69,3 +69,18 @@ Livrable : [etape1-classifieur.md](etape1-classifieur.md).
   paramètres `--pix-*` transmis, pas de clés `classifier` / `catboost.*`,
   `processor.insitu.path` en `{year}` au lieu de `{season}`. Ils renforcent le
   besoin d'une instance v4.0 avant l'étape 5.
+
+## Étape 2 — Jeu TESSERA sur CreoDias (13/10/2026)
+
+Livrable : [etape2-tessera.md](etape2-tessera.md).
+
+- Alias SSH de la machine de test : `eostat-12m`.
+- Sur CreoDias, TESSERA est distribué en **GeoTIFF COG** (int8, 128 bandes,
+  plus un fichier d'échelles Float32), géoréférencé en UTM : pas de `.npy`, et
+  pas besoin de landmask pour la projection.
+- Versions v1.0 et v1.1, années 2017 à 2025. Accès aux tuiles par chemin
+  calculé uniquement (lister un dossier d'année bloque).
+- Le contrôle des valeurs d'une tuile (2b) est sauté, par décision de Boris :
+  les valeurs seront contrôlées au prototype de l'étape 3.
+- **Point ouvert** : version à retenir. v1.0 est vérifiée ; le nommage de v1.1
+  est inconnu.
