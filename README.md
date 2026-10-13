@@ -48,7 +48,7 @@ l'installeur OTB, et les jars des services (`lib/`).
 | 2 | Explorer `/eodata/geoAI-embeddings/Tessera` | terminée |
 | 3 | Prototype d'alignement TESSERA → grille S2 | terminée |
 | 4 | Mesure de la valeur ajoutée (point de décision) | sautée |
-| 5 | Intégration dans `crop-map-s4s.py` | à faire |
+| 5 | Intégration dans `crop-map-s4s.py` | terminée |
 | 6 | Paramétrage et image Docker dérivée | à faire |
 | 7 | Test de bout en bout | à faire |
 | 8 | Documentation et retour arrière | à faire |

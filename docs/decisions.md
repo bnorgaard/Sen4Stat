@@ -132,3 +132,21 @@ Livrable : [etape2-tessera.md](etape2-tessera.md).
 - Constat annexe : le job 43193 (tâche 205938) a échoué ; son journal d'erreurs
   est noyé sous des avertissements `urllib3 … Connection pool is full`.
 
+## Étape 5 — Intégration (13/10/2026)
+
+Note : [etape5-integration.md](etape5-integration.md).
+
+- TESSERA entre dans le classifieur **déquantifié à la volée** : bandes VRT
+  dérivées (`valeur × échelle`, fonction GDAL `mul`).
+- Les valeurs recalées sont stockées en **Int16** : GDAL 3.3 lit l'int8 sans
+  signe (vérifié : min 0, max 255).
+- Année : celle qui contient la plus grande partie de la saison. L'empilement
+  de deux années (argument ou bouton) est reporté ; les noms de bandes portent
+  déjà l'année (`TESSERA_2024_000`).
+- Raster recalé dans le dossier de travail du job, comme les features S2.
+- Clés lues : `tessera-root` et `tessera-version`, avec valeurs par défaut.
+- Validé sur `eostat-12m` : contrôle de disponibilité ; lecture des bandes
+  dérivées identique à l'attendu par GDAL 3.3, erdy 0.2.5 et OTB 8.1.1.
+- Premiers tests sur `eostat-12m` ; le test de bout en bout se fera sur une
+  installation plus récente.
+
