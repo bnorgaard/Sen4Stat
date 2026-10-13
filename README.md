@@ -43,7 +43,7 @@ l'installeur OTB, et les jars des services (`lib/`).
 
 | Étape | Intitulé | État |
 |---|---|---|
-| 0 | Espace de travail | en cours |
+| 0 | Espace de travail | terminée |
 | 1 | Lire le code du classifieur (image `sen4x/crop-map-s4s:0.5.0`) | à faire |
 | 2 | Explorer `/eodata/geoAI-embeddings/Tessera` | à faire |
 | 3 | Prototype d'alignement TESSERA → grille S2 | à faire |
