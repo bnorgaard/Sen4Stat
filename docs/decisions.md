@@ -30,8 +30,8 @@ elles sont vérifiées.
 
 ### Données
 
-- Site pilote : **à compléter**
-- Année / saison : **à compléter**
+- Site pilote : `wallonia_24` (site 91), décidé le 13/10/2026
+- Année / saison : 2024 (01/01 au 31/12) ; tuile S2 de test : 31UFS
 - Données nécessaires (in situ, L2A, S1) disponibles selon Boris.
 
 ### TESSERA
@@ -84,3 +84,23 @@ Livrable : [etape2-tessera.md](etape2-tessera.md).
   les valeurs seront contrôlées au prototype de l'étape 3.
 - **Point ouvert** : version à retenir. v1.0 est vérifiée ; le nommage de v1.1
   est inconnu.
+
+## Étape 3 — Prototype d'alignement (13/10/2026)
+
+- Version TESSERA retenue : **v1.0**, pour tout le projet.
+- TESSERA est recalé sur la grille des tuiles S2. L'extraction sur la grille
+  TESSERA a été écartée : elle aurait obligé à modifier toute la chaîne (rasters
+  in situ, VRT, strates, produits) et empêché la configuration combinée de
+  l'étape 4.
+- Interpolation : **plus proche voisin**, en une seule opération, avec
+  reprojection exacte (`-et 0`) et sans aperçus. Les vecteurs sont recopiés,
+  jamais calculés.
+- Chevauchement : un pixel S2 prend la tuile dont la cellule de 0,1° contient
+  son centre.
+- Absence de donnée : 0 dans les 128 bandes et échelle 0, déclarée comme nodata
+  du fichier d'échelles.
+- Prototype validé le 13/10/2026 : `CHECK OK` sur `eostat-12m`, comparaison
+  exhaustive sans différence sur un extrait, superposition exacte avec le L2A
+  dans QGIS. Voir [etape3-prototype.md](etape3-prototype.md).
+- Le passage complet (128 bandes, 180 cellules) n'est pas lancé : le prototype
+  est jugé démontré. Volume et durée restent à mesurer si besoin.

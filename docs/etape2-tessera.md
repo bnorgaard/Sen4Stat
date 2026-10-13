@@ -62,21 +62,25 @@ Une tuile de 2018 (`grid_7.65_47.75`) a la même structure : 113,8 Mo et
 4. **Chevauchement.** Le rectangle UTM (7 320 × 11 280 m) déborde de la cellule
    géographique : son coin inférieur gauche est à 4,5966° E. Les tuiles voisines
    se recouvrent, et il faudra une règle de mosaïque.
-5. **Zone UTM** (hypothèse) : chaque tuile est dans la zone UTM de son centre.
-   Près d'une limite de zone, il faudra reprojeter vers l'EPSG de la tuile S2.
-6. **Volume.** Une tuile S2 (110 × 110 km) recouvre environ 155 cellules de 0,1°
-   à 50° N, soit environ 17 Go de données source par année. Le nombre de
-   cellules, et donc le volume, varie avec la latitude.
+5. **Zone UTM** : une tuile est l'emprise de sa cellule projetée dans la zone
+   UTM de son centre (construction confirmée à l'étape 3 pour une tuile de la
+   zone 31 ; aucune vraie tuile de la zone 32 n'a encore été ouverte). Près
+   d'une limite de zone, il faut reprojeter vers l'EPSG de la tuile S2.
+6. **Volume.** La tuile 31UFS (110 × 110 km, vers 51° N) est recouverte par
+   180 cellules de 0,1° (mesuré à l'étape 3), soit environ 20 Go de données
+   source par année. Le nombre de cellules varie avec la latitude.
 7. **Aperçus.** Les COG contiennent des aperçus réduits (366 × 564, 183 × 282).
    Ils n'ont pas de sens pour des embeddings et ne doivent pas être lus.
 
 ## 4. Non vérifié
 
-Le contrôle des valeurs (lecture d'une tuile, déquantification, statistiques)
-n'a pas été fait, par décision du 13/10/2026 ; il se fera de fait au prototype
-de l'étape 3. Restent donc à confirmer :
+Le contrôle des valeurs prévu à l'étape 2 n'a pas été fait, par décision du
+13/10/2026. Le prototype de l'étape 3 en a couvert une partie, sur un extrait de
+10 × 10 km autour de Louvain-la-Neuve (bandes 1 à 3) : valeurs int8 de −127 à
+127, jamais −128 ; échelles de 0,036 à 0,123, sans 0 ni NaN. Restent à
+confirmer :
 
-- les plages de valeurs et la formule de déquantification ;
+- la formule de déquantification ;
 - le codage des pixels sans donnée (mer, absence de couverture) ;
 - le contenu des pixels hors de la cellule géographique ;
 - le nommage et le contenu de v1.1, et les différences avec v1.0 ;
