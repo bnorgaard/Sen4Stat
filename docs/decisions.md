@@ -150,3 +150,19 @@ Note : [etape5-integration.md](etape5-integration.md).
 - Premiers tests sur `eostat-12m` ; le test de bout en bout se fera sur une
   installation plus récente.
 
+## Étape 6 — Paramétrage et image Docker (13/10/2026, en cours)
+
+Note : [etape6-parametrage.md](etape6-parametrage.md).
+
+- Image dérivée : **`crop-map-s4s:0.5.0-tessera`**, locale à chaque machine
+  (l'espace `sen4x/` de Docker Hub n'est pas le nôtre). Construite sur
+  `eostat-12m` le 13/10/2026 ; `--help` fonctionne et les empreintes des deux
+  scripts sont identiques à celles du dépôt.
+- La bascule de `general.orchestrator.s4s-crop-type-mapping.docker_image` ne
+  fait pas partie de la migration : elle se fera à l'étape 7, sur une
+  installation récente. Pas de bascule sur `eostat-12m` (orchestrateur ancien).
+- **À faire le jeudi 15/10/2026, sur `eostat-12m`** : sauvegarde de `config`
+  et `config_metadata`, application de `tessera-migration.sql` (deux fois, pour
+  vérifier qu'elle est rejouable), vérification, test de `tessera-rollback.sql`,
+  puis réapplication de la migration, laissée en place.
+
