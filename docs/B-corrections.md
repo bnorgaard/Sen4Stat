@@ -238,3 +238,80 @@ liste des ressources du navigateur.)
 ```
 sudo cp ~/web-fixes/sites.fragment.html.orig /usr/share/sen2agri/sen2agri-services/static/admin/fragments/sites.fragment.html
 ```
+
+## B6 — Rétention de `node_resource_log` (15/10/2026)
+
+Fichiers : [`src/sql/node-resource-log-retention.sql`](../src/sql/node-resource-log-retention.sql)
+et [`src/sql/node-resource-log-retention-rollback.sql`](../src/sql/node-resource-log-retention-rollback.sql).
+Correction en base, et non dans `src/web/`.
+
+**Problème** : chaque nœud enregistre une mesure par minute dans
+`node_resource_log` (`sp_insert_node_statistics`), et la table n'est jamais
+purgée : 1 051 145 lignes depuis le 26/09/2024 sur `eostat-12m` (B0). Tant que
+System overview est ouvert, `sp_get_dashboard_server_resource_data` est
+appelée toutes les 10 s ; elle n'utilise que les 15 dernières minutes, mais
+commence par un `select distinct node_name` sur toute la table (parcours
+complet). Son coût croît avec la table.
+
+**Correction** : `sp_insert_node_statistics` supprime, après chaque insertion,
+les lignes de plus de 30 jours (environ une ligne par appel, par l'index sur
+`timestamp`). Une erreur de suppression produit un `WARNING` sans annuler
+l'insertion de la mesure. La fonction de la page n'est pas modifiée.
+Le script de retour arrière réinstalle la fonction v4.0 à l'identique.
+
+Conséquence : l'historique de plus de 30 jours est perdu ; la page n'en lit
+que 15 minutes, et personne ne consulte l'historique long (choix du
+15/10/2026). La fonction sera écrasée si les scripts de la base v4.0 sont
+réappliqués (mise à jour) : à réinstaller ensuite.
+
+**Déploiement sur `eostat-12m`**, dans cet ordre (la purge unique précède
+l'installation, pour que le premier appel de l'agent n'ait pas un million de
+lignes à supprimer) :
+
+```
+pg_dump -U postgres -d sen4stat -t node_resource_log -Fc -f ~/web-fixes/node_resource_log_avant_purge.dump
+psql -U postgres -d sen4stat -c "delete from node_resource_log where timestamp < now() - interval '30 days'"
+psql -U postgres -d sen4stat -c "vacuum analyze node_resource_log"
+psql -U postgres -d sen4stat -v ON_ERROR_STOP=1 -f ~/web-fixes/node-resource-log-retention.sql
+```
+
+La fonction installée avant la correction était identique à la v4.0 (`\sf`).
+L'installation affiche un `NOTICE` par paramètre (types `%TYPE` convertis),
+comme le script d'origine.
+
+**Tests sur `eostat-12m`** :
+
+| | Avant | Après |
+|---|---|---|
+| Lignes | 1 051 145 (B0) | 42 492 (`DELETE 1008820`) |
+| `select distinct node_name` | 99 ms (102 ms en B0) | 36 ms |
+| `sp_get_dashboard_server_resource_data()`, 3 appels | 225 à 237 ms | 32 à 45 ms |
+| Mesures de l'agent après installation | — | dernière mesure 27 s avant la vérification |
+| Suppression continue par la fonction | — | 7 min après la purge, plus ancienne ligne 8 s après la limite des 30 jours ; 42 492 lignes à 3 min d'intervalle |
+
+**Restant** : le fichier de la table garde sa taille (110 Mo pour 42 492
+lignes) ; `VACUUM` rend l'espace réutilisable par les insertions suivantes
+sans réduire le fichier, que le `select distinct` relit entièrement (36 ms).
+Un `VACUUM FULL` le réduirait (verrou exclusif bref sur la table) ; non
+fait, à décider.
+
+**Déploiement** : en place sur `eostat-12m` ; table sauvegardée avant la purge
+dans `~/web-fixes/node_resource_log_avant_purge.dump` (20 Mo). Retour arrière
+de la fonction :
+
+```
+psql -U postgres -d sen4stat -v ON_ERROR_STOP=1 -f ~/web-fixes/node-resource-log-retention-rollback.sql
+```
+
+Les lignes supprimées peuvent être réinsérées depuis la sauvegarde, **après**
+ce retour arrière (sinon la fonction les supprime de nouveau). Procédure non
+testée : la sauvegarde est restaurée dans une base temporaire, puis seules les
+lignes plus anciennes que la plus ancienne ligne restante sont recopiées.
+
+```
+createdb -U postgres nrl_restore
+pg_restore -U postgres -d nrl_restore ~/web-fixes/node_resource_log_avant_purge.dump
+M=$(psql -U postgres -d sen4stat -Atc "select min(timestamp) from node_resource_log")
+psql -U postgres -d nrl_restore -c "\copy (select * from node_resource_log where timestamp < '$M') to pstdout" | psql -U postgres -d sen4stat -c "\copy node_resource_log from pstdin"
+dropdb -U postgres nrl_restore
+```

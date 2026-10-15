@@ -63,3 +63,4 @@ l'installeur OTB, et les jars des services (`lib/`).
 | B5 | Compression HTTP | terminée (en place sur `eostat-12m`) |
 | B3 | Requêtes synchrones du Dashboard | terminée (en place sur `eostat-12m`) |
 | — | Contours `/rois/countries` chargés à la demande | terminée (en place sur `eostat-12m`) |
+| B6 | Rétention de 30 jours de `node_resource_log` | terminée (en place sur `eostat-12m`) |

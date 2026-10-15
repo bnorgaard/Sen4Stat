@@ -207,4 +207,10 @@ Journal : [B-corrections.md](B-corrections.md).
   site » puis gardé pour la session ; testé et laissé en place sur
   `eostat-12m` (version du fichier propre à la 12M, même modification). Sites
   passe de 3,8 Mo à environ 28 Ko par visite.
+- 15/10/2026, **B6** (`node_resource_log`) : option A retenue, une rétention
+  de 30 jours dans `sp_insert_node_statistics` (personne ne consulte
+  l'historique long), sans modifier la fonction de la page, contrairement à
+  l'idée de B0 (requête limitée aux 15 dernières minutes). Purge unique
+  préalable sur `eostat-12m` (1 008 820 lignes, table sauvegardée). Fonction de
+  la page : 32 à 45 ms au lieu de 225 à 237 ms.
 
