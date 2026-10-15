@@ -150,7 +150,7 @@ Note : [etape5-integration.md](etape5-integration.md).
 - Premiers tests sur `eostat-12m` ; le test de bout en bout se fera sur une
   installation plus récente.
 
-## Étape 6 — Paramétrage et image Docker (13/10/2026, en cours)
+## Étape 6 — Paramétrage et image Docker (13 et 15/10/2026)
 
 Note : [etape6-parametrage.md](etape6-parametrage.md).
 
@@ -165,4 +165,6 @@ Note : [etape6-parametrage.md](etape6-parametrage.md).
   et `config_metadata`, application de `tessera-migration.sql` (deux fois, pour
   vérifier qu'elle est rejouable), vérification, test de `tessera-rollback.sql`,
   puis réapplication de la migration, laissée en place.
-
+- Tests SQL du 15/10/2026 sur `eostat-12m` : migration rejouable sans effet
+  de bord, retour arrière exact. Réapplication de la migration laissée en
+  place : à confirmer. Détail dans [etape6-parametrage.md](etape6-parametrage.md), §6.

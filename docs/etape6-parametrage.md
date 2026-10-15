@@ -75,3 +75,20 @@ dans la clé `processor.s4s_crop_mapping.features-filter`.
 
 En dernier recours, la sauvegarde `~/config_avant_tessera.sql` contient les
 tables `config` et `config_metadata` d'avant la migration.
+
+## 6. Tests sur `eostat-12m`
+
+| Date | Test | Résultat |
+|---|---|---|
+| 13/10/2026 | Construction de l'image | OK ; `--help` s'affiche (module `tessera_features` importé) |
+| 13/10/2026 | Contenu de l'image | empreintes SHA-256 des deux scripts identiques à celles du dépôt |
+| 15/10/2026 | Sauvegarde de `config` et `config_metadata` | `~/config_avant_tessera.sql`, 125 Ko |
+| 15/10/2026 | Migration appliquée deux fois | 2 clés `config`, 3 entrées `config_metadata`, suffixe `tessera` présent une seule fois |
+| 15/10/2026 | Retour arrière | `DELETE 2`, `DELETE 2`, `UPDATE 1` ; plus aucune clé TESSERA, description de `features-filter` revenue à sa fin d'origine (`… re (Red edge features)`) |
+| 15/10/2026 | Réapplication de la migration, laissée en place | à confirmer (sortie non relevée) |
+
+La bascule de l'image n'a pas été faite sur `eostat-12m` : son orchestrateur,
+antérieur à la v4.0, ne transmet ni `--job-id` ni les paramètres `--pix-*`, et
+son chemin in situ est en `{year}`. Elle se fera à l'étape 7, sur une
+installation récente.
+

@@ -49,7 +49,7 @@ l'installeur OTB, et les jars des services (`lib/`).
 | 3 | Prototype d'alignement TESSERA → grille S2 | terminée |
 | 4 | Mesure de la valeur ajoutée (point de décision) | sautée |
 | 5 | Intégration dans `crop-map-s4s.py` | terminée |
-| 6 | Paramétrage et image Docker dérivée | en cours (test SQL le 15/10/2026) |
+| 6 | Paramétrage et image Docker dérivée | terminée |
 | 7 | Test de bout en bout | à faire |
 | 8 | Documentation et retour arrière | à faire |
 
