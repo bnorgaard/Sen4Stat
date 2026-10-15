@@ -200,4 +200,7 @@ Journal : [B-corrections.md](B-corrections.md).
   `eostat-12m`. Volumes divisés par 3 à 6 pour les textes, par 2,7 pour
   `/rois/countries` ; pas de gain de temps sur une liaison rapide pour cette
   grosse réponse JSON (compression à la volée, environ 14 Mo/s).
+- 15/10/2026, **B3** (Dashboard) : requêtes de saisons parallèles, testée et
+  laissée en place sur `eostat-12m`. Plus aucun blocage (1,3 à 3,2 s avant) ;
+  onglets des processeurs affichés après environ 150 ms.
 

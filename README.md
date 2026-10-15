@@ -61,3 +61,4 @@ l'installeur OTB, et les jars des services (`lib/`).
 | B4 | Minuteurs de la page Monitoring | terminée (en place sur `eostat-12m`) |
 | B1 | Cache des scripts des fragments | terminée (en place sur `eostat-12m`) |
 | B5 | Compression HTTP | terminée (en place sur `eostat-12m`) |
+| B3 | Requêtes synchrones du Dashboard | terminée (en place sur `eostat-12m`) |

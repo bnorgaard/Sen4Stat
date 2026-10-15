@@ -150,3 +150,43 @@ cas de `/rois/countries` relève de sa propre correction (chargement unique).
 sudo cp ~/web-fixes/application.properties.orig /usr/share/sen2agri/sen2agri-services/config/application.properties
 sudo systemctl restart sen2agri-services
 ```
+
+## B3 — Requêtes synchrones du Dashboard (15/10/2026)
+
+Fichier : [`src/web/static/admin/fragments/dashboard.fragment.html`](../src/web/static/admin/fragments/dashboard.fragment.html)
+(+25 / −14 lignes ; BOM et CRLF conservés). Les deux autres copies du
+fragment n'ont pas cette boucle (leurs appels synchrones sont des actions
+isolées, ou dans la version lite, inutilisable).
+
+**Problème** : `getSitesHtml` demandait les saisons de chaque site par une
+requête synchrone (`async: false`), soit 30 requêtes à la suite. L'interface
+était bloquée pendant ce temps, et l'affichage des onglets des processeurs
+(`getProcessorsHtml`, appelé ensuite) attendait la fin des 30 requêtes.
+
+**Correction** : `getSiteSeasons` n'est plus synchrone ; les requêtes partent
+en parallèle et les saisons sont ajoutées dans l'ordre des sites une fois
+toutes les réponses arrivées. Un échec isolé n'empêche pas l'affichage des
+autres sites. Si un site a déjà été choisi dans le formulaire, ses saisons
+sont rendues visibles.
+
+**Tests sur `eostat-12m`** :
+
+| | Avant (B0) | Avant (15/10, plus tard) | Après |
+|---|---|---|---|
+| Blocage par les requêtes synchrones de l'API | 1,3 s | 3,2 s | 0 ms |
+| Tâches longues | 1,4 s | 1,1 s | 0 ms |
+| Onglets des processeurs affichés | après les 30 requêtes | après les 30 requêtes | après 144 à 155 ms |
+| Saisons chargées (arrière-plan) | — | — | 326 à 383 ms |
+
+Liste des saisons du formulaire « nouveau job planifié » identique à celle
+construite site par site (37 saisons, même ordre) ; le choix d'un site (76)
+affiche ses 7 saisons. Aucune erreur dans la console. Validation préalable :
+le code exact du fichier, compilé et exécuté sur une copie détachée du
+formulaire, donnait la même liste que l'ancien code.
+
+**Déploiement** : en place sur `eostat-12m` ; original sauvegardé dans
+`~/web-fixes/dashboard.fragment.html.orig`. Retour arrière :
+
+```
+sudo cp ~/web-fixes/dashboard.fragment.html.orig /usr/share/sen2agri/sen2agri-services/static/admin/fragments/dashboard.fragment.html
+```
