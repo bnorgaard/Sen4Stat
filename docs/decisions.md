@@ -196,4 +196,8 @@ Journal : [B-corrections.md](B-corrections.md).
   les 8 pages. B3 (Dashboard) devient le principal point bloquant.
 - Constat : la version lite du front ne fonctionne pas, dès la v4.0
   d'origine (`readExtProjectCookie` absente). Non corrigé.
+- 15/10/2026, **B5** (compression HTTP) : activée et laissée en place sur
+  `eostat-12m`. Volumes divisés par 3 à 6 pour les textes, par 2,7 pour
+  `/rois/countries` ; pas de gain de temps sur une liaison rapide pour cette
+  grosse réponse JSON (compression à la volée, environ 14 Mo/s).
 

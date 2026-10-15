@@ -110,3 +110,43 @@ sudo cp ~/web-fixes/router.ui.js.orig $S/assets/dist/js/router.js
 sudo cp ~/web-fixes/router.admin.js.orig $S/admin/assets/dist/js/router.js
 sudo cp ~/web-fixes/router.lite.js.orig $S/admin/lite/assets/dist/js/router.js
 ```
+
+## B5 — Compression HTTP (15/10/2026)
+
+Fichier : [`src/web/config/application.properties`](../src/web/config/application.properties)
+(+3 lignes : `server.compression.enabled=true`). Les services utilisent
+Spring Boot 2.7.18 avec Tomcat 9.0.83 intégré ; la liste de types compressés
+par défaut couvre HTML, CSS, JavaScript, JSON et XML, à partir de 2 Ko.
+
+Déploiement : la ligne est ajoutée au fichier existant de l'instance (dont la
+version peut différer de la v4.0), puis le service `sen2agri-services` est
+redémarré (interface indisponible environ une minute, sessions perdues).
+
+**Tests sur `eostat-12m`** (ressources rechargées sans cache) :
+
+| Ressource | Taille réelle | Transférée | Facteur |
+|---|---|---|---|
+| `ol.js` | 917 Ko | 224 Ko | 4,1 |
+| `ol-ext.js` | 1 017 Ko | 230 Ko | 4,4 |
+| `nv.d3.js` | 757 Ko | 129 Ko | 5,9 |
+| `jquery.min.js` | 84 Ko | 29 Ko | 2,9 |
+| `bootstrap.min.css` | 118 Ko | 19 Ko | 6,1 |
+| `products.fragment.html` | 83 Ko | 20 Ko | 4,1 |
+| `/rois/countries` (JSON) | 3 767 Ko | 1 376 Ko | 2,7 |
+
+**Limite** : le serveur compresse à la volée, à environ 14 Mo/s de données
+d'origine. Sur la connexion du poste de test (environ 28 Mo/s), un appel à
+`/rois/countries` prend environ 340 ms (5 mesures stables : 30 ms d'attente,
+270 ms de transfert), contre 132 ms sans compression lors de B0 (une seule
+mesure, charge du serveur variable). La compression fait gagner du volume,
+et du temps sur les liaisons plus lentes (en dessous d'environ 10 Mo/s,
+estimation), mais pas sur une liaison rapide pour cette grosse réponse. Le
+cas de `/rois/countries` relève de sa propre correction (chargement unique).
+
+**Déploiement** : en place sur `eostat-12m` ; original sauvegardé dans
+`~/web-fixes/application.properties.orig`. Retour arrière :
+
+```
+sudo cp ~/web-fixes/application.properties.orig /usr/share/sen2agri/sen2agri-services/config/application.properties
+sudo systemctl restart sen2agri-services
+```
