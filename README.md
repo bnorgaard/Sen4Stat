@@ -57,4 +57,4 @@ l'installeur OTB, et les jars des services (`lib/`).
 
 | Étape | Intitulé | État |
 |---|---|---|
-| B0 | Mesures (navigateur, `EXPLAIN ANALYZE`, `pg_stat_statements`) | à faire |
+| B0 | Mesures (navigateur, serveur, base) | terminée |

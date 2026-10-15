@@ -168,3 +168,19 @@ Note : [etape6-parametrage.md](etape6-parametrage.md).
 - Tests SQL du 15/10/2026 sur `eostat-12m` : migration rejouable sans effet
   de bord, retour arrière exact. Réapplication de la migration laissée en
   place : à confirmer. Détail dans [etape6-parametrage.md](etape6-parametrage.md), §6.
+
+## Objectif B — B0, mesures (15/10/2026)
+
+Livrable : [B0-mesures.md](B0-mesures.md).
+
+- L'objectif A est en pause à l'étape 7, faute d'installation récente.
+- Mesures sur `eostat-12m`, interface d'administration, dans le navigateur
+  intégré (connexion faite par Boris). Le front de la 12M est identique à
+  98,6 % à la v4.0 ; les problèmes mesurés existent en v4.0.
+- Pistes confirmées : B1 (problème principal), B2, B3, B4, B6, compression
+  absente (B5). En-têtes de cache présents (B5 en partie infirmée).
+- Nouveaux constats : `/rois/countries` (3,8 Mo synchrones par visite de
+  Sites) ; charge de fond de la table `event` (hors interface).
+- Ordre de correction proposé : B4, B1, compression, B2, `/rois/countries`,
+  B6, B3 (du plus sûr au plus délicat).
+
