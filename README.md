@@ -58,3 +58,4 @@ l'installeur OTB, et les jars des services (`lib/`).
 | Étape | Intitulé | État |
 |---|---|---|
 | B0 | Mesures (navigateur, serveur, base) | terminée |
+| B4 | Minuteurs de la page Monitoring | terminée (en place sur `eostat-12m`) |

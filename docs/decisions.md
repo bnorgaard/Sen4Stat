@@ -184,3 +184,10 @@ Livrable : [B0-mesures.md](B0-mesures.md).
 - Ordre de correction proposé : B4, B1, compression, B2, `/rois/countries`,
   B6, B3 (du plus sûr au plus délicat).
 
+## Objectif B — Corrections
+
+Journal : [B-corrections.md](B-corrections.md).
+
+- 15/10/2026, **B4** (minuteurs de Monitoring) : corrigée, testée et laissée en
+  place sur `eostat-12m`. 0 requête fantôme au lieu de 6 en 13 s.
+
