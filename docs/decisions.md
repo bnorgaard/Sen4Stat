@@ -203,4 +203,8 @@ Journal : [B-corrections.md](B-corrections.md).
 - 15/10/2026, **B3** (Dashboard) : requêtes de saisons parallèles, testée et
   laissée en place sur `eostat-12m`. Plus aucun blocage (1,3 à 3,2 s avant) ;
   onglets des processeurs affichés après environ 150 ms.
+- 15/10/2026, **`/rois/countries`** : chargé au premier clic sur « Create new
+  site » puis gardé pour la session ; testé et laissé en place sur
+  `eostat-12m` (version du fichier propre à la 12M, même modification). Sites
+  passe de 3,8 Mo à environ 28 Ko par visite.
 

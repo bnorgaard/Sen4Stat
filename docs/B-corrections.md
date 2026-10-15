@@ -190,3 +190,51 @@ formulaire, donnait la même liste que l'ancien code.
 ```
 sudo cp ~/web-fixes/dashboard.fragment.html.orig /usr/share/sen2agri/sen2agri-services/static/admin/fragments/dashboard.fragment.html
 ```
+
+## `/rois/countries` — Contours chargés à la demande (15/10/2026)
+
+Fichier : [`src/web/static/admin/fragments/sites.fragment.html`](../src/web/static/admin/fragments/sites.fragment.html)
+(+29 / −16 lignes ; CRLF conservés). Une seule copie, dans `admin/`.
+
+**Problème** : à chaque visite de la page Sites, les contours des pays et
+régions (`/rois/countries`, 3,8 Mo, 1,4 Mo compressés) étaient téléchargés en
+synchrone. Ils ne servent qu'à la sélection continent / pays / région de la
+boîte de dialogue « Add new site ».
+
+**Correction** : la requête n'est plus faite à l'ouverture de la page mais au
+premier clic sur « Create new site » (asynchrone, bouton désactivé pendant le
+chargement) ; le résultat est gardé pour la session (`window.sitesRegionsRequest`),
+y compris lors des visites suivantes de Sites. En cas d'échec, la section de
+sélection est masquée comme auparavant, et la requête est retentée au clic
+suivant.
+
+**Version de `eostat-12m`** : ce fragment diffère de la v4.0 (gestion des
+téléversements, sans rapport). La même modification a été appliquée au fichier
+de la 12M par le script [`src/web/patches/sites_regions.py`](../src/web/patches/sites_regions.py),
+réutilisable après une mise à jour des services ; elle est identique ligne pour
+ligne (45 lignes ajoutées ou retirées).
+
+**Tests sur `eostat-12m`** :
+
+| | Avant (B0) | Après B1 | Après |
+|---|---|---|---|
+| Poids d'une visite de Sites | 4 859 Ko | 3 843 Ko | 26 à 29 Ko |
+| Requêtes `/rois/countries` par visite | 1, synchrone | 1, synchrone | 0 |
+| Blocage synchrone (scripts en cache) | 419 ms | 783 ms | environ 37 à 66 ms |
+
+- Premier clic sur « Create new site » : une requête asynchrone (environ
+  600 ms), boîte de dialogue ouverte avec 237 pays et 3 154 régions.
+- Clic suivant, lors d'une autre visite de Sites : ouverture immédiate, sans
+  nouvelle requête, mêmes listes.
+- Boîte refermée sans rien créer ; aucune erreur dans la console.
+
+(La sonde, installée deux fois faute de rechargement de la page, a compté
+chaque requête en double ; les valeurs ci-dessus sont corrigées d'après la
+liste des ressources du navigateur.)
+
+**Déploiement** : en place sur `eostat-12m` ; original sauvegardé dans
+`~/web-fixes/sites.fragment.html.orig`. Retour arrière :
+
+```
+sudo cp ~/web-fixes/sites.fragment.html.orig /usr/share/sen2agri/sen2agri-services/static/admin/fragments/sites.fragment.html
+```
