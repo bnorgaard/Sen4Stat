@@ -48,3 +48,65 @@ sudo cp ~/web-fixes/monitoring.fragment.html.orig /usr/share/sen2agri/sen2agri-s
 **Constat annexe** : la page Produits laisse un gestionnaire de
 redimensionnement actif après qu'on l'a quittée (`products.js:1519`,
 `getMapPanPercentage`, erreur dans la console). Non corrigé.
+
+## B1 — Cache des scripts des fragments (15/10/2026)
+
+Fichiers (+14 lignes chacun, identiques) :
+[`src/web/static/assets/dist/js/router.js`](../src/web/static/assets/dist/js/router.js),
+[`src/web/static/admin/assets/dist/js/router.js`](../src/web/static/admin/assets/dist/js/router.js),
+[`src/web/static/admin/lite/assets/dist/js/router.js`](../src/web/static/admin/lite/assets/dist/js/router.js).
+Les trois copies du front chargent jQuery 2.2.4 ; leurs routeurs sont
+identiques sur `eostat-12m` et en v4.0.
+
+**Problème** : quand le routeur insère un fragment avec `.html()`, jQuery
+charge chaque `<script src>` par `jQuery._evalUrl`, en synchrone et sans cache
+(`?_=horodatage`) : les bibliothèques sont retéléchargées à chaque visite.
+
+**Correction** : `jQuery._evalUrl` est redéfini en tête du routeur, avec le
+même chargement synchrone (ordre d'exécution inchangé) mais `cache: true`. Les
+appels à l'API ne passent pas par cette fonction et ne sont pas concernés. Le
+navigateur applique alors les en-têtes du serveur (`max-age=3600`,
+`Last-Modified`) : cache pendant une heure, puis revalidation (304).
+
+Le routeur lui-même est mis en cache une heure : après déploiement, la
+correction est prise en compte après ce délai ou un rechargement forcé
+(Ctrl+F5). Inversement, après une mise à jour du front, un navigateur peut
+garder l'ancienne version d'un script jusqu'à une heure.
+
+**Tests sur `eostat-12m`** (interface d'administration, 2ᵉ visite de chaque
+page, cache rempli) :
+
+| Page | Poids avant (B0) | Poids après | Scripts synchrones avant | après |
+|---|---|---|---|---|
+| Analytical dashboard | 3 629 Ko | 21 Ko | 779 ms | 282 ms |
+| Produits | 2 687 Ko | 128 Ko | 782 ms | 192 ms |
+| Statistiques | 1 124 Ko | 42 Ko | 399 ms | 129 ms |
+| Sites | 4 859 Ko | 3 843 Ko (dont `/rois/countries`) | 419 ms | 126 ms |
+| Dashboard | 209 Ko | 73 Ko | 4 bibliothèques | 57 ms |
+| System overview, Monitoring, Custom jobs | 28 à 111 Ko | 22 à 78 Ko | ≤ 100 ms | ≤ 33 ms |
+
+Plus aucun script avec `?_=horodatage`. Hors `/rois/countries`, les 8 pages
+transfèrent environ 0,4 Mo au lieu d'environ 8,8 Mo. Aucune erreur nouvelle
+dans la console.
+
+**Restant** : sur le Dashboard, 3,2 s de blocage dues aux 30 requêtes
+`/sites/seasons` synchrones (B3), environ 105 ms chacune ce jour-là (35 ms lors
+de B0) ; c'est désormais le principal point bloquant.
+
+**Autres copies** : l'interface utilisateur (`/ui/sap.html`) renvoie un compte
+administrateur vers l'administration ; son routeur est déployé mais non testé
+(il faudrait un compte non administrateur). La version lite
+(`/ui/admin/lite/sap.html`) ne charge aucune page, avec ou sans correction :
+son routeur appelle `readExtProjectCookie()`, fonction absente de son
+`general-functions.js` (défaut d'origine, identique en v4.0). Non corrigé.
+
+**Déploiement** : en place sur `eostat-12m` ; originaux sauvegardés dans
+`~/web-fixes/router.ui.js.orig`, `router.admin.js.orig` et
+`router.lite.js.orig`. Retour arrière :
+
+```
+S=/usr/share/sen2agri/sen2agri-services/static
+sudo cp ~/web-fixes/router.ui.js.orig $S/assets/dist/js/router.js
+sudo cp ~/web-fixes/router.admin.js.orig $S/admin/assets/dist/js/router.js
+sudo cp ~/web-fixes/router.lite.js.orig $S/admin/lite/assets/dist/js/router.js
+```

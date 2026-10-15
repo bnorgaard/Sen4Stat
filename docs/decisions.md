@@ -190,4 +190,10 @@ Journal : [B-corrections.md](B-corrections.md).
 
 - 15/10/2026, **B4** (minuteurs de Monitoring) : corrigée, testée et laissée en
   place sur `eostat-12m`. 0 requête fantôme au lieu de 6 en 13 s.
+- 15/10/2026, **B1** (cache des scripts des fragments) : corrigée dans les
+  trois routeurs, testée et laissée en place sur `eostat-12m`. Hors
+  `/rois/countries`, environ 0,4 Mo transférés au lieu d'environ 8,8 Mo sur
+  les 8 pages. B3 (Dashboard) devient le principal point bloquant.
+- Constat : la version lite du front ne fonctionne pas, dès la v4.0
+  d'origine (`readExtProjectCookie` absente). Non corrigé.
 
